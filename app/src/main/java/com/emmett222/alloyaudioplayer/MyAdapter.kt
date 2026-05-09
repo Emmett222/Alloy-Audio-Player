@@ -1,6 +1,9 @@
 package com.emmett222.alloyaudioplayer
 
 import android.content.Context
+import android.content.Intent
+import android.media.MediaPlayer
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +14,25 @@ import java.io.File
 
 class MyAdapter(val context: Context, var files: Array<File>) :
     RecyclerView.Adapter<MyAdapter.ViewHolder>() {
+
+    companion object {
+        var mediaPlayer: MediaPlayer? = null
+
+        // Call this function when a file is tapped
+        fun playAudio(file: File) {
+            mediaPlayer?.let {
+                if (it.isPlaying) {
+                    it.stop()
+                }
+                it.release()
+            }
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(file.path)
+                prepare()
+                start()
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // Ensure R.layout.recycler_item actually exists in your res/layout folder
@@ -27,6 +49,18 @@ class MyAdapter(val context: Context, var files: Array<File>) :
             holder.imageView.setImageResource(R.drawable.baseline_folder_24) // Use your actual drawable name
         } else {
             holder.imageView.setImageResource(R.drawable.baseline_audio_file_24)
+        }
+
+        holder.itemView.setOnClickListener() {
+            if (selectedFile.isDirectory) {
+                var intent: Intent = Intent(context, FileListActivity::class.java)
+                var path: String = selectedFile.absolutePath
+                intent.putExtra("path", path)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
+            } else {
+                MyAdapter.playAudio(selectedFile)
+            }
         }
     }
 
