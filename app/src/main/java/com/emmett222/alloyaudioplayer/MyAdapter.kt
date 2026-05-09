@@ -1,11 +1,12 @@
+package com.emmett222.alloyaudioplayer
+
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ListView
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.emmett222.alloyaudioplayer.R
 import java.io.File
 
 class MyAdapter(val context: Context, var files: Array<File>) :
@@ -23,9 +24,9 @@ class MyAdapter(val context: Context, var files: Array<File>) :
 
         // Optional: Handle icon logic here
         if (selectedFile.isDirectory) {
-            holder.imageView.setImageResource(R.drawable.ic_folder) // Use your actual drawable name
+            holder.imageView.setImageResource(R.drawable.baseline_folder_24) // Use your actual drawable name
         } else {
-            holder.imageView.setImageResource(R.drawable.ic_file)
+            holder.imageView.setImageResource(R.drawable.baseline_audio_file_24)
         }
     }
 

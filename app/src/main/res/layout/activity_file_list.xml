@@ -8,18 +8,18 @@
     tools:context=".FileListActivity">
 
     <TextView
-        android:id="@+id/file_title"
+        android:id="@+id/nofiles_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="File Name"
+        android:text="NO FILES FOUND"
+        android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
         android:layout_width="409dp"
         android:layout_height="729dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/file_title" />
+        app:layout_constraintTop_toTopOf="@+id/nofiles_textview" />
 </androidx.constraintlayout.widget.ConstraintLayout>

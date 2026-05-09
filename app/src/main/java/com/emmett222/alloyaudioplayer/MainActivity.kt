@@ -64,4 +64,23 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == 111) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // SUCCESS: The user clicked allow! Now we can start the activity.
+                val intent = Intent(this, FileListActivity::class.java)
+                startActivity(intent)
+            } else {
+                // FAIL: User denied permission
+                Toast.makeText(this, "Permission denied. Cannot read music.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }
