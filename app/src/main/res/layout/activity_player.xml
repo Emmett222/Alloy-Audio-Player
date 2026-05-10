@@ -9,10 +9,15 @@
 
     <TextView
         android:id="@+id/titleString"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="176dp"
+        android:layout_width="338dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="32dp"
         android:layout_marginBottom="16dp"
+        android:ellipsize="marquee"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
         android:text="Song Title"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHeight_percent="0.5"

@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import org.w3c.dom.Text
 import java.io.File
 
 class PlayerActivity : AppCompatActivity() {
@@ -65,10 +66,15 @@ class PlayerActivity : AppCompatActivity() {
             insets
         }
 
+
         this.audioFile = File(intent.getStringExtra("path"))
 
         var titleString: TextView = findViewById(R.id.titleString)
         titleString.text = audioFile?.name
+
+        titleString.postDelayed({
+            titleString.isSelected = true // So the marquee starts on load,
+        }, 2000) // But waits two seconds before moving.
 
         var playBtn: ImageButton = findViewById(R.id.playBtn)
 
