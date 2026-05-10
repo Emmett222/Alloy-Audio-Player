@@ -15,24 +15,7 @@ import java.io.File
 class MyAdapter(val context: Context, var files: Array<File>) :
     RecyclerView.Adapter<MyAdapter.ViewHolder>() {
 
-    companion object {
-        var mediaPlayer: MediaPlayer? = null
 
-        // Call this function when a file is tapped
-        fun playAudio(file: File) {
-            mediaPlayer?.let {
-                if (it.isPlaying) {
-                    it.stop()
-                }
-                it.release()
-            }
-            mediaPlayer = MediaPlayer().apply {
-                setDataSource(file.path)
-                prepare()
-                start()
-            }
-        }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // Ensure R.layout.recycler_item actually exists in your res/layout folder
@@ -59,7 +42,11 @@ class MyAdapter(val context: Context, var files: Array<File>) :
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
             } else {
-                MyAdapter.playAudio(selectedFile)
+                var intent: Intent = Intent(context, PlayerActivity::class.java)
+                var path: String = selectedFile.path
+                intent.putExtra("path", path)
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intent)
             }
         }
     }
