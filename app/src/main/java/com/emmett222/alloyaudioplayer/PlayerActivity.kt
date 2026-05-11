@@ -87,6 +87,7 @@ class PlayerActivity : AppCompatActivity() {
         setupTitle()
         setupTime()
         setupPauseBtn()
+        setupFastBtns()
         setupRepeatBtn()
 
         isStart = false;
@@ -145,6 +146,24 @@ class PlayerActivity : AppCompatActivity() {
                 playBtn.setImageResource(R.drawable.pause_24px)
                 handler.post(updater)
             }
+        }
+    }
+
+    /**
+     * Helper method to setup the fast forward and fast rewind buttons.
+     */
+    private fun setupFastBtns() {
+        var ffBtn: ImageButton = findViewById(R.id.fastForward)
+        var frBtn: ImageButton = findViewById(R.id.fastRewind)
+
+        ffBtn.setOnClickListener {
+            // Go forward 1 minute.
+            seek(PlayerActivity.mediaPlayer.currentPosition + 60000)
+        }
+
+        frBtn.setOnClickListener {
+            // Rewind 1 minute.
+            seek(PlayerActivity.mediaPlayer.currentPosition - 60000)
         }
     }
 
