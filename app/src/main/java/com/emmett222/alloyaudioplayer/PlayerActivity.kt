@@ -1,16 +1,11 @@
 package com.emmett222.alloyaudioplayer
 
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
-import android.provider.MediaStore
-import android.view.View
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
@@ -18,10 +13,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.emmett222.alloyaudioplayer.PlayerActivity
-import org.w3c.dom.Text
 import java.io.File
 
+/**
+ * Player screen for Alloy Audio Player.
+ *
+ * @author Emmett Grebe
+ * @version 5-11-2026
+ */
 class PlayerActivity : AppCompatActivity() {
 
     lateinit var audioFile: File
@@ -84,6 +83,7 @@ class PlayerActivity : AppCompatActivity() {
         this.audioFile = File(intent.getStringExtra("path"))
         PlayerActivity.play(audioFile)
 
+        // All the setups.
         setupTitle()
         setupTime()
         setupPauseBtn()
@@ -103,22 +103,26 @@ class PlayerActivity : AppCompatActivity() {
         seekBar.min = 0
         seekBar.max = duration
         endText.text = formatMinutesAndSeconds(duration)
-        updater = Runnable {
+        updater = Runnable { // A runnable is just a group of code waiting to be executed.
             seekBar.progress = PlayerActivity.mediaPlayer.currentPosition
 
             changeTime(PlayerActivity.mediaPlayer.currentPosition)
 
-            handler.postDelayed(updater, 200)
+            handler.postDelayed(updater, 200) // Makes it loop.
         }
         handler.post(updater)
+
+        // OnSeekBarChangeListener is like an interface. If you want to listen to seekbar, you must
+        // do all 3 methods.
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            // Called whenever the seekbar is changed.
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) { // ONLY seek if the user touched it, not the system
                     PlayerActivity.seek(progress)
                     changeTime(progress)
                 }
             }
-
+            // Unused methods.
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
@@ -193,7 +197,7 @@ class PlayerActivity : AppCompatActivity() {
         var titleString: TextView = findViewById(R.id.titleString)
         titleString.text = audioFile.name
 
-        titleString.postDelayed({
+        titleString.postDelayed({ // Only fires when the title is loaded.
             titleString.isSelected = true // So the marquee starts on load,
         }, 2000) // But waits two seconds before moving.
     }
@@ -209,12 +213,14 @@ class PlayerActivity : AppCompatActivity() {
 
     /**
      * Format milliseconds to minutes and seconds.
-     *
+     * @param m Time in milliseconds.
+     * @return String of the time in the format of x:xx.
      */
     fun formatMinutesAndSeconds(m: Int): String {
         val minutes = (m / 1000) / 60
         val seconds = (m / 1000) % 60
 
+        // Formats to x:xx.
         return String.format("%d:%02d", minutes, seconds)
     }
 }
