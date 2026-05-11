@@ -15,7 +15,7 @@ import java.io.File
 class MyAdapter(val context: Context, var files: Array<File>) :
     RecyclerView.Adapter<MyAdapter.ViewHolder>() {
 
-
+    var previousAudio: String? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // Ensure R.layout.recycler_item actually exists in your res/layout folder
@@ -46,6 +46,10 @@ class MyAdapter(val context: Context, var files: Array<File>) :
                 var path: String = selectedFile.path
                 intent.putExtra("path", path)
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                if (path != previousAudio) {
+                    PlayerActivity.mediaPlayer.reset()
+                }
+                previousAudio = path
                 context.startActivity(intent)
             }
         }
