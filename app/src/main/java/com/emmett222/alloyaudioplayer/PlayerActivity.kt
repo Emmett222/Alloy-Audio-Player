@@ -4,6 +4,8 @@ import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Button
@@ -20,8 +22,11 @@ import java.io.File
 
 class PlayerActivity : AppCompatActivity() {
 
-    var audioFile: File? = null
+    lateinit var audioFile: File
     var isStart: Boolean = true;
+
+    private val handler = Handler(Looper.getMainLooper())
+    private lateinit var updater: Runnable
 
     companion object {
         var mediaPlayer: MediaPlayer = MediaPlayer()
@@ -47,7 +52,8 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         fun seek(time: Int) {
-            mediaPlayer.seekTo(time)
+            // Regular seekTo jumps back a few seconds. This makes it go to the right time.
+            mediaPlayer.seekTo(time.toLong(), MediaPlayer.SEEK_CLOSEST)
         }
     }
 
@@ -67,34 +73,31 @@ class PlayerActivity : AppCompatActivity() {
         this.audioFile = File(intent.getStringExtra("path"))
         PlayerActivity.play(audioFile)
 
-        var titleString: TextView = findViewById(R.id.titleString)
-        titleString.text = audioFile?.name
+        setupTitle()
+        setupTime()
+        setupPauseBtn()
 
-        titleString.postDelayed({
-            titleString.isSelected = true // So the marquee starts on load,
-        }, 2000) // But waits two seconds before moving.
+        isStart = false;
+    }
 
-        // Time stuff
+    /**
+     * Helper method to setup the time views on load.
+     */
+    private fun setupTime() {
         var duration: Int = PlayerActivity.mediaPlayer.duration
-        var timeSeekBar: SeekBar = findViewById(R.id.timeSeekBar)
         var endText: TextView = findViewById(R.id.endNum)
-        timeSeekBar.min = 0
-        timeSeekBar.max = duration
-        changeTime(0)
-        endText.text = formatMinutesAndSeconds(duration)
-
-        var playBtn: ImageButton = findViewById(R.id.playBtn)
-        playBtn.setOnClickListener {
-            if (PlayerActivity.mediaPlayer?.isPlaying == true) {
-                PlayerActivity.pause()
-                playBtn.setImageResource(R.drawable.play_arrow_24px)
-            } else {
-                PlayerActivity.unPause()
-                playBtn.setImageResource(R.drawable.pause_24px)
-            }
-        }
-
         var seekBar: SeekBar = findViewById(R.id.timeSeekBar)
+        seekBar.min = 0
+        seekBar.max = duration
+        endText.text = formatMinutesAndSeconds(duration)
+        updater = Runnable {
+            seekBar.progress = PlayerActivity.mediaPlayer.currentPosition
+
+            changeTime(PlayerActivity.mediaPlayer.currentPosition)
+
+            handler.postDelayed(updater, 200)
+        }
+        handler.post(updater)
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) { // ONLY seek if the user touched it, not the system
@@ -107,9 +110,42 @@ class PlayerActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
+        // This is to fix the timer going further than the song length.
+        // It fires when the song is over.
+        PlayerActivity.mediaPlayer.setOnCompletionListener {
+            handler.removeCallbacks(updater)
+            seekBar.progress = seekBar.max
+        }
+    }
 
+    /**
+     * Helper method to setup the pause button on load.
+     */
+    private fun setupPauseBtn() {
+        var playBtn: ImageButton = findViewById(R.id.playBtn)
+        playBtn.setOnClickListener {
+            if (PlayerActivity.mediaPlayer.isPlaying == true) {
+                PlayerActivity.pause()
+                playBtn.setImageResource(R.drawable.play_arrow_24px)
+                handler.removeCallbacks(updater)
+            } else {
+                PlayerActivity.unPause()
+                playBtn.setImageResource(R.drawable.pause_24px)
+                handler.post(updater)
+            }
+        }
+    }
 
-        isStart = false;
+    /**
+     * Helper method to setup scrolling title on load.
+     */
+    private fun setupTitle() {
+        var titleString: TextView = findViewById(R.id.titleString)
+        titleString.text = audioFile.name
+
+        titleString.postDelayed({
+            titleString.isSelected = true // So the marquee starts on load,
+        }, 2000) // But waits two seconds before moving.
     }
 
     /**
