@@ -1,6 +1,8 @@
 package com.emmett222.alloyaudioplayer
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Environment
@@ -24,6 +26,7 @@ class PlayerActivity : AppCompatActivity() {
 
     lateinit var audioFile: File
     var isStart: Boolean = true;
+    var repeatOn: Boolean = false;
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var updater: Runnable
@@ -55,6 +58,14 @@ class PlayerActivity : AppCompatActivity() {
             // Regular seekTo jumps back a few seconds. This makes it go to the right time.
             mediaPlayer.seekTo(time.toLong(), MediaPlayer.SEEK_CLOSEST)
         }
+
+        fun turnOnRepeat() {
+            mediaPlayer.isLooping = true
+        }
+
+        fun turnOffRepeat() {
+            mediaPlayer.isLooping = false
+        }
     }
 
     /**
@@ -76,6 +87,7 @@ class PlayerActivity : AppCompatActivity() {
         setupTitle()
         setupTime()
         setupPauseBtn()
+        setupRepeatBtn()
 
         isStart = false;
     }
@@ -132,6 +144,25 @@ class PlayerActivity : AppCompatActivity() {
                 PlayerActivity.unPause()
                 playBtn.setImageResource(R.drawable.pause_24px)
                 handler.post(updater)
+            }
+        }
+    }
+
+    /**
+     * Helper method to setup the repeat button on load.
+     */
+    private fun setupRepeatBtn() {
+        var repeatBtn: ImageButton = findViewById(R.id.repeatBtn)
+        PlayerActivity.turnOffRepeat()
+        repeatBtn.setOnClickListener {
+            if (repeatOn) {
+                PlayerActivity.turnOffRepeat()
+                repeatBtn.backgroundTintList = ColorStateList.valueOf(Color.RED)
+                repeatOn = false;
+            } else {
+                PlayerActivity.turnOnRepeat()
+                repeatBtn.backgroundTintList = ColorStateList.valueOf(Color.GREEN)
+                repeatOn = true;
             }
         }
     }
