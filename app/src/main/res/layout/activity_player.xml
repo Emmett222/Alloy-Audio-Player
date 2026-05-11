@@ -5,7 +5,9 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PlayerActivity">
+    tools:context=".PlayerActivity"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="-15dp">
 
     <TextView
         android:id="@+id/titleString"
@@ -30,7 +32,6 @@
         android:layout_height="64dp"
         android:layout_marginStart="172dp"
         android:layout_marginBottom="64dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/pause_24px"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -39,8 +40,8 @@
         android:id="@+id/timeSeekBar"
         android:layout_width="309dp"
         android:layout_height="18dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginBottom="125dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginBottom="136dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -48,8 +49,8 @@
         android:id="@+id/currentNum"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
-        android:layout_marginBottom="104dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginBottom="116dp"
         android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -59,7 +60,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="52dp"
-        android:layout_marginBottom="104dp"
+        android:layout_marginBottom="116dp"
         android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -68,10 +69,30 @@
         android:id="@+id/repeatBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="52dp"
-        android:layout_marginBottom="60dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="72dp"
         android:backgroundTint="#FF0000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/repeat_24px" />
+
+    <ImageButton
+        android:id="@+id/fastForward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="128dp"
+        android:layout_marginBottom="72dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/fast_forward_24px" />
+
+    <ImageButton
+        android:id="@+id/fastRewind"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="124dp"
+        android:layout_marginBottom="72dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/fast_rewind_24px" />
 </androidx.constraintlayout.widget.ConstraintLayout>
