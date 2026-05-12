@@ -4,7 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:padding="10dp"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_tile"
+    android:maxHeight="50dp"
+    >
     
     <ImageView
         android:layout_width="36dp"
@@ -18,7 +21,7 @@
         android:id="@+id/file_name_text_view"
         android:layout_toEndOf="@id/icon_view"
         android:padding="10dp"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         tools:text="Documents"/>
     
     <LinearLayout

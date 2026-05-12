@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PlayerActivity">
+    tools:context=".PlayerActivity"
+    android:background="@drawable/background4">
 
     <TextView
         android:id="@+id/titleString"
@@ -22,7 +23,10 @@
         android:text="Song Title"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:fontFamily="sans-serif-smallcaps"
+        android:textColor="#00ff00"
+        android:background="#0d380c"/>
 
     <!-- 1. Center the Play Button -->
     <ImageButton
@@ -30,21 +34,45 @@
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginBottom="64dp"
-        android:src="@drawable/notification_pause"
+        android:src="@drawable/pause"
+        android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
+        android:scaleType="centerCrop"
+        android:hapticFeedbackEnabled="true"/>
 
-    <SeekBar
-        android:id="@+id/timeSeekBar"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="0dp"
-        android:layout_height="18dp"
+        android:layout_height="24dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="136dp"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:strokeColor="#FFFF00"
+        app:strokeWidth="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/background" />
+
+        <SeekBar
+            android:id="@+id/timeSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@android:color/transparent"
+            android:splitTrack="false"
+            android:thumbOffset="8dp" />
+    </com.google.android.material.card.MaterialCardView>
 
     <TextView
         android:id="@+id/currentNum"
@@ -54,7 +82,10 @@
         android:layout_marginBottom="116dp"
         android:text="0:00"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:fontFamily="sans-serif-smallcaps"
+        android:textColor="#00ff00"
+        android:background="#0d380c"/>
 
     <TextView
         android:id="@+id/endNum"
@@ -64,7 +95,10 @@
         android:layout_marginBottom="116dp"
         android:text="0:00"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="sans-serif-smallcaps"
+        android:textColor="#00ff00"
+        android:background="#0d380c"/>
 
     <!-- 2. Fast Forward: Start is now anchored to Play Button's End -->
     <ImageButton
@@ -75,7 +109,8 @@
         android:layout_marginBottom="72dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/playBtn"
-        app:srcCompat="@drawable/fast_forward_24px" />
+        app:srcCompat="@drawable/fast_forward_24px"
+        android:hapticFeedbackEnabled="true"/>
 
     <!-- 3. Fast Rewind: End is now anchored to Play Button's Start -->
     <ImageButton
@@ -86,7 +121,8 @@
         android:layout_marginBottom="72dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/playBtn"
-        app:srcCompat="@drawable/fast_rewind_24px" />
+        app:srcCompat="@drawable/fast_rewind_24px"
+        android:hapticFeedbackEnabled="true"/>
 
     <ImageButton
         android:id="@+id/repeatBtn"
@@ -97,6 +133,7 @@
         android:backgroundTint="#FF0000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/repeat_24px" />
+        app:srcCompat="@drawable/repeat_24px"
+        android:hapticFeedbackEnabled="true"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

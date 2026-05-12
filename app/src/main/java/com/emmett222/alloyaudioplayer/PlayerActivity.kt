@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.HapticFeedbackConstants
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
@@ -172,13 +173,14 @@ class PlayerActivity : AppCompatActivity() {
         playBtn.setOnClickListener {
             if (controller.isPlaying == true) {
                 controller.pause()
-                playBtn.setImageResource(R.drawable.notification_play)
+                playBtn.setImageResource(R.drawable.play)
                 handler.removeCallbacks(updater)
             } else {
                 controller.play()
-                playBtn.setImageResource(R.drawable.notification_pause)
+                playBtn.setImageResource(R.drawable.pause)
                 handler.post(updater)
             }
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
 
@@ -192,11 +194,13 @@ class PlayerActivity : AppCompatActivity() {
         ffBtn.setOnClickListener {
             // Go forward 1 minute.
             controller.seekTo(controller.currentPosition + 60000)
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
 
         frBtn.setOnClickListener {
             // Rewind 1 minute.
             controller.seekTo(controller.currentPosition - 60000)
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
 
@@ -216,6 +220,7 @@ class PlayerActivity : AppCompatActivity() {
                 repeatBtn.backgroundTintList = ColorStateList.valueOf(Color.GREEN)
                 repeatOn = true;
             }
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
 
