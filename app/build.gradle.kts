@@ -39,6 +39,12 @@ android {
 }
 
 dependencies {
+    val media3Version = "1.2.1" // Use the latest stable version
+
+    implementation("androidx.media3:media3-session:$media3Version")
+    implementation("androidx.media3:media3-exoplayer:$media3Version")
+    implementation("androidx.media3:media3-ui:$media3Version")
+
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)

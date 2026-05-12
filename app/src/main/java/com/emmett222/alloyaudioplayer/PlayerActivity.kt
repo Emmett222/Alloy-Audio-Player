@@ -1,8 +1,10 @@
 package com.emmett222.alloyaudioplayer
 
+import android.content.ComponentName
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.media.MediaPlayer
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -11,9 +13,17 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
+import androidx.media3.session.MediaController
+import androidx.media3.session.SessionToken
+import com.emmett222.alloyaudioplayer.Background.MediaEngine
 import java.io.File
+import androidx.core.net.toUri
 
 /**
  * Player screen for Alloy Audio Player.
@@ -24,48 +34,12 @@ import java.io.File
 class PlayerActivity : AppCompatActivity() {
 
     lateinit var audioFile: File
+    lateinit var controller: MediaController
     var isStart: Boolean = true;
     var repeatOn: Boolean = false;
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var updater: Runnable
-
-    companion object {
-        var mediaPlayer: MediaPlayer = MediaPlayer()
-
-        fun play(file: File?) {
-            mediaPlayer.let {
-                if (!it.isPlaying) {
-                    mediaPlayer.apply {
-                        setDataSource(file?.path)
-                        prepare()
-                        start()
-                    }
-                }
-            }
-        }
-
-        fun pause() {
-            mediaPlayer.pause()
-        }
-
-        fun unPause() {
-            mediaPlayer.start()
-        }
-
-        fun seek(time: Int) {
-            // Regular seekTo jumps back a few seconds. This makes it go to the right time.
-            mediaPlayer.seekTo(time.toLong(), MediaPlayer.SEEK_CLOSEST)
-        }
-
-        fun turnOnRepeat() {
-            mediaPlayer.isLooping = true
-        }
-
-        fun turnOffRepeat() {
-            mediaPlayer.isLooping = false
-        }
-    }
 
     /**
      * Runs on opening the view.
@@ -81,36 +55,98 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         this.audioFile = File(intent.getStringExtra("path"))
-        PlayerActivity.play(audioFile)
 
-        // All the setups.
-        setupTitle()
-        setupTime()
-        setupPauseBtn()
-        setupFastBtns()
-        setupRepeatBtn()
+        // This token is needed to connect to the service.
+        val sessionToken = SessionToken(this, ComponentName(this, MediaEngine::class.java))
+        // Why use a future? Because we need to wait for it to build.
+        val controllerFuture = MediaController.Builder(this, sessionToken)
+            .setConnectionHints(Bundle().apply {
+                putBoolean("IS_GUI", true) // The secret password
+            })
+            .buildAsync()
+
+        controllerFuture.addListener({
+            // THIS CODE RUNS ONLY WHEN CONNECTED
+            controller = controllerFuture.get()
+
+            setupControllerFile()
+            setupTitle()
+            setupTime()
+            setupPauseBtn()
+            setupFastBtns()
+            setupRepeatBtn()
+
+        }, ContextCompat.getMainExecutor(this))
 
         isStart = false;
+    }
+
+    private fun setupControllerFile() {
+        val retriever = MediaMetadataRetriever()
+        var artistName = "Unknown Artist"
+
+        try {
+            retriever.setDataSource(audioFile.absolutePath)
+            artistName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: "Unknown Artist"
+        } catch (e: Exception) {
+            // Log error or handle missing file
+        } finally {
+            retriever.release()
+        }
+
+        val mediaItemWithMetadata =
+            MediaItem.Builder().setUri(Uri.fromFile(audioFile)).setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(audioFile.name)
+                        .setArtist(artistName)
+                        .setArtworkUri("android.resource://com.emmett222.alloyaudioplayer/drawable/background".toUri())
+                        .build()
+                ).build()
+
+        controller.setMediaItem(mediaItemWithMetadata)
+        controller.prepare()
+        controller.play()
     }
 
     /**
      * Helper method to setup the time views on load.
      */
     private fun setupTime() {
-        var duration: Int = PlayerActivity.mediaPlayer.duration
-        var endText: TextView = findViewById(R.id.endNum)
-        var seekBar: SeekBar = findViewById(R.id.timeSeekBar)
-        seekBar.min = 0
-        seekBar.max = duration
-        endText.text = formatMinutesAndSeconds(duration)
-        updater = Runnable { // A runnable is just a group of code waiting to be executed.
-            seekBar.progress = PlayerActivity.mediaPlayer.currentPosition
+        val endText: TextView = findViewById(R.id.endNum)
+        val seekBar: SeekBar = findViewById(R.id.timeSeekBar)
 
-            changeTime(PlayerActivity.mediaPlayer.currentPosition)
+        // 1. Define the listener
+        val playerListener = object : Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                when (playbackState) {
+                    Player.STATE_READY -> {
+                        // THE GATE IS OPEN: The player has loaded the file
+                        val duration = controller.duration.toInt()
 
-            handler.postDelayed(updater, 200) // Makes it loop.
+                        // Now it is safe to set these
+                        seekBar.max = duration
+                        endText.text = formatMinutesAndSeconds(duration)
+
+                        // Start the UI updater loop now that we have a max
+                        handler.post(updater)
+                    }
+
+                    Player.STATE_ENDED -> {
+                        handler.removeCallbacks(updater)
+                    }
+                }
+            }
         }
-        handler.post(updater)
+
+        controller.addListener(playerListener)
+
+        updater = Runnable {
+            val currentPos = controller.currentPosition.toInt()
+            seekBar.progress = currentPos
+            changeTime(currentPos)
+
+            handler.postDelayed(updater, 500)
+        }
 
         // OnSeekBarChangeListener is like an interface. If you want to listen to seekbar, you must
         // do all 3 methods.
@@ -118,7 +154,7 @@ class PlayerActivity : AppCompatActivity() {
             // Called whenever the seekbar is changed.
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) { // ONLY seek if the user touched it, not the system
-                    PlayerActivity.seek(progress)
+                    controller.seekTo(progress.toLong())
                     changeTime(progress)
                 }
             }
@@ -126,13 +162,6 @@ class PlayerActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
-
-        // This is to fix the timer going further than the song length.
-        // It fires when the song is over.
-        PlayerActivity.mediaPlayer.setOnCompletionListener {
-            handler.removeCallbacks(updater)
-            seekBar.progress = seekBar.max
-        }
     }
 
     /**
@@ -141,13 +170,13 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupPauseBtn() {
         var playBtn: ImageButton = findViewById(R.id.playBtn)
         playBtn.setOnClickListener {
-            if (PlayerActivity.mediaPlayer.isPlaying == true) {
-                PlayerActivity.pause()
-                playBtn.setImageResource(R.drawable.play_arrow_24px)
+            if (controller.isPlaying == true) {
+                controller.pause()
+                playBtn.setImageResource(R.drawable.notification_play)
                 handler.removeCallbacks(updater)
             } else {
-                PlayerActivity.unPause()
-                playBtn.setImageResource(R.drawable.pause_24px)
+                controller.play()
+                playBtn.setImageResource(R.drawable.notification_pause)
                 handler.post(updater)
             }
         }
@@ -162,12 +191,12 @@ class PlayerActivity : AppCompatActivity() {
 
         ffBtn.setOnClickListener {
             // Go forward 1 minute.
-            seek(PlayerActivity.mediaPlayer.currentPosition + 60000)
+            controller.seekTo(controller.currentPosition + 60000)
         }
 
         frBtn.setOnClickListener {
             // Rewind 1 minute.
-            seek(PlayerActivity.mediaPlayer.currentPosition - 60000)
+            controller.seekTo(controller.currentPosition - 60000)
         }
     }
 
@@ -176,14 +205,14 @@ class PlayerActivity : AppCompatActivity() {
      */
     private fun setupRepeatBtn() {
         var repeatBtn: ImageButton = findViewById(R.id.repeatBtn)
-        PlayerActivity.turnOffRepeat()
+        Player.REPEAT_MODE_OFF;
         repeatBtn.setOnClickListener {
-            if (repeatOn) {
-                PlayerActivity.turnOffRepeat()
+            if (controller.repeatMode == Player.REPEAT_MODE_ONE) {
+                controller.repeatMode = Player.REPEAT_MODE_OFF;
                 repeatBtn.backgroundTintList = ColorStateList.valueOf(Color.RED)
                 repeatOn = false;
             } else {
-                PlayerActivity.turnOnRepeat()
+                controller.repeatMode = Player.REPEAT_MODE_ONE;
                 repeatBtn.backgroundTintList = ColorStateList.valueOf(Color.GREEN)
                 repeatOn = true;
             }
