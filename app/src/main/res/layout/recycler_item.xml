@@ -8,7 +8,7 @@
     android:background="@drawable/background_tile"
     android:maxHeight="50dp"
     >
-    
+
     <ImageView
         android:layout_width="36dp"
         android:layout_height="36dp"
@@ -16,19 +16,29 @@
         android:id="@+id/icon_view"/>
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:id="@+id/file_name_text_view"
+        android:layout_width="296dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="10dp"
         android:layout_toEndOf="@id/icon_view"
-        android:padding="10dp"
-        android:textColor="@color/white"
-        tools:text="Documents"/>
-    
+        android:background="#0d380c"
+        android:ellipsize="marquee"
+        android:fontFamily="sans-serif-smallcaps"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:textColor="#00ff00"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        tools:text="Documents" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="2dp"
+        android:layout_below="@id/file_name_text_view"
+        android:layout_marginTop="13dp"
         android:background="@color/cardview_shadow_start_color"
-        android:layout_below="@id/file_name_text_view"/>
+        android:padding="10dp" />
 
 </RelativeLayout>

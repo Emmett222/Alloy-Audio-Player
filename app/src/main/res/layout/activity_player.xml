@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".PlayerActivity"
-    android:background="@drawable/background4">
+    android:background="@drawable/background6">
 
     <TextView
         android:id="@+id/titleString"
@@ -28,20 +28,74 @@
         android:textColor="#00ff00"
         android:background="#0d380c"/>
 
-    <!-- 1. Center the Play Button -->
     <ImageButton
         android:id="@+id/playBtn"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_marginBottom="64dp"
-        android:src="@drawable/pause"
+        android:layout_marginBottom="44dp"
         android:background="@android:color/transparent"
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/pause"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
+        app:shapeAppearanceOverlay="@style/CircleShapeAppearance" />
+
+    <ImageButton
+        android:id="@+id/fastRewind"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="44dp"
+        android:background="@android:color/transparent"
+        android:hapticFeedbackEnabled="true"
         android:scaleType="centerCrop"
-        android:hapticFeedbackEnabled="true"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/playBtn"
+        app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
+        app:srcCompat="@drawable/fr" />
+
+    <ImageButton
+        android:id="@+id/fastRewind2"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="76dp"
+        android:layout_marginBottom="44dp"
+        android:background="@android:color/transparent"
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/playBtn"
+        app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
+        app:srcCompat="@drawable/skipb" />
+
+    <ImageButton
+        android:id="@+id/fastForward"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="44dp"
+        android:background="@android:color/transparent"
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/playBtn"
+        app:srcCompat="@drawable/ff" />
+
+    <ImageButton
+        android:id="@+id/fastForward2"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="76dp"
+        android:layout_marginBottom="44dp"
+        android:background="@android:color/transparent"
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/playBtn"
+        app:srcCompat="@drawable/skipf" />
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="0dp"
@@ -52,7 +106,7 @@
         app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="8dp"
         app:cardElevation="0dp"
-        app:strokeColor="#FFFF00"
+        app:strokeColor="#cfdb5e"
         app:strokeWidth="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -71,7 +125,8 @@
             android:layout_gravity="center"
             android:background="@android:color/transparent"
             android:splitTrack="false"
-            android:thumbOffset="8dp" />
+            android:thumbOffset="0dp"
+            android:thumb="@drawable/seekbar_knob"/>
     </com.google.android.material.card.MaterialCardView>
 
     <TextView
@@ -100,40 +155,48 @@
         android:textColor="#00ff00"
         android:background="#0d380c"/>
 
-    <!-- 2. Fast Forward: Start is now anchored to Play Button's End -->
-    <ImageButton
-        android:id="@+id/fastForward"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginBottom="72dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/playBtn"
-        app:srcCompat="@drawable/fast_forward_24px"
-        android:hapticFeedbackEnabled="true"/>
-
-    <!-- 3. Fast Rewind: End is now anchored to Play Button's Start -->
-    <ImageButton
-        android:id="@+id/fastRewind"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="72dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/playBtn"
-        app:srcCompat="@drawable/fast_rewind_24px"
-        android:hapticFeedbackEnabled="true"/>
-
     <ImageButton
         android:id="@+id/repeatBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="72dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="68dp"
+        android:layout_marginBottom="168dp"
         android:backgroundTint="#FF0000"
+        android:hapticFeedbackEnabled="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/repeat_24px"
-        android:hapticFeedbackEnabled="true"/>
+        app:srcCompat="@drawable/repeatplaylistoff"
+        android:scaleType="centerCrop"
+        android:background="@android:color/transparent"/>
+
+    <ImageButton
+        android:id="@+id/shuffleBtn"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginBottom="168dp"
+        android:backgroundTint="#FF0000"
+        android:hapticFeedbackEnabled="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/shuffleoff"
+        android:scaleType="centerCrop"
+        android:background="@android:color/transparent"
+        />
+
+    <ImageButton
+        android:id="@+id/repeatOneBtn"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="68dp"
+        android:layout_marginBottom="168dp"
+        android:backgroundTint="#FF0000"
+        android:hapticFeedbackEnabled="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/repeat1off"
+        android:scaleType="centerCrop"
+        android:background="@android:color/transparent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

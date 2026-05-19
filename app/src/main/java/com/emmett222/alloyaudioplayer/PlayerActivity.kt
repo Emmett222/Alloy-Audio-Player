@@ -1,8 +1,6 @@
 package com.emmett222.alloyaudioplayer
 
 import android.content.ComponentName
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Bundle
@@ -30,14 +28,16 @@ import androidx.core.net.toUri
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 5-11-2026
+ * @version 5-19-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
     lateinit var audioFile: File
     lateinit var controller: MediaController
     var isStart: Boolean = true;
-    var repeatOn: Boolean = false;
+    var repeatOneOn: Boolean = false;
+    var shuffleOn: Boolean = false;
+    var repeatPlaylistOn: Boolean = false;
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var updater: Runnable
@@ -75,7 +75,9 @@ class PlayerActivity : AppCompatActivity() {
             setupTime()
             setupPauseBtn()
             setupFastBtns()
-            setupRepeatBtn()
+            setupRepeatOneBtn()
+            setupShuffleBtn()
+            setupRepeatPlaylistBtn()
 
         }, ContextCompat.getMainExecutor(this))
 
@@ -205,20 +207,56 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Helper method to setup the repeat button on load.
+     * Helper method to setup the repeat one button on load.
      */
-    private fun setupRepeatBtn() {
-        var repeatBtn: ImageButton = findViewById(R.id.repeatBtn)
+    private fun setupRepeatOneBtn() {
+        var repeatOneBtn: ImageButton = findViewById(R.id.repeatOneBtn)
         Player.REPEAT_MODE_OFF;
-        repeatBtn.setOnClickListener {
+        repeatOneBtn.setOnClickListener {
             if (controller.repeatMode == Player.REPEAT_MODE_ONE) {
                 controller.repeatMode = Player.REPEAT_MODE_OFF;
-                repeatBtn.backgroundTintList = ColorStateList.valueOf(Color.RED)
-                repeatOn = false;
+                repeatOneBtn.setImageResource(R.drawable.repeat1off)
+                repeatOneOn = false;
             } else {
                 controller.repeatMode = Player.REPEAT_MODE_ONE;
-                repeatBtn.backgroundTintList = ColorStateList.valueOf(Color.GREEN)
-                repeatOn = true;
+                repeatOneBtn.setImageResource(R.drawable.repeat1on)
+                repeatOneOn = true;
+            }
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+    }
+
+    /**
+     * Helper method to setup the shuffle button on load.
+     * Right now, shuffle does nothing until the playlists are made.
+     */
+    private fun setupShuffleBtn() {
+        var shuffleBtn: ImageButton = findViewById(R.id.shuffleBtn)
+        shuffleBtn.setOnClickListener {
+            if (shuffleOn) {
+                shuffleBtn.setImageResource(R.drawable.shuffleoff)
+                shuffleOn = false;
+            } else {
+                shuffleBtn.setImageResource(R.drawable.shuffleon)
+                shuffleOn = true;
+            }
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+    }
+
+    /**
+     * Helper method to setup the repeat playlist button on load.
+     * Right now, repeat playlist does nothing until the playlists are made.
+     */
+    private fun setupRepeatPlaylistBtn() {
+        var repeatPlaylistBtn: ImageButton = findViewById(R.id.repeatBtn)
+        repeatPlaylistBtn.setOnClickListener {
+            if (repeatPlaylistOn) {
+                repeatPlaylistBtn.setImageResource(R.drawable.repeatplaylistoff)
+                repeatPlaylistOn = false;
+            } else {
+                repeatPlaylistBtn.setImageResource(R.drawable.repeatplayliston)
+                repeatPlaylistOn = true;
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
