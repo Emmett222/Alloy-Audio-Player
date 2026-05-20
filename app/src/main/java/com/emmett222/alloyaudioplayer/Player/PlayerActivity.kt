@@ -38,7 +38,7 @@ class PlayerActivity : AppCompatActivity() {
 
     lateinit var audioFile: File
     lateinit var controller: MediaController
-    lateinit var vis: Visualizer
+    var vis: Visualizer? = null // Nullable for later safety check.
     var isStart: Boolean = true;
     var repeatOneOn: Boolean = false;
     var shuffleOn: Boolean = false;
@@ -90,6 +90,19 @@ class PlayerActivity : AppCompatActivity() {
         isStart = false;
     }
 
+    /**
+     * Runs when activity is ended. Kills the visualizer to avoid crashes.
+     */
+    override fun onDestroy() {
+        vis?.enabled = false
+        vis?.release()
+        vis = null
+        super.onDestroy()
+    }
+
+    /**
+     * Helper method to setup the controller.
+     */
     private fun setupControllerFile() {
         val retriever = MediaMetadataRetriever()
         var artistName = "Unknown Artist"
@@ -123,20 +136,32 @@ class PlayerActivity : AppCompatActivity() {
      */
     @OptIn(UnstableApi::class)
     private fun setupVisualizer() {
-        val permissionCheck = ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)
-        android.util.Log.d("VisualizerLink", "RECORD_AUDIO Permission status: ${permissionCheck == android.content.pm.PackageManager.PERMISSION_GRANTED}")
         val visualizerView = findViewById<VisualizerGraphic>(R.id.visScreen)
 
-        controller.addListener(object: Player.Listener {
+        var currentActiveSessionId = -1
+
+        controller.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 if (playbackState == Player.STATE_READY) {
                     val sessionId = controller.sessionExtras.getInt("AUDIO_SESSION_ID", 0)
-                    android.util.Log.d("VisualizerLink", "Found Session ID: $sessionId")
 
-                    if (sessionId > 0) { // Ignore system sessionId of 0.
-                        vis = Visualizer(sessionId)
-                        vis.captureSize = 1024
+                    // Guard: Only run with valid ID and it's from the running one.
+                    // This is so it doesn't crash when user seek ahead.
+                    if (sessionId > 0 && sessionId != currentActiveSessionId) {
 
+                        // Clean up.
+                        vis?.enabled = false
+                        vis?.release()
+                        vis = null
+
+                        // Making a new visualizer because we cannot directly alter vis. Kotlin
+                        // doesn't trust that vis will *stay* non-null between where we made it,
+                        // and where we alter it. Because of this, it will not compile.
+                        val newVis = Visualizer(sessionId)
+                        newVis.captureSize = 1024
+
+                        // Listens for changes on data change. Listens for waveform,
+                        // and data capture.
                         val captureListener: Visualizer.OnDataCaptureListener = object :
                             Visualizer.OnDataCaptureListener {
                             override fun onWaveFormDataCapture(
@@ -144,7 +169,6 @@ class PlayerActivity : AppCompatActivity() {
                                 waveform: ByteArray?,
                                 samplingRate: Int
                             ) {
-                                android.util.Log.d("VisualizerDebug", "Data received! Size: ${waveform?.size}")
                                 if (waveform != null) {
                                     visualizerView.updateWaveform(waveform)
                                 }
@@ -158,13 +182,15 @@ class PlayerActivity : AppCompatActivity() {
                                 // Unused for now.
                             }
                         }
-                        vis.setDataCaptureListener(
+                        newVis.setDataCaptureListener(
                             captureListener,
                             Visualizer.getMaxCaptureRate() / 2,
                             true,
                             false
                         )
-                        vis.enabled = true
+                        newVis.enabled = true
+                        vis = newVis
+                        currentActiveSessionId = sessionId // Mark session ID for guard later.
                     }
                 }
             }
