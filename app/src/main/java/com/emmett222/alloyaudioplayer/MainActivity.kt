@@ -8,12 +8,44 @@ import android.os.Environment
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
+import kotlin.arrayOf
 
+/**
+ * Opening screen for Alloy. Asks for permissions if needed and takes user to file screen.
+ *
+ * @author Emmett Grebe
+ * @version 5-20-2026
+ */
 class MainActivity : AppCompatActivity() {
+
+    // Make the callback before the activity is even started.
+    // Also, must register launchers before or during onCreate.
+    // Use it by calling .launch().
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val audioGranted = permissions[Manifest.permission.READ_MEDIA_AUDIO] ?: false
+        val recordGranted = permissions[Manifest.permission.RECORD_AUDIO] ?: false
+
+        if (audioGranted && recordGranted) {
+            openFileList()
+        } else {
+            Toast.makeText(
+                this,
+                "Both storage and audio permissions are required!",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    /**
+     * Runs on the activity appearing.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -22,46 +54,51 @@ class MainActivity : AppCompatActivity() {
 
         storageBtn.setOnClickListener {
             if (checkPermission()) {
-                var intent: Intent = Intent(this@MainActivity, FileListActivity::class.java)
-                var path: String = Environment.getExternalStorageDirectory().path
-                intent.putExtra("path", path)
-                startActivity(intent)
+                openFileList()
             } else {
                 requestPermission()
             }
-
-
         }
     }
 
+    /**
+     * Checks if the permissions are granted.
+     * @return True if READ_MEDIA_AUDIO and RECORD_AUDIO are granted, false otherwise.
+     */
     private fun checkPermission(): Boolean {
-        var result = ContextCompat.checkSelfPermission(
+        val rmaResult = ContextCompat.checkSelfPermission(
             this@MainActivity,
             Manifest.permission.READ_MEDIA_AUDIO
-        )
-        if (result == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        } else {
-            return false;
-        }
+        ) == PackageManager.PERMISSION_GRANTED
+        val raResult = ContextCompat.checkSelfPermission(
+            this@MainActivity,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+
+        return rmaResult && raResult
     }
 
+    /**
+     * Helper method to request permissions. Asks for READ_MEDIA_AUDIO and RECORD_AUDIO.
+     * READ_MEDIA_AUDIO is needed for audio playing.
+     * RECORD_AUDIO is needed for the visualizer.
+     */
     private fun requestPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(
-                this@MainActivity,
-                Manifest.permission.READ_MEDIA_AUDIO
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.READ_MEDIA_AUDIO,
+                Manifest.permission.RECORD_AUDIO
             )
-        ) {
-            Toast.makeText(this@MainActivity, "Needs storage permission!", Toast.LENGTH_SHORT)
-                .show()
-        } else {
-            ActivityCompat.requestPermissions(
-                this@MainActivity,
-                arrayOf(Manifest.permission.READ_MEDIA_AUDIO),
-                111
-            )
-        }
+        )
+    }
 
-
+    /**
+     * Helper method to open the file list.
+     */
+    private fun openFileList() {
+        var intent: Intent = Intent(this@MainActivity, FileListActivity::class.java)
+        var path: String = Environment.getExternalStorageDirectory().path
+        intent.putExtra("path", path)
+        startActivity(intent)
     }
 }

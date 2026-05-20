@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -17,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AlloyAudioPlayer" >
         <activity
-            android:name=".PlayerActivity"
+            android:name=".Player.PlayerActivity"
             android:exported="false"
             android:theme="@style/Theme.AlloyAudioPlayer" />
         <activity

@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.annotation.OptIn
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
@@ -17,7 +18,7 @@ import com.emmett222.alloyaudioplayer.R
  * Background service for audio playing.
  *
  * @author Emmett Grebe
- * @version 5-12-2026
+ * @version 5-20-2026
  */
 class MediaEngine : MediaSessionService() {
     private var mediaSession: MediaSession? = null
@@ -43,9 +44,18 @@ class MediaEngine : MediaSessionService() {
 
     @OptIn(UnstableApi::class)
     private fun initializeSession() {
-        val basePlayer = ExoPlayer.Builder(this).build()
 
-        // Wrap the player to force the Skip Next and Skip Previous buttons to stay visible
+        // Set the audio attributes to allocate a visualizer aux.
+        val audioAttributes = androidx.media3.common.AudioAttributes.Builder()
+            .setUsage(androidx.media3.common.C.USAGE_MEDIA)
+            .setContentType(androidx.media3.common.C.AUDIO_CONTENT_TYPE_MUSIC)
+            .build()
+
+        val basePlayer = ExoPlayer.Builder(this)
+            .setAudioAttributes(audioAttributes, true)
+            .build()
+
+        // Wrap the player to force the Skip Next and Skip Previous buttons to stay visible.
         mediaPlayer = object : ForwardingPlayer(basePlayer) {
             override fun getAvailableCommands(): Player.Commands {
                 return super.getAvailableCommands().buildUpon()
@@ -62,6 +72,12 @@ class MediaEngine : MediaSessionService() {
         mediaSession = MediaSession.Builder(this, mediaPlayer)
             .setCallback(MediaSessionCallback())
             .build()
+
+        val extras = Bundle().apply {
+            putInt("AUDIO_SESSION_ID", basePlayer.audioSessionId)
+        }
+
+        mediaSession?.setSessionExtras(extras)
     }
 
     override fun onDestroy() {

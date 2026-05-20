@@ -14,6 +14,7 @@ import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
+import com.emmett222.alloyaudioplayer.Player.PlayerActivity
 import java.io.File
 
 class MyAdapter(val context: Context, var files: Array<File>) :

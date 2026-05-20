@@ -1,7 +1,8 @@
-package com.emmett222.alloyaudioplayer
+package com.emmett222.alloyaudioplayer.Player
 
 import android.content.ComponentName
 import android.media.MediaMetadataRetriever
+import android.media.audiofx.Visualizer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -11,29 +12,33 @@ import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
+import com.emmett222.alloyaudioplayer.R
 import java.io.File
-import androidx.core.net.toUri
 
 /**
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 5-19-2026
+ * @version 5-20-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
     lateinit var audioFile: File
     lateinit var controller: MediaController
+    lateinit var vis: Visualizer
     var isStart: Boolean = true;
     var repeatOneOn: Boolean = false;
     var shuffleOn: Boolean = false;
@@ -71,6 +76,7 @@ class PlayerActivity : AppCompatActivity() {
             controller = controllerFuture.get()
 
             setupControllerFile()
+            setupVisualizer()
             setupTitle()
             setupTime()
             setupPauseBtn()
@@ -90,7 +96,8 @@ class PlayerActivity : AppCompatActivity() {
 
         try {
             retriever.setDataSource(audioFile.absolutePath)
-            artistName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) ?: "Unknown Artist"
+            artistName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+                ?: "Unknown Artist"
         } catch (e: Exception) {
             // Log error or handle missing file
         } finally {
@@ -99,16 +106,69 @@ class PlayerActivity : AppCompatActivity() {
 
         val mediaItemWithMetadata =
             MediaItem.Builder().setUri(Uri.fromFile(audioFile)).setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(audioFile.name)
-                        .setArtist(artistName)
-                        .setArtworkUri("android.resource://com.emmett222.alloyaudioplayer/drawable/background".toUri())
-                        .build()
-                ).build()
+                MediaMetadata.Builder()
+                    .setTitle(audioFile.name)
+                    .setArtist(artistName)
+                    .setArtworkUri("android.resource://com.emmett222.alloyaudioplayer/drawable/background".toUri())
+                    .build()
+            ).build()
 
         controller.setMediaItem(mediaItemWithMetadata)
         controller.prepare()
         controller.play()
+    }
+
+    /**
+     * Sets up the audio visualizer.
+     */
+    @OptIn(UnstableApi::class)
+    private fun setupVisualizer() {
+        val permissionCheck = ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO)
+        android.util.Log.d("VisualizerLink", "RECORD_AUDIO Permission status: ${permissionCheck == android.content.pm.PackageManager.PERMISSION_GRANTED}")
+        val visualizerView = findViewById<VisualizerGraphic>(R.id.visScreen)
+
+        controller.addListener(object: Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == Player.STATE_READY) {
+                    val sessionId = controller.sessionExtras.getInt("AUDIO_SESSION_ID", 0)
+                    android.util.Log.d("VisualizerLink", "Found Session ID: $sessionId")
+
+                    if (sessionId > 0) { // Ignore system sessionId of 0.
+                        vis = Visualizer(sessionId)
+                        vis.captureSize = 1024
+
+                        val captureListener: Visualizer.OnDataCaptureListener = object :
+                            Visualizer.OnDataCaptureListener {
+                            override fun onWaveFormDataCapture(
+                                visualizer: Visualizer?,
+                                waveform: ByteArray?,
+                                samplingRate: Int
+                            ) {
+                                android.util.Log.d("VisualizerDebug", "Data received! Size: ${waveform?.size}")
+                                if (waveform != null) {
+                                    visualizerView.updateWaveform(waveform)
+                                }
+                            }
+
+                            override fun onFftDataCapture(
+                                visualizer: Visualizer?,
+                                fft: ByteArray?,
+                                samplingRate: Int
+                            ) {
+                                // Unused for now.
+                            }
+                        }
+                        vis.setDataCaptureListener(
+                            captureListener,
+                            Visualizer.getMaxCaptureRate() / 2,
+                            true,
+                            false
+                        )
+                        vis.enabled = true
+                    }
+                }
+            }
+        })
     }
 
     /**
@@ -161,6 +221,7 @@ class PlayerActivity : AppCompatActivity() {
                     changeTime(progress)
                 }
             }
+
             // Unused methods.
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}

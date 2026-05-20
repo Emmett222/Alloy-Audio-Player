@@ -5,112 +5,80 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PlayerActivity"
-    android:background="@drawable/background6">
+    android:background="@drawable/background_player"
+    tools:context=".Player.PlayerActivity">
 
-    <TextView
-        android:id="@+id/titleString"
+    <com.emmett222.alloyaudioplayer.Player.VisualizerGraphic
+        android:id="@+id/visScreen"
         android:layout_width="0dp"
-        android:layout_height="20dp"
+        android:layout_height="0dp"
         android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
+        android:layout_marginBottom="24dp"
+        android:background="#0d380c"
+        app:layout_constraintBottom_toTopOf="@id/shuffleBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/shuffleBtn"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_marginBottom="16dp"
-        android:ellipsize="marquee"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:singleLine="true"
-        android:text="Song Title"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@android:color/transparent"
+        android:backgroundTint="#FF0000"
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toTopOf="@id/seekBarCard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:fontFamily="sans-serif-smallcaps"
-        android:textColor="#00ff00"
-        android:background="#0d380c"/>
+        app:srcCompat="@drawable/shuffleoff" />
 
     <ImageButton
-        android:id="@+id/playBtn"
+        android:id="@+id/repeatOneBtn"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_marginBottom="44dp"
+        android:layout_marginEnd="24dp"
         android:background="@android:color/transparent"
+        android:backgroundTint="#FF0000"
         android:hapticFeedbackEnabled="true"
         android:scaleType="centerCrop"
-        android:src="@drawable/pause"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:shapeAppearanceOverlay="@style/CircleShapeAppearance" />
+        app:layout_constraintBottom_toBottomOf="@id/shuffleBtn"
+        app:layout_constraintEnd_toStartOf="@id/shuffleBtn"
+        app:layout_constraintTop_toTopOf="@id/shuffleBtn"
+        app:srcCompat="@drawable/repeat1off" />
 
     <ImageButton
-        android:id="@+id/fastRewind"
+        android:id="@+id/repeatBtn"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="44dp"
+        android:layout_marginStart="24dp"
         android:background="@android:color/transparent"
+        android:backgroundTint="#FF0000"
         android:hapticFeedbackEnabled="true"
         android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/playBtn"
-        app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
-        app:srcCompat="@drawable/fr" />
-
-    <ImageButton
-        android:id="@+id/fastRewind2"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginEnd="76dp"
-        android:layout_marginBottom="44dp"
-        android:background="@android:color/transparent"
-        android:hapticFeedbackEnabled="true"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/playBtn"
-        app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
-        app:srcCompat="@drawable/skipb" />
-
-    <ImageButton
-        android:id="@+id/fastForward"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="44dp"
-        android:background="@android:color/transparent"
-        android:hapticFeedbackEnabled="true"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/playBtn"
-        app:srcCompat="@drawable/ff" />
-
-    <ImageButton
-        android:id="@+id/fastForward2"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginStart="76dp"
-        android:layout_marginBottom="44dp"
-        android:background="@android:color/transparent"
-        android:hapticFeedbackEnabled="true"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/playBtn"
-        app:srcCompat="@drawable/skipf" />
+        app:layout_constraintBottom_toBottomOf="@id/shuffleBtn"
+        app:layout_constraintStart_toEndOf="@id/shuffleBtn"
+        app:layout_constraintTop_toTopOf="@id/shuffleBtn"
+        app:srcCompat="@drawable/repeatplaylistoff" />
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/seekBarCard"
         android:layout_width="0dp"
         android:layout_height="24dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="136dp"
+        android:layout_marginBottom="8dp"
         app:cardBackgroundColor="@android:color/transparent"
         app:cardCornerRadius="8dp"
         app:cardElevation="0dp"
-        app:strokeColor="#cfdb5e"
-        app:strokeWidth="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/currentNum"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="#cfdb5e"
+        app:strokeWidth="2dp">
 
         <ImageView
             android:layout_width="match_parent"
@@ -125,8 +93,8 @@
             android:layout_gravity="center"
             android:background="@android:color/transparent"
             android:splitTrack="false"
-            android:thumbOffset="0dp"
-            android:thumb="@drawable/seekbar_knob"/>
+            android:thumb="@drawable/seekbar_knob"
+            android:thumbOffset="0dp" />
     </com.google.android.material.card.MaterialCardView>
 
     <TextView
@@ -134,69 +102,113 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginBottom="116dp"
-        android:text="0:00"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="12dp"
+        android:background="#0d380c"
         android:fontFamily="sans-serif-smallcaps"
+        android:text="0:00"
         android:textColor="#00ff00"
-        android:background="#0d380c"/>
+        app:layout_constraintBottom_toTopOf="@id/playBtn"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/endNum"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
-        android:layout_marginBottom="116dp"
-        android:text="0:00"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:background="#0d380c"
         android:fontFamily="sans-serif-smallcaps"
+        android:text="0:00"
         android:textColor="#00ff00"
-        android:background="#0d380c"/>
+        app:layout_constraintBottom_toBottomOf="@id/currentNum"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/currentNum" />
 
     <ImageButton
-        android:id="@+id/repeatBtn"
+        android:id="@+id/playBtn"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_marginEnd="68dp"
-        android:layout_marginBottom="168dp"
-        android:backgroundTint="#FF0000"
-        android:hapticFeedbackEnabled="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/repeatplaylistoff"
-        android:scaleType="centerCrop"
-        android:background="@android:color/transparent"/>
-
-    <ImageButton
-        android:id="@+id/shuffleBtn"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginBottom="168dp"
-        android:backgroundTint="#FF0000"
-        android:hapticFeedbackEnabled="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/shuffleoff"
-        android:scaleType="centerCrop"
+        android:layout_marginBottom="24dp"
         android:background="@android:color/transparent"
-        />
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/pause"
+        app:layout_constraintBottom_toTopOf="@id/titleString"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearanceOverlay="@style/CircleShapeAppearance" />
 
     <ImageButton
-        android:id="@+id/repeatOneBtn"
+        android:id="@+id/fastRewind"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_marginStart="68dp"
-        android:layout_marginBottom="168dp"
-        android:backgroundTint="#FF0000"
+        android:layout_marginEnd="8dp"
+        android:background="@android:color/transparent"
         android:hapticFeedbackEnabled="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/repeat1off"
         android:scaleType="centerCrop"
-        android:background="@android:color/transparent"/>
+        app:layout_constraintBottom_toBottomOf="@id/playBtn"
+        app:layout_constraintEnd_toStartOf="@id/playBtn"
+        app:layout_constraintTop_toTopOf="@id/playBtn"
+        app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
+        app:srcCompat="@drawable/fr" />
+
+    <ImageButton
+        android:id="@+id/fastRewind2"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="8dp"
+        android:background="@android:color/transparent"
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@id/fastRewind"
+        app:layout_constraintEnd_toStartOf="@id/fastRewind"
+        app:layout_constraintTop_toTopOf="@id/fastRewind"
+        app:shapeAppearanceOverlay="@style/CircleShapeAppearance"
+        app:srcCompat="@drawable/skipb" />
+
+    <ImageButton
+        android:id="@+id/fastForward"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="8dp"
+        android:background="@android:color/transparent"
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@id/playBtn"
+        app:layout_constraintStart_toEndOf="@id/playBtn"
+        app:layout_constraintTop_toTopOf="@id/playBtn"
+        app:srcCompat="@drawable/ff" />
+
+    <ImageButton
+        android:id="@+id/fastForward2"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="8dp"
+        android:background="@android:color/transparent"
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@id/fastForward"
+        app:layout_constraintStart_toEndOf="@id/fastForward"
+        app:layout_constraintTop_toTopOf="@id/fastForward"
+        app:srcCompat="@drawable/skipf" />
+
+    <TextView
+        android:id="@+id/titleString"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="16dp"
+        android:background="#0d380c"
+        android:ellipsize="marquee"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:fontFamily="sans-serif-smallcaps"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:text="Song Title"
+        android:textColor="#00ff00"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
