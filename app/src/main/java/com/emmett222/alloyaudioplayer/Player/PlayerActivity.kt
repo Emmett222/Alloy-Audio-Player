@@ -137,6 +137,7 @@ class PlayerActivity : AppCompatActivity() {
     @OptIn(UnstableApi::class)
     private fun setupVisualizer() {
         val visualizerView = findViewById<VisualizerGraphic>(R.id.visScreen)
+        visualizerView.change(VisualizerGraphic.TYPE_BARS)
 
         var currentActiveSessionId = -1
 
