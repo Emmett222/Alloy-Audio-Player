@@ -263,11 +263,11 @@ class PlayerActivity : AppCompatActivity() {
         playBtn.setOnClickListener {
             if (controller.isPlaying == true) {
                 controller.pause()
-                playBtn.setImageResource(R.drawable.play)
+                playBtn.setImageResource(R.drawable.btn_play)
                 handler.removeCallbacks(updater)
             } else {
                 controller.play()
-                playBtn.setImageResource(R.drawable.pause)
+                playBtn.setImageResource(R.drawable.btn_pause)
                 handler.post(updater)
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -303,11 +303,11 @@ class PlayerActivity : AppCompatActivity() {
         repeatOneBtn.setOnClickListener {
             if (controller.repeatMode == Player.REPEAT_MODE_ONE) {
                 controller.repeatMode = Player.REPEAT_MODE_OFF;
-                repeatOneBtn.setImageResource(R.drawable.repeat1off)
+                repeatOneBtn.setImageResource(R.drawable.btn_repeat1off)
                 repeatOneOn = false;
             } else {
                 controller.repeatMode = Player.REPEAT_MODE_ONE;
-                repeatOneBtn.setImageResource(R.drawable.repeat1on)
+                repeatOneBtn.setImageResource(R.drawable.btn_repeat1on)
                 repeatOneOn = true;
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -322,10 +322,10 @@ class PlayerActivity : AppCompatActivity() {
         var shuffleBtn: ImageButton = findViewById(R.id.shuffleBtn)
         shuffleBtn.setOnClickListener {
             if (shuffleOn) {
-                shuffleBtn.setImageResource(R.drawable.shuffleoff)
+                shuffleBtn.setImageResource(R.drawable.btn_shuffleoff)
                 shuffleOn = false;
             } else {
-                shuffleBtn.setImageResource(R.drawable.shuffleon)
+                shuffleBtn.setImageResource(R.drawable.btn_shuffleon)
                 shuffleOn = true;
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -340,10 +340,10 @@ class PlayerActivity : AppCompatActivity() {
         var repeatPlaylistBtn: ImageButton = findViewById(R.id.repeatBtn)
         repeatPlaylistBtn.setOnClickListener {
             if (repeatPlaylistOn) {
-                repeatPlaylistBtn.setImageResource(R.drawable.repeatplaylistoff)
+                repeatPlaylistBtn.setImageResource(R.drawable.btn_repeatplaylistoff)
                 repeatPlaylistOn = false;
             } else {
-                repeatPlaylistBtn.setImageResource(R.drawable.repeatplayliston)
+                repeatPlaylistBtn.setImageResource(R.drawable.btn_repeatplayliston)
                 repeatPlaylistOn = true;
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
