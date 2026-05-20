@@ -1,4 +1,4 @@
-package com.emmett222.alloyaudioplayer.Player
+package com.emmett222.alloyaudioplayer.Player.Graphic
 
 import android.content.Context
 import android.graphics.Canvas

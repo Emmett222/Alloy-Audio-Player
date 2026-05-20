@@ -25,6 +25,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
+import com.emmett222.alloyaudioplayer.Player.Graphic.VisualizerGraphic
 import com.emmett222.alloyaudioplayer.R
 import java.io.File
 
