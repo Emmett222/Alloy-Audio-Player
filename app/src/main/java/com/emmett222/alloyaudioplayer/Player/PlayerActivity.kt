@@ -204,12 +204,13 @@ class PlayerActivity : AppCompatActivity() {
         val endText: TextView = findViewById(R.id.endNum)
         val seekBar: SeekBar = findViewById(R.id.timeSeekBar)
 
-        // 1. Define the listener
+        // Watches if the player changes.
+        // Listen if the playback state changes.
         val playerListener = object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 when (playbackState) {
                     Player.STATE_READY -> {
-                        // THE GATE IS OPEN: The player has loaded the file
+                        // The player has loaded the file
                         val duration = controller.duration.toInt()
 
                         // Now it is safe to set these
