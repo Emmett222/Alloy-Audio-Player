@@ -56,11 +56,13 @@ class BaseGraphic @JvmOverloads constructor(
     /**
      * vvvv -------------- MUTABLE VARIABLES -------------- vvvvv
      */
-    private var currentType: Int = 0
+    public var currentType: Int = 0
     private var currentGlowRadius = 14f
     private var currentLerpFactor = 0.12f
     private var targetAmplitudes = FloatArray(16)
     private var smoothedAmplitudes = FloatArray(16)
+    private var dynamicVolumeMultiplier = 1.0f
+    private var targetVolumeMultiplier = 1.0f
 
 
 
@@ -85,7 +87,7 @@ class BaseGraphic @JvmOverloads constructor(
         var newPointsCount = 0
         when (currentType) {
             VIS_TYPE_BARS -> newPointsCount = 32
-            VIS_TYPE_CIRCLE_BARS -> newPointsCount = 96
+            VIS_TYPE_CIRCLE_BARS -> newPointsCount = 80
             VIS_TYPE_CIRCLE_WAVE -> newPointsCount = 96
             else -> newPointsCount = 16
         }
@@ -114,21 +116,46 @@ class BaseGraphic @JvmOverloads constructor(
         val skipStep = waveform.size / desiredPoints
         if (skipStep < 1) return
 
+        // Compute baseline root energy metrics
+        var totalChunkEnergy = 0f
+        for (b in waveform) {
+            totalChunkEnergy += abs((b.toInt() and 0xFF - 128) / 128f)
+        }
+        val averageEnergy = if (waveform.isNotEmpty()) totalChunkEnergy / waveform.size else 0f
+
+        // Define clean threshold limits to bypass system AGC
+        val noiseFloor = 0.06f       // Any energy below this is treated as quiet air
+        val maxExpectedEnergy = 0.26f // Real-world peak energy threshold for standard music mixes
+
+        // Map the raw energy value into a highly reactive, clamped 0.0 to 1.0 range index
+        val normalizedEnergy = ((averageEnergy - noiseFloor) / (maxExpectedEnergy - noiseFloor)).coerceIn(0f, 1f)
+
+        // Cubic Curve scaling creates wide contrast gaps between low-level noise and true beat hits
+        val powerEnergy = normalizedEnergy * normalizedEnergy * normalizedEnergy
+
+        // Quiet parts drop to a baseline size of 0.1, while beat drops scale up to 2.6
+        targetVolumeMultiplier = 0.1f + (powerEnergy * 2.5f)
+
         for (i in 0 until desiredPoints) {
             val rawIndex = i * skipStep
             if (rawIndex >= waveform.size) break
 
             val rawValue = (waveform[rawIndex].toInt() and 0xFF - 128) / 128f
-            val windowMultiplier = sin((i.toFloat() / (desiredPoints - 1)) * PI).toFloat()
+            val isLinearMode = currentType == VIS_TYPE_WAVE || currentType == VIS_TYPE_BARS
+            val windowMultiplier = if (isLinearMode) sin((i.toFloat() / (desiredPoints - 1)) * PI).toFloat() else 1.0f
 
-            targetAmplitudes[i] = if (currentType == VIS_TYPE_BARS) {
-                abs(rawValue) * windowMultiplier
+            // Inject the energy normalization straight into the individual node positions
+            // This suppresses jittery micro-wiggles during quiet acoustic movements
+            val attenuationFactor = 0.15f + (normalizedEnergy * 0.85f)
+
+            targetAmplitudes[i] = if (currentType == VIS_TYPE_BARS || currentType == VIS_TYPE_CIRCLE_BARS) {
+                abs(rawValue) * windowMultiplier * attenuationFactor
             } else {
-                rawValue * windowMultiplier
+                rawValue * windowMultiplier * attenuationFactor
             }
         }
 
-        invalidate()
+        postInvalidateOnAnimation()
     }
 
 
@@ -160,6 +187,11 @@ class BaseGraphic @JvmOverloads constructor(
         val pointsCount = targetAmplitudes.size
         if (pointsCount < 2) return
         var isAnimating = false
+
+        // Enhanced Easing Equation: Snaps out instantly on beats (0.35f), recedes gracefully (0.10f)
+        val volumeLerp = if (targetVolumeMultiplier > dynamicVolumeMultiplier) 0.35f else 0.10f
+        dynamicVolumeMultiplier += (targetVolumeMultiplier - dynamicVolumeMultiplier) * volumeLerp
+
         // Common frame easing calculations
         for (i in 0 until pointsCount) {
             val delta = targetAmplitudes[i] - smoothedAmplitudes[i]
@@ -169,6 +201,11 @@ class BaseGraphic @JvmOverloads constructor(
             if (abs(delta) > 0.001f) {
                 isAnimating = true
             }
+        }
+
+        // Always animate if the volume envelope tracker is still moving
+        if (abs(targetVolumeMultiplier - dynamicVolumeMultiplier) > 0.01f) {
+            isAnimating = true
         }
 
         // When is the Kotlin equivalent of a Switch statement.
@@ -201,8 +238,9 @@ class BaseGraphic @JvmOverloads constructor(
      */
     private fun drawVisWaveLine(canvas: Canvas) {
         val pointsCount = targetAmplitudes.size
-        if (pointsCount < 2) return
-
+        // Wave stays anchored at 3/5ths down the canvas
+        val centerY = height * (4f / 5f)
+        val maxVerticalStretch = (height - centerY) * 0.70f * dynamicVolumeMultiplier
         val stepX = width.toFloat() / (pointsCount - 1)
 
         // Run common frame easing calculations
@@ -210,10 +248,6 @@ class BaseGraphic @JvmOverloads constructor(
             smoothedAmplitudes[i] = smoothedAmplitudes[i] +
                     (targetAmplitudes[i] - smoothedAmplitudes[i]) * currentLerpFactor
         }
-
-        // Wave stays anchored at 3/5ths down the canvas
-        val centerY = height * (3f / 5f)
-        val maxVerticalStretch = (height - centerY) * 0.85f
 
         wavePaint.style = Paint.Style.STROKE
         wavePath.reset()
@@ -245,20 +279,18 @@ class BaseGraphic @JvmOverloads constructor(
      */
     private fun drawVisBarsLine(canvas: Canvas) {
         val pointsCount = targetAmplitudes.size
-        if (pointsCount < 2) return
-
         val stepX = width.toFloat() / (pointsCount - 1)
+        // Bars are centered exactly 1/2 down the canvas
+        val centerY = height * (1f / 2f)
+
+        // Scale overall height by the dynamic volume multiplier
+        val maxVerticalStretch = centerY * 0.70f * dynamicVolumeMultiplier
 
         // Run common frame easing calculations
         for (i in 0 until pointsCount) {
             smoothedAmplitudes[i] = smoothedAmplitudes[i] +
                     (targetAmplitudes[i] - smoothedAmplitudes[i]) * currentLerpFactor
         }
-
-        // Bars are centered exactly 1/2 down the canvas
-        val centerY = height * (1f / 2f)
-        // Stretches evenly into the top and bottom halves with a safety cushion
-        val maxVerticalStretch = centerY * 0.85f
 
         wavePaint.style = Paint.Style.FILL_AND_STROKE
 
@@ -296,8 +328,7 @@ class BaseGraphic @JvmOverloads constructor(
         val cy = height / 2f
         val baseRadius = min(width, height) * 0.25f
 
-        // Limits how far inward and outward the line can vibrate
-        val maxStretch = baseRadius * 0.30f
+        val maxStretch = baseRadius * 0.25f * dynamicVolumeMultiplier
 
         // Loop to pointsCount inclusive so the final line segment joins back to the start seamlessly
         for (i in 0..pointsCount) {
@@ -328,7 +359,7 @@ class BaseGraphic @JvmOverloads constructor(
      */
     private fun drawVisCircleBars(canvas: Canvas) {
         val pointsCount = targetAmplitudes.size
-        wavePaint.strokeWidth = 18f
+        wavePaint.strokeWidth = 12f
         wavePaint.style = Paint.Style.STROKE
         wavePaint.setShadowLayer(currentGlowRadius, 0f, 0f, Color.parseColor("#00FF00"))
 
@@ -336,7 +367,8 @@ class BaseGraphic @JvmOverloads constructor(
         val cx = width / 2f
         val cy = height / 2f
         val baseRadius = min(width, height) * 0.25f
-        val maxBarLength = baseRadius * 0.65f // Limits length so bars don't clip off screen edges
+        // Scale outward bar length limits by the dynamic volume multiplier
+        val maxBarLength = baseRadius * 0.50f * dynamicVolumeMultiplier
 
         // Draw the inner solid reference ring layer
         canvas.drawCircle(cx, cy, baseRadius, wavePaint)

@@ -344,6 +344,11 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupMenuBtn() {
         var menuBtn: ImageButton = findViewById(R.id.menuBtn)
         menuBtn.setOnClickListener {
+            if (visualizerView.currentType == 6) {
+                visualizerView.changeScreen(3)
+            } else {
+                visualizerView.changeScreen(visualizerView.currentType + 1)
+            }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
