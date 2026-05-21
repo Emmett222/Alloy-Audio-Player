@@ -1,6 +1,7 @@
 package com.emmett222.alloyaudioplayer.Player
 
 import android.content.ComponentName
+import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.media.audiofx.Visualizer
 import android.net.Uri
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.HapticFeedbackConstants
+import android.view.View
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
@@ -25,7 +27,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
-import com.emmett222.alloyaudioplayer.Player.Graphic.VisualizerGraphic
+import com.emmett222.alloyaudioplayer.Player.Graphic.BaseGraphic
 import com.emmett222.alloyaudioplayer.R
 import java.io.File
 
@@ -47,6 +49,7 @@ class PlayerActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var updater: Runnable
+    private lateinit var visualizerView: BaseGraphic
 
     /**
      * Runs on opening the view.
@@ -62,6 +65,7 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         this.audioFile = File(intent.getStringExtra("path"))
+        visualizerView = findViewById(R.id.visScreen)
 
         // This token is needed to connect to the service.
         val sessionToken = SessionToken(this, ComponentName(this, MediaEngine::class.java))
@@ -77,13 +81,14 @@ class PlayerActivity : AppCompatActivity() {
             controller = controllerFuture.get()
 
             setupControllerFile()
-            setupVisualizer()
+            setupVisualizer(5)
             setupTitle()
             setupTime()
             setupPauseBtn()
             setupFastBtns()
             setupRepeatOneBtn()
             setupShuffleBtn()
+            setupMenuBtn()
             setupRepeatPlaylistBtn()
 
         }, ContextCompat.getMainExecutor(this))
@@ -136,9 +141,8 @@ class PlayerActivity : AppCompatActivity() {
      * Sets up the audio visualizer.
      */
     @OptIn(UnstableApi::class)
-    private fun setupVisualizer() {
-        val visualizerView = findViewById<VisualizerGraphic>(R.id.visScreen)
-        visualizerView.change(VisualizerGraphic.TYPE_BARS)
+    private fun setupVisualizer(type: Int) {
+        visualizerView.changeScreen(type)
 
         var currentActiveSessionId = -1
 
@@ -330,6 +334,16 @@ class PlayerActivity : AppCompatActivity() {
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleon)
                 shuffleOn = true;
             }
+
+        }
+    }
+
+    /**
+     * Sets up the menu button.
+     */
+    private fun setupMenuBtn() {
+        var menuBtn: ImageButton = findViewById(R.id.menuBtn)
+        menuBtn.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }

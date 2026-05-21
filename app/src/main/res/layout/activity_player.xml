@@ -8,7 +8,7 @@
     android:background="@drawable/background_player"
     tools:context=".Player.PlayerActivity">
 
-    <com.emmett222.alloyaudioplayer.Player.Graphic.VisualizerGraphic
+    <com.emmett222.alloyaudioplayer.Player.Graphic.BaseGraphic
         android:id="@+id/visScreen"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -23,6 +23,36 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
+        android:id="@+id/repeatOneBtn"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginEnd="8dp"
+        android:background="@android:color/transparent"
+        android:backgroundTint="#FF0000"
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@id/shuffleBtn"
+        app:layout_constraintEnd_toStartOf="@id/shuffleBtn"
+        app:layout_constraintTop_toTopOf="@id/shuffleBtn"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/btn_repeat1off" />
+
+    <ImageButton
+        android:id="@+id/repeatBtn"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="8dp"
+        android:background="@android:color/transparent"
+        android:backgroundTint="#FF0000"
+        android:hapticFeedbackEnabled="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="@id/shuffleBtn"
+        app:layout_constraintStart_toEndOf="@id/shuffleBtn"
+        app:layout_constraintTop_toTopOf="@id/shuffleBtn"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/btn_repeatplaylistoff" />
+
+    <ImageButton
         android:id="@+id/shuffleBtn"
         android:layout_width="64dp"
         android:layout_height="64dp"
@@ -33,24 +63,25 @@
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toTopOf="@id/seekBarCard"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintHorizontal_bias="0.397"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/btn_shuffleoff" />
 
     <ImageButton
-        android:id="@+id/repeatBtn"
+        android:id="@+id/menuBtn"
         android:layout_width="64dp"
         android:layout_height="64dp"
-        android:layout_marginStart="24dp"
         android:background="@android:color/transparent"
         android:backgroundTint="#FF0000"
         android:hapticFeedbackEnabled="true"
         android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="@id/shuffleBtn"
-        app:layout_constraintStart_toEndOf="@id/shuffleBtn"
-        app:layout_constraintTop_toTopOf="@id/shuffleBtn"
+        app:layout_constraintBottom_toBottomOf="@+id/repeatBtn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.095"
+        app:layout_constraintStart_toEndOf="@+id/repeatBtn"
+        app:layout_constraintTop_toTopOf="@+id/repeatBtn"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/btn_repeatplaylistoff" />
+        app:srcCompat="@drawable/btn_menu" />
 
     <TextView
         android:id="@+id/currentNum"
@@ -112,21 +143,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/currentNum"
         app:layout_constraintVertical_bias="0.0" />
-
-    <ImageButton
-        android:id="@+id/repeatOneBtn"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:layout_marginEnd="24dp"
-        android:background="@android:color/transparent"
-        android:backgroundTint="#FF0000"
-        android:hapticFeedbackEnabled="true"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="@id/shuffleBtn"
-        app:layout_constraintEnd_toStartOf="@id/shuffleBtn"
-        app:layout_constraintTop_toTopOf="@id/shuffleBtn"
-        app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/btn_repeat1off" />
 
     <ImageButton
         android:id="@+id/playBtn"
