@@ -16,6 +16,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
@@ -26,8 +27,12 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
+import com.emmett222.alloyaudioplayer.MyAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.BaseGraphic
+import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.StartMenuAdapter
 import com.emmett222.alloyaudioplayer.R
 import java.io.File
 
@@ -35,7 +40,7 @@ import java.io.File
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 5-20-2026
+ * @version 5-25-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
@@ -46,6 +51,7 @@ class PlayerActivity : AppCompatActivity() {
     var repeatOneOn: Boolean = false;
     var shuffleOn: Boolean = false;
     var repeatPlaylistOn: Boolean = false;
+    var inMenu: Boolean = false
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var updater: Runnable
@@ -342,12 +348,23 @@ class PlayerActivity : AppCompatActivity() {
      * Sets up the menu button.
      */
     private fun setupMenuBtn() {
-        var menuBtn: ImageButton = findViewById(R.id.menuBtn)
+        val menuBtn: ImageButton = findViewById(R.id.menuBtn)
+        val visGraphic: BaseGraphic = findViewById(R.id.visScreen)
+        val menuGraphic: ConstraintLayout = findViewById(R.id.menuContainer)
+        val menuRecycler: RecyclerView = findViewById(R.id.menuRecycler)
+
+        menuRecycler.setLayoutManager(LinearLayoutManager(applicationContext))
+        menuRecycler.setAdapter(StartMenuAdapter(applicationContext))
+
         menuBtn.setOnClickListener {
-            if (visualizerView.currentType == 6) {
-                visualizerView.changeScreen(3)
+            if (inMenu) {
+                menuGraphic.visibility = View.INVISIBLE
+                visGraphic.visibility = View.VISIBLE
+                inMenu = false
             } else {
-                visualizerView.changeScreen(visualizerView.currentType + 1)
+                visGraphic.visibility = View.INVISIBLE
+                menuGraphic.visibility = View.VISIBLE
+                inMenu = true
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }

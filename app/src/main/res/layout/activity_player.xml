@@ -22,6 +22,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <include
+        android:id="@+id/menuContainer"
+        layout="@layout/graphic_menu"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="invisible"
+        android:background="#0d380c"
+        app:layout_constraintTop_toTopOf="@id/visScreen"
+        app:layout_constraintBottom_toBottomOf="@id/visScreen"
+        app:layout_constraintStart_toStartOf="@id/visScreen"
+        app:layout_constraintEnd_toEndOf="@id/visScreen" />
+
     <ImageButton
         android:id="@+id/repeatOneBtn"
         android:layout_width="64dp"
