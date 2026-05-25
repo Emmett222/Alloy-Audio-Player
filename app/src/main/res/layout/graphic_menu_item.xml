@@ -6,6 +6,7 @@
     android:padding="10dp"
     android:layout_height="wrap_content"
     android:maxHeight="50dp"
+    android:background="#0d380c"
     >
 
     <ImageView
@@ -36,7 +37,7 @@
         android:layout_height="1dp"
         android:layout_below="@id/file_name_text_view"
         android:layout_marginTop="13dp"
-        android:background="@color/cardview_shadow_start_color"
+        android:background="#00ff00"
         android:padding="10dp" />
 
 </RelativeLayout>

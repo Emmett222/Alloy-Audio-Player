@@ -28,7 +28,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="invisible"
-        android:background="#0d380c"
         app:layout_constraintTop_toTopOf="@id/visScreen"
         app:layout_constraintBottom_toBottomOf="@id/visScreen"
         app:layout_constraintStart_toStartOf="@id/visScreen"
