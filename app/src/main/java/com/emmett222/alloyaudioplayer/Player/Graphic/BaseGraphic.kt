@@ -10,7 +10,6 @@ import android.view.View
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
-import kotlin.math.hypot
 import kotlin.math.min
 import kotlin.math.sin
 
@@ -28,9 +27,6 @@ class BaseGraphic @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     companion object {
-        const val NOTHING = 0
-        const val MENU = 1
-        const val VIS_MENU = 2
         const val VIS_TYPE_WAVE = 3
         const val VIS_TYPE_BARS = 4
         const val VIS_TYPE_CIRCLE_WAVE = 5
@@ -39,9 +35,6 @@ class BaseGraphic @JvmOverloads constructor(
         const val VIS_TYPE_CIRCLE_GROW = 8
         const val VIS_TYPE_MIRROR_WAVE = 9
         const val VIS_TYPE_SMILEY = 10
-        const val QUEUE = 11
-        const val FILES = 12
-        const val SETTINGS = 13
     }
 
     private val wavePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -192,7 +185,6 @@ class BaseGraphic @JvmOverloads constructor(
         }
 
         when (currentType) {
-            MENU -> { drawMenu(canvas) }
             VIS_TYPE_WAVE -> { drawVisWaveLine(canvas) }
             VIS_TYPE_BARS -> { drawVisBarsLine(canvas) }
             VIS_TYPE_CIRCLE_WAVE -> { drawVisCircleWave(canvas) }
@@ -201,7 +193,6 @@ class BaseGraphic @JvmOverloads constructor(
             VIS_TYPE_CIRCLE_GROW -> { drawVisConcentricRings(canvas) }
             VIS_TYPE_MIRROR_WAVE -> { drawVisMirrorWave(canvas) }
             VIS_TYPE_SMILEY -> { drawVisSmiley(canvas) }
-            NOTHING, VIS_MENU, QUEUE, FILES, SETTINGS -> {}
         }
 
         if (isAnimating) {

@@ -1,7 +1,6 @@
 package com.emmett222.alloyaudioplayer.Player
 
 import android.content.ComponentName
-import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.media.audiofx.Visualizer
 import android.net.Uri
@@ -30,7 +29,6 @@ import androidx.media3.session.SessionToken
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
-import com.emmett222.alloyaudioplayer.MyAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.BaseGraphic
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.StartMenuAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.VisualizerMenuAdapter
@@ -41,7 +39,7 @@ import java.io.File
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 5-25-2026
+ * @version 5-26-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
@@ -88,7 +86,7 @@ class PlayerActivity : AppCompatActivity() {
             controller = controllerFuture.get()
 
             setupControllerFile()
-            setupVisualizer(5)
+            setupVisualizer()
             setupTitle()
             setupTime()
             setupPauseBtn()
@@ -148,8 +146,8 @@ class PlayerActivity : AppCompatActivity() {
      * Sets up the audio visualizer.
      */
     @OptIn(UnstableApi::class)
-    private fun setupVisualizer(type: Int) {
-        visualizerView.changeScreen(type)
+    private fun setupVisualizer() {
+        visualizerView.changeScreen(5)
 
         var currentActiveSessionId = -1
 
@@ -233,9 +231,14 @@ class PlayerActivity : AppCompatActivity() {
                         // Start the UI updater loop now that we have a max
                         handler.post(updater)
                     }
-
                     Player.STATE_ENDED -> {
                         handler.removeCallbacks(updater)
+                    }
+                    Player.STATE_BUFFERING -> {
+                        // Unused for now.
+                    }
+                    Player.STATE_IDLE -> {
+                        // Unused for now.
                     }
                 }
             }
@@ -272,7 +275,7 @@ class PlayerActivity : AppCompatActivity() {
      * Helper method to setup the pause button on load.
      */
     private fun setupPauseBtn() {
-        var playBtn: ImageButton = findViewById(R.id.playBtn)
+        val playBtn: ImageButton = findViewById(R.id.playBtn)
         playBtn.setOnClickListener {
             if (controller.isPlaying == true) {
                 controller.pause()
@@ -291,8 +294,8 @@ class PlayerActivity : AppCompatActivity() {
      * Helper method to setup the fast forward and fast rewind buttons.
      */
     private fun setupFastBtns() {
-        var ffBtn: ImageButton = findViewById(R.id.fastForward)
-        var frBtn: ImageButton = findViewById(R.id.fastRewind)
+        val ffBtn: ImageButton = findViewById(R.id.fastForward)
+        val frBtn: ImageButton = findViewById(R.id.fastRewind)
 
         ffBtn.setOnClickListener {
             // Go forward 1 minute.
@@ -311,7 +314,7 @@ class PlayerActivity : AppCompatActivity() {
      * Helper method to setup the repeat one button on load.
      */
     private fun setupRepeatOneBtn() {
-        var repeatOneBtn: ImageButton = findViewById(R.id.repeatOneBtn)
+        val repeatOneBtn: ImageButton = findViewById(R.id.repeatOneBtn)
         Player.REPEAT_MODE_OFF;
         repeatOneBtn.setOnClickListener {
             if (controller.repeatMode == Player.REPEAT_MODE_ONE) {
@@ -332,7 +335,7 @@ class PlayerActivity : AppCompatActivity() {
      * Right now, shuffle does nothing until the playlists are made.
      */
     private fun setupShuffleBtn() {
-        var shuffleBtn: ImageButton = findViewById(R.id.shuffleBtn)
+        val shuffleBtn: ImageButton = findViewById(R.id.shuffleBtn)
         shuffleBtn.setOnClickListener {
             if (shuffleOn) {
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleoff)
@@ -443,7 +446,7 @@ class PlayerActivity : AppCompatActivity() {
      * Right now, repeat playlist does nothing until the playlists are made.
      */
     private fun setupRepeatPlaylistBtn() {
-        var repeatPlaylistBtn: ImageButton = findViewById(R.id.repeatBtn)
+        val repeatPlaylistBtn: ImageButton = findViewById(R.id.repeatBtn)
         repeatPlaylistBtn.setOnClickListener {
             if (repeatPlaylistOn) {
                 repeatPlaylistBtn.setImageResource(R.drawable.btn_repeatplaylistoff)
@@ -460,7 +463,7 @@ class PlayerActivity : AppCompatActivity() {
      * Helper method to setup scrolling title on load.
      */
     private fun setupTitle() {
-        var titleString: TextView = findViewById(R.id.titleString)
+        val titleString: TextView = findViewById(R.id.titleString)
         titleString.text = audioFile.name
 
         titleString.postDelayed({ // Only fires when the title is loaded.
@@ -473,7 +476,7 @@ class PlayerActivity : AppCompatActivity() {
      * @param m Milliseconds.
      */
     fun changeTime(m: Int) {
-        var currentTime: TextView = findViewById(R.id.currentNum)
+        val currentTime: TextView = findViewById(R.id.currentNum)
         currentTime.text = formatMinutesAndSeconds(m)
     }
 

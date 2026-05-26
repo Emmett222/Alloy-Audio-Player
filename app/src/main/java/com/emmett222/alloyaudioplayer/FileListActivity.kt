@@ -23,20 +23,20 @@ class FileListActivity : AppCompatActivity() {
             insets
         }
 
-        var recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        var noFilesText: TextView = findViewById(R.id.nofiles_textview)
+        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+        val noFilesText: TextView = findViewById(R.id.nofiles_textview)
 
-        var path: String? = intent.getStringExtra("path")
+        val path: String? = intent.getStringExtra("path")
 
-        var root: File = File(path)
-        var files: Array<File>? = root.listFiles()
+        val root: File = File(path)
+        val files: Array<File>? = root.listFiles()
 
         if (files == null || files.size == 0) {
-            noFilesText.setVisibility(View.VISIBLE)
+            noFilesText.visibility = View.VISIBLE
             return;
         }
 
-        noFilesText.setVisibility(View.INVISIBLE)
+        noFilesText.visibility = View.INVISIBLE
 
         recyclerView.setLayoutManager(LinearLayoutManager(this@FileListActivity))
         recyclerView.setAdapter(MyAdapter(applicationContext, files))

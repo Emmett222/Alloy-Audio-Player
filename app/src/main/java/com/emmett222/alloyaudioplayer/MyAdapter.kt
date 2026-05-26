@@ -38,14 +38,14 @@ class MyAdapter(val context: Context, var files: Array<File>) :
 
         holder.itemView.setOnClickListener() {
             if (selectedFile.isDirectory) {
-                var intent: Intent = Intent(context, FileListActivity::class.java)
-                var path: String = selectedFile.absolutePath
+                val intent: Intent = Intent(context, FileListActivity::class.java)
+                val path: String = selectedFile.absolutePath
                 intent.putExtra("path", path)
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
             } else {
-                var intent: Intent = Intent(context, PlayerActivity::class.java)
-                var path: String = selectedFile.path
+                val intent: Intent = Intent(context, PlayerActivity::class.java)
+                val path: String = selectedFile.path
                 intent.putExtra("path", path)
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 context.startActivity(intent)
