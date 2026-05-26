@@ -33,6 +33,7 @@ import com.emmett222.alloyaudioplayer.Background.MediaEngine
 import com.emmett222.alloyaudioplayer.MyAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.BaseGraphic
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.StartMenuAdapter
+import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.VisualizerMenuAdapter
 import com.emmett222.alloyaudioplayer.R
 import java.io.File
 
@@ -351,23 +352,90 @@ class PlayerActivity : AppCompatActivity() {
         val menuBtn: ImageButton = findViewById(R.id.menuBtn)
         val visGraphic: BaseGraphic = findViewById(R.id.visScreen)
         val menuGraphic: ConstraintLayout = findViewById(R.id.menuContainer)
-        val menuRecycler: RecyclerView = findViewById(R.id.menuRecycler)
 
-        menuRecycler.setLayoutManager(LinearLayoutManager(applicationContext))
-        menuRecycler.setAdapter(StartMenuAdapter(applicationContext))
+        val menuRecycler: RecyclerView = menuGraphic.findViewById(R.id.menuRecycler)
+        val menuVisRecycler: RecyclerView = menuGraphic.findViewById(R.id.menuVisualizers)
+
+        menuRecycler.layoutManager = LinearLayoutManager(applicationContext)
+        menuVisRecycler.layoutManager = LinearLayoutManager(applicationContext)
+
+        // Whenever an item is clicked on the start menu, the start menu callback send the info
+        // back to here. Uses the static global variables in the companion to determine which was
+        // clicked.
+        menuRecycler.adapter = StartMenuAdapter(applicationContext) { clickedItem ->
+            if (clickedItem == StartMenuAdapter.VISUALIZERS) {
+                menuRecycler.visibility = View.INVISIBLE
+                menuVisRecycler.visibility = View.VISIBLE
+            }
+        }
+
+        // Whenever an item is clicked on the visualizer menu, the start menu callback send the info
+        // back to here. Uses the static global variables in the companion to determine which was
+        // clicked.
+        menuVisRecycler.adapter = VisualizerMenuAdapter(applicationContext) { clickedItem ->
+            when (clickedItem) {
+                VisualizerMenuAdapter.NOVIS -> {
+                    // TODO make the vis function to turn it off completely.
+                }
+                VisualizerMenuAdapter.LINEWAVE -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_WAVE)
+                    backToVis(visGraphic, menuGraphic)
+                }
+                VisualizerMenuAdapter.MIRLINEWAVE -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_MIRROR_WAVE)
+                    backToVis(visGraphic, menuGraphic)
+                }
+                VisualizerMenuAdapter.LINEBARS -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BARS)
+                    backToVis(visGraphic, menuGraphic)
+                }
+                VisualizerMenuAdapter.BOTLINEBARS -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BOTTOM_BARS)
+                    backToVis(visGraphic, menuGraphic)
+                }
+                VisualizerMenuAdapter.CIRCLEWAVE -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_WAVE)
+                    backToVis(visGraphic, menuGraphic)
+                }
+                VisualizerMenuAdapter.CIRCLEBAR -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_BARS)
+                    backToVis(visGraphic, menuGraphic)
+                }
+                VisualizerMenuAdapter.CIRCLEGROW -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_GROW)
+                    backToVis(visGraphic, menuGraphic)
+                }
+                VisualizerMenuAdapter.TALKINGSMILEY -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_SMILEY)
+                    backToVis(visGraphic, menuGraphic)
+                }
+            }
+        }
 
         menuBtn.setOnClickListener {
             if (inMenu) {
-                menuGraphic.visibility = View.INVISIBLE
-                visGraphic.visibility = View.VISIBLE
-                inMenu = false
+                // If in menu, turn off menu to show visualizer.
+                backToVis(visGraphic, menuGraphic)
             } else {
+                // If not in menu, turn off visualizer to show menu.
                 visGraphic.visibility = View.INVISIBLE
                 menuGraphic.visibility = View.VISIBLE
+
+                menuRecycler.visibility = View.VISIBLE
+                menuVisRecycler.visibility = View.INVISIBLE
                 inMenu = true
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
+    }
+
+    /**
+     * Helper function to go back to visualizer.
+     */
+    private fun backToVis(visGraphic: BaseGraphic, menuGraphic: ConstraintLayout) {
+        menuGraphic.visibility = View.INVISIBLE
+        visGraphic.visibility = View.VISIBLE
+        inMenu = false
     }
 
     /**

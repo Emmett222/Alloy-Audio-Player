@@ -1,30 +1,38 @@
 package com.emmett222.alloyaudioplayer.Player.Graphic.Menu
 
 import android.content.Context
+import android.graphics.Color
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.emmett222.alloyaudioplayer.MyAdapter
-import com.emmett222.alloyaudioplayer.MyAdapter.ViewHolder
 import com.emmett222.alloyaudioplayer.R
 
 /**
  * Menu that shows when menu button is pressed on the Player Activity.
  * Shows buttons for visualizers, queue, settings
+ *
+ * @author Emmett Grebe
+ * @version 5-25-2026
  */
-class StartMenuAdapter(val context: Context) : RecyclerView.Adapter<StartMenuAdapter.ViewHolder>() {
+class StartMenuAdapter(
+    val context: Context,
+    private val onItemClick: (String) -> Unit // Callback to send the info back to the activity.
+) : RecyclerView.Adapter<StartMenuAdapter.ViewHolder>() {
 
     companion object {
         const val VISUALIZERS = "Visualizers"
         const val QUEUE = "Queue"
+        const val TIMESTAMPS = "Timestamps"
         const val FILES = "Files"
         const val SETTINGS = "Settings"
+        const val OFF = "Turn off menu screen"
     }
 
-    private val items: Array<String> = arrayOf(VISUALIZERS, QUEUE, FILES, SETTINGS)
+    private var items: Array<String> = arrayOf(VISUALIZERS, QUEUE, TIMESTAMPS, FILES, SETTINGS, OFF)
 
     /**
      * Runs on creation.
@@ -41,6 +49,39 @@ class StartMenuAdapter(val context: Context) : RecyclerView.Adapter<StartMenuAda
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currItem = items[position]
         holder.textView.text = currItem
+
+        when (currItem) {
+            VISUALIZERS -> {
+                holder.imageView.setImageResource(R.drawable.menu_vis)
+            }
+
+            QUEUE -> {
+                holder.imageView.setImageResource(R.drawable.menu_queue)
+            }
+
+            TIMESTAMPS -> {
+                holder.imageView.setImageResource(R.drawable.menu_timestamps)
+            }
+
+            FILES -> {
+                holder.imageView.setImageResource(R.drawable.menu_files)
+            }
+
+            SETTINGS -> {
+                holder.imageView.setImageResource(R.drawable.menu_settings)
+            }
+
+            OFF -> {
+                holder.imageView.setImageResource(R.drawable.menu_off)
+            }
+        }
+
+        holder.itemView.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            onItemClick(currItem) // Forward the click event back to the Activity
+        }
+
+        holder.imageView.setColorFilter(Color.GREEN)
     }
 
     /**
@@ -48,7 +89,9 @@ class StartMenuAdapter(val context: Context) : RecyclerView.Adapter<StartMenuAda
      *
      * @return Size of the items on the menu.
      */
-    override fun getItemCount(): Int { return items.size }
+    override fun getItemCount(): Int {
+        return items.size
+    }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView: TextView = itemView.findViewById(R.id.file_name_text_view)

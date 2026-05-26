@@ -15,10 +15,10 @@ import kotlin.math.sin
 
 /**
  * Base graphic for the green screen on the player. This is needed to switch between graphics.
- * This is a very long class, so I have sorted it very neatly.
+ * Fully optimized with headroom limits and an elastic, tamed wavy talking smiley face.
  *
  * @author Emmett Grebe
- * @version 5-21-2026
+ * @version 5-26-2026
  */
 class BaseGraphic @JvmOverloads constructor(
     context: Context,
@@ -29,16 +29,20 @@ class BaseGraphic @JvmOverloads constructor(
      * vvvv -------------- IMMUTABLE VARIABLES -------------- vvvvv
      */
     companion object {
-        const val NOTHING = 0 // Blank graphic.
-        const val MENU = 1 // Menu graphic.
-        const val VIS_MENU = 2 // Visualizer menu graphic.
-        const val VIS_TYPE_WAVE = 3 // Wave line visualizer graphic.
-        const val VIS_TYPE_BARS = 4 // Bars line visualizer graphic.
-        const val VIS_TYPE_CIRCLE_WAVE = 5 // Wave circle visualizer graphic.
-        const val VIS_TYPE_CIRCLE_BARS = 6 // Bars circle visualizer graphic.
-        const val QUEUE = 7 // Playlist queue.
-        const val FILES = 8 // Files menu.
-        const val SETTINGS = 9 // Settings.
+        const val NOTHING = 0
+        const val MENU = 1
+        const val VIS_MENU = 2
+        const val VIS_TYPE_WAVE = 3
+        const val VIS_TYPE_BARS = 4
+        const val VIS_TYPE_CIRCLE_WAVE = 5
+        const val VIS_TYPE_CIRCLE_BARS = 6
+        const val VIS_TYPE_BOTTOM_BARS = 7
+        const val VIS_TYPE_CIRCLE_GROW = 8
+        const val VIS_TYPE_MIRROR_WAVE = 9
+        const val VIS_TYPE_SMILEY = 10
+        const val QUEUE = 11
+        const val FILES = 12
+        const val SETTINGS = 13
     }
 
     private val wavePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -50,13 +54,12 @@ class BaseGraphic @JvmOverloads constructor(
     }
 
     private val wavePath = Path()
-
-
+    private val mirrorPath = Path()
 
     /**
      * vvvv -------------- MUTABLE VARIABLES -------------- vvvvv
      */
-    public var currentType: Int = 0
+    var currentType: Int = 0
     private var currentGlowRadius = 14f
     private var currentLerpFactor = 0.12f
     private var targetAmplitudes = FloatArray(16)
@@ -64,35 +67,26 @@ class BaseGraphic @JvmOverloads constructor(
     private var dynamicVolumeMultiplier = 1.0f
     private var targetVolumeMultiplier = 1.0f
 
-
-
-
-
     /**
      * vvvvv -------------- PUBLIC FUNCTIONS -------------- vvvvv
      */
-    /**
-     * Change the current screen.
-     *
-     * @param screenType The type of screen to use. Use this class's companion constants to set the
-     * screen.
-     */
-    public fun changeScreen(screenType: Int) {
+    @Synchronized
+    fun changeScreen(screenType: Int) {
         if (currentType == screenType) return
         currentType = screenType
 
         updatePaintConfiguration()
 
-        // Points on the graphic.
         var newPointsCount = 0
         when (currentType) {
-            VIS_TYPE_BARS -> newPointsCount = 32
-            VIS_TYPE_CIRCLE_BARS -> newPointsCount = 80
-            VIS_TYPE_CIRCLE_WAVE -> newPointsCount = 96
+            VIS_TYPE_BARS, VIS_TYPE_BOTTOM_BARS -> newPointsCount = 32
+            VIS_TYPE_CIRCLE_BARS, VIS_TYPE_CIRCLE_WAVE -> newPointsCount = 96
+            VIS_TYPE_CIRCLE_GROW -> newPointsCount = 48
+            VIS_TYPE_SMILEY -> newPointsCount = 64
             else -> newPointsCount = 16
         }
 
-        currentLerpFactor = if (currentType == VIS_TYPE_BARS) 0.05f else 0.12f
+        currentLerpFactor = if (currentType == VIS_TYPE_BARS || currentType == VIS_TYPE_BOTTOM_BARS) 0.05f else 0.12f
 
         targetAmplitudes = FloatArray(newPointsCount)
         smoothedAmplitudes = FloatArray(newPointsCount)
@@ -107,33 +101,25 @@ class BaseGraphic @JvmOverloads constructor(
 
     /**
      * Updates the waveform based on new data.
-     * Made by Gemini. Refactored to fit into this class by Emmett.
-     *
-     * @param waveform ByteArray to base the waveform off of.
      */
-    public fun updateWaveform(waveform: ByteArray) {
+    @Synchronized
+    fun updateWaveform(waveform: ByteArray) {
         val desiredPoints = targetAmplitudes.size
         val skipStep = waveform.size / desiredPoints
         if (skipStep < 1) return
 
-        // Compute baseline root energy metrics
         var totalChunkEnergy = 0f
         for (b in waveform) {
             totalChunkEnergy += abs((b.toInt() and 0xFF - 128) / 128f)
         }
         val averageEnergy = if (waveform.isNotEmpty()) totalChunkEnergy / waveform.size else 0f
 
-        // Define clean threshold limits to bypass system AGC
-        val noiseFloor = 0.06f       // Any energy below this is treated as quiet air
-        val maxExpectedEnergy = 0.26f // Real-world peak energy threshold for standard music mixes
+        val noiseFloor = 0.06f
+        val maxExpectedEnergy = 0.26f
 
-        // Map the raw energy value into a highly reactive, clamped 0.0 to 1.0 range index
         val normalizedEnergy = ((averageEnergy - noiseFloor) / (maxExpectedEnergy - noiseFloor)).coerceIn(0f, 1f)
-
-        // Cubic Curve scaling creates wide contrast gaps between low-level noise and true beat hits
         val powerEnergy = normalizedEnergy * normalizedEnergy * normalizedEnergy
 
-        // Quiet parts drop to a baseline size of 0.1, while beat drops scale up to 2.6
         targetVolumeMultiplier = 0.1f + (powerEnergy * 2.5f)
 
         for (i in 0 until desiredPoints) {
@@ -141,14 +127,13 @@ class BaseGraphic @JvmOverloads constructor(
             if (rawIndex >= waveform.size) break
 
             val rawValue = (waveform[rawIndex].toInt() and 0xFF - 128) / 128f
-            val isLinearMode = currentType == VIS_TYPE_WAVE || currentType == VIS_TYPE_BARS
-            val windowMultiplier = if (isLinearMode) sin((i.toFloat() / (desiredPoints - 1)) * PI).toFloat() else 1.0f
 
-            // Inject the energy normalization straight into the individual node positions
-            // This suppresses jittery micro-wiggles during quiet acoustic movements
+            val isLinearMode = currentType == VIS_TYPE_WAVE || currentType == VIS_TYPE_BARS || currentType == VIS_TYPE_BOTTOM_BARS || currentType == VIS_TYPE_MIRROR_WAVE
+            val windowMultiplier = if (isLinearMode) sin((i.toFloat() / (desiredPoints - 1)) * PI).toFloat() else 1.0f
             val attenuationFactor = 0.15f + (normalizedEnergy * 0.85f)
 
-            targetAmplitudes[i] = if (currentType == VIS_TYPE_BARS || currentType == VIS_TYPE_CIRCLE_BARS) {
+            val wantsAbsolute = currentType == VIS_TYPE_BARS || currentType == VIS_TYPE_CIRCLE_BARS || currentType == VIS_TYPE_BOTTOM_BARS || currentType == VIS_TYPE_CIRCLE_GROW
+            targetAmplitudes[i] = if (wantsAbsolute) {
                 abs(rawValue) * windowMultiplier * attenuationFactor
             } else {
                 rawValue * windowMultiplier * attenuationFactor
@@ -158,13 +143,12 @@ class BaseGraphic @JvmOverloads constructor(
         postInvalidateOnAnimation()
     }
 
-
-
     /**
      * vvvvv -------------- PRIVATE FUNCTIONS -------------- vvvvv
      */
     private fun updatePaintConfiguration() {
-        if (currentType == VIS_TYPE_BARS) {
+        val isBarLayout = currentType == VIS_TYPE_BARS || currentType == VIS_TYPE_BOTTOM_BARS || currentType == VIS_TYPE_CIRCLE_BARS
+        if (isBarLayout) {
             wavePaint.strokeWidth = 5f
             currentGlowRadius = 8f
             wavePaint.setShadowLayer(currentGlowRadius, 0f, 0f, Color.parseColor("#008a00"))
@@ -175,12 +159,10 @@ class BaseGraphic @JvmOverloads constructor(
         }
     }
 
-
-
     /**
      * vvvvv -------------- DRAWING FUNCTIONS -------------- vvvvv
      */
-
+    @Synchronized
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -188,38 +170,33 @@ class BaseGraphic @JvmOverloads constructor(
         if (pointsCount < 2) return
         var isAnimating = false
 
-        // Enhanced Easing Equation: Snaps out instantly on beats (0.35f), recedes gracefully (0.10f)
         val volumeLerp = if (targetVolumeMultiplier > dynamicVolumeMultiplier) 0.35f else 0.10f
         dynamicVolumeMultiplier += (targetVolumeMultiplier - dynamicVolumeMultiplier) * volumeLerp
 
-        // Common frame easing calculations
         for (i in 0 until pointsCount) {
             val delta = targetAmplitudes[i] - smoothedAmplitudes[i]
             smoothedAmplitudes[i] += delta * currentLerpFactor
 
-            // If any value hasn't settled yet, flag that we need another frame pass
             if (abs(delta) > 0.001f) {
                 isAnimating = true
             }
         }
 
-        // Always animate if the volume envelope tracker is still moving
         if (abs(targetVolumeMultiplier - dynamicVolumeMultiplier) > 0.01f) {
             isAnimating = true
         }
 
-        // When is the Kotlin equivalent of a Switch statement.
         when (currentType) {
-            NOTHING -> {}
-            MENU -> {drawMenu(canvas)}
-            VIS_MENU -> {}
-            VIS_TYPE_WAVE -> {drawVisWaveLine(canvas)}
-            VIS_TYPE_BARS -> {drawVisBarsLine(canvas)}
-            VIS_TYPE_CIRCLE_WAVE -> {drawVisCircleWave(canvas)}
-            VIS_TYPE_CIRCLE_BARS -> {drawVisCircleBars(canvas)}
-            QUEUE -> {}
-            FILES -> {}
-            SETTINGS -> {}
+            MENU -> { drawMenu(canvas) }
+            VIS_TYPE_WAVE -> { drawVisWaveLine(canvas) }
+            VIS_TYPE_BARS -> { drawVisBarsLine(canvas) }
+            VIS_TYPE_CIRCLE_WAVE -> { drawVisCircleWave(canvas) }
+            VIS_TYPE_CIRCLE_BARS -> { drawVisCircleBars(canvas) }
+            VIS_TYPE_BOTTOM_BARS -> { drawVisBottomBars(canvas) }
+            VIS_TYPE_CIRCLE_GROW -> { drawVisConcentricRings(canvas) }
+            VIS_TYPE_MIRROR_WAVE -> { drawVisMirrorWave(canvas) }
+            VIS_TYPE_SMILEY -> { drawVisSmiley(canvas) }
+            NOTHING, VIS_MENU, QUEUE, FILES, SETTINGS -> {}
         }
 
         if (isAnimating) {
@@ -227,27 +204,13 @@ class BaseGraphic @JvmOverloads constructor(
         }
     }
 
-    private fun drawMenu(canvas: Canvas) {
-    }
+    private fun drawMenu(canvas: Canvas) {}
 
-    /**
-     * Draws the wave line visualizer. Looks like a wave.
-     * Math for drawing this made by Gemini. Refactored to fit into this class by Emmett.
-     *
-     * @param canvas The canvas to be drawn on. Usually passed from onDraw()'s canvas.
-     */
     private fun drawVisWaveLine(canvas: Canvas) {
         val pointsCount = targetAmplitudes.size
-        // Wave stays anchored at 3/5ths down the canvas
         val centerY = height * (4f / 5f)
-        val maxVerticalStretch = (height - centerY) * 0.70f * dynamicVolumeMultiplier
         val stepX = width.toFloat() / (pointsCount - 1)
-
-        // Run common frame easing calculations
-        for (i in 0 until pointsCount) {
-            smoothedAmplitudes[i] = smoothedAmplitudes[i] +
-                    (targetAmplitudes[i] - smoothedAmplitudes[i]) * currentLerpFactor
-        }
+        val maxVerticalStretch = centerY * 0.35f * dynamicVolumeMultiplier
 
         wavePaint.style = Paint.Style.STROKE
         wavePath.reset()
@@ -256,44 +219,21 @@ class BaseGraphic @JvmOverloads constructor(
         for (i in 1 until pointsCount) {
             val currentX = i * stepX
             val currentY = centerY - (smoothedAmplitudes[i] * maxVerticalStretch)
-
             val previousX = (i - 1) * stepX
             val previousY = centerY - (smoothedAmplitudes[i - 1] * maxVerticalStretch)
 
-            val controlX1 = previousX + (stepX / 2f)
-            val controlY1 = previousY
-
-            val controlX2 = previousX + (stepX / 2f)
-            val controlY2 = currentY
-
-            wavePath.cubicTo(controlX1, controlY1, controlX2, controlY2, currentX, currentY)
+            wavePath.cubicTo(previousX + (stepX / 2f), previousY, previousX + (stepX / 2f), currentY, currentX, currentY)
         }
         canvas.drawPath(wavePath, wavePaint)
     }
 
-    /**
-     * Draws the bars line visualizer. Looks like a wave.
-     * Math for drawing this made by Gemini. Refactored to fit into this class by Emmett.
-     *
-     * @param canvas The canvas to be drawn on. Usually passed from onDraw()'s canvas.
-     */
     private fun drawVisBarsLine(canvas: Canvas) {
         val pointsCount = targetAmplitudes.size
         val stepX = width.toFloat() / (pointsCount - 1)
-        // Bars are centered exactly 1/2 down the canvas
         val centerY = height * (1f / 2f)
-
-        // Scale overall height by the dynamic volume multiplier
-        val maxVerticalStretch = centerY * 0.70f * dynamicVolumeMultiplier
-
-        // Run common frame easing calculations
-        for (i in 0 until pointsCount) {
-            smoothedAmplitudes[i] = smoothedAmplitudes[i] +
-                    (targetAmplitudes[i] - smoothedAmplitudes[i]) * currentLerpFactor
-        }
+        val maxVerticalStretch = centerY * 0.35f * dynamicVolumeMultiplier
 
         wavePaint.style = Paint.Style.FILL_AND_STROKE
-
         val minHeightPercentOfStretch = 0.01f
         val maxStretchCompressionRatio = 0.55f
 
@@ -302,44 +242,199 @@ class BaseGraphic @JvmOverloads constructor(
             val compressedMagnitude = minHeightPercentOfStretch + (smoothedAmplitudes[i] * maxStretchCompressionRatio)
             val barHalfHeight = compressedMagnitude * maxVerticalStretch
 
-            val topY = centerY - barHalfHeight
-            val bottomY = centerY + barHalfHeight
-
-            canvas.drawLine(x, topY, x, bottomY, wavePaint)
+            canvas.drawLine(x, centerY - barHalfHeight, x, centerY + barHalfHeight, wavePaint)
         }
     }
 
-    /**
-     * Draws a continuous, looping wiggly line around a central ring.
-     * Math for drawing this made by Gemini. Refactored to fit into this class by Emmett.
-     *
-     * @param canvas The canvas to be drawn on. Usually passed from onDraw()'s canvas.
-     */
+    private fun drawVisBottomBars(canvas: Canvas) {
+        val pointsCount = targetAmplitudes.size
+        val stepX = width.toFloat() / (pointsCount - 1)
+        val bottomY = height.toFloat()
+        val maxVerticalStretch = height * 0.35f * dynamicVolumeMultiplier
+
+        wavePaint.style = Paint.Style.FILL_AND_STROKE
+        val minHeightPercent = 0.02f
+        val maxCompression = 0.75f
+
+        for (i in 0 until pointsCount) {
+            val x = i * stepX
+            val compressedMagnitude = minHeightPercent + (smoothedAmplitudes[i] * maxCompression)
+            val topY = bottomY - (compressedMagnitude * maxVerticalStretch)
+
+            canvas.drawLine(x, bottomY, x, topY, wavePaint)
+        }
+    }
+
+    private fun drawVisConcentricRings(canvas: Canvas) {
+        val pointsCount = targetAmplitudes.size
+        wavePaint.style = Paint.Style.STROKE
+        wavePaint.strokeWidth = 5f
+
+        val cx = width / 2f
+        val cy = height / 2f
+        val maxRadius = min(width, height) * 0.40f
+
+        val bandSize = pointsCount / 3
+        var bassSum = 0f
+        var midSum = 0f
+        var trebleSum = 0f
+
+        for (i in 0 until bandSize) {
+            bassSum += smoothedAmplitudes[i]
+            midSum += smoothedAmplitudes[i + bandSize]
+            trebleSum += smoothedAmplitudes[i + (bandSize * 2)]
+        }
+
+        val avgBass = (bassSum / bandSize).coerceIn(0f, 1f)
+        val avgMid = (midSum / bandSize).coerceIn(0f, 1f)
+        val avgTreble = (trebleSum / bandSize).coerceIn(0f, 1f)
+
+        val innerRadius = maxRadius * 0.30f + (avgBass * maxRadius * 0.25f * dynamicVolumeMultiplier)
+        canvas.drawCircle(cx, cy, innerRadius, wavePaint)
+
+        val midRadius = maxRadius * 0.60f + (avgMid * maxRadius * 0.20f * dynamicVolumeMultiplier)
+        canvas.drawCircle(cx, cy, midRadius, wavePaint)
+
+        val outerRadius = maxRadius * 0.85f + (avgTreble * maxRadius * 0.15f * dynamicVolumeMultiplier)
+        canvas.drawCircle(cx, cy, outerRadius, wavePaint)
+    }
+
+    private fun drawVisMirrorWave(canvas: Canvas) {
+        val pointsCount = targetAmplitudes.size
+        val centerY = height * (1f / 2f)
+        val stepX = width.toFloat() / (pointsCount - 1)
+        val maxVerticalStretch = centerY * 0.35f * dynamicVolumeMultiplier
+
+        wavePaint.style = Paint.Style.STROKE
+        wavePath.reset()
+        mirrorPath.reset()
+
+        wavePath.moveTo(0f, centerY)
+        mirrorPath.moveTo(0f, centerY)
+
+        for (i in 1 until pointsCount) {
+            val currentX = i * stepX
+            val offset = smoothedAmplitudes[i] * maxVerticalStretch
+            val currentTopY = centerY - offset
+            val currentBottomY = centerY + offset
+
+            val previousX = (i - 1) * stepX
+            val prevOffset = smoothedAmplitudes[i - 1] * maxVerticalStretch
+            val previousTopY = centerY - prevOffset
+            val previousBottomY = centerY + prevOffset
+
+            val cpX1 = previousX + (stepX / 2f)
+            wavePath.cubicTo(cpX1, previousTopY, cpX1, currentTopY, currentX, currentTopY)
+            mirrorPath.cubicTo(cpX1, previousBottomY, cpX1, currentBottomY, currentX, currentBottomY)
+        }
+
+        canvas.drawPath(wavePath, wavePaint)
+        canvas.drawPath(mirrorPath, wavePaint)
+    }
+
     private fun drawVisCircleWave(canvas: Canvas) {
         val pointsCount = targetAmplitudes.size
-
         wavePaint.style = Paint.Style.STROKE
         wavePaint.strokeWidth = 6f
         wavePaint.setShadowLayer(currentGlowRadius, 0f, 0f, Color.parseColor("#008a00"))
-
         wavePath.reset()
 
         val cx = width / 2f
         val cy = height / 2f
         val baseRadius = min(width, height) * 0.25f
-
         val maxStretch = baseRadius * 0.25f * dynamicVolumeMultiplier
 
-        // Loop to pointsCount inclusive so the final line segment joins back to the start seamlessly
         for (i in 0..pointsCount) {
             val index = i % pointsCount
             val angle = (i * 2 * PI / pointsCount).toFloat()
-
-            // Modulate the radius using the signed amplitude value (allows inward and outward wiggles)
             val currentRadius = baseRadius + (smoothedAmplitudes[index] * maxStretch)
 
             val x = cx + currentRadius * cos(angle)
             val y = cy + currentRadius * sin(angle)
+
+            if (i == 0) wavePath.moveTo(x, y) else wavePath.lineTo(x, y)
+        }
+        canvas.drawPath(wavePath, wavePaint)
+    }
+
+    private fun drawVisCircleBars(canvas: Canvas) {
+        val pointsCount = targetAmplitudes.size
+        wavePaint.strokeWidth = 12f
+        wavePaint.style = Paint.Style.STROKE
+        wavePaint.setShadowLayer(currentGlowRadius, 0f, 0f, Color.parseColor("#00FF00"))
+
+        val cx = width / 2f
+        val cy = height / 2f
+        val baseRadius = min(width, height) * 0.25f
+        val maxBarLength = baseRadius * 0.50f * dynamicVolumeMultiplier
+
+        canvas.drawCircle(cx, cy, baseRadius, wavePaint)
+        val minHeightRatio = 0.02f
+        val maxCompressionRatio = 0.80f
+
+        for (i in 0 until pointsCount) {
+            val angle = (i * 2 * PI / pointsCount).toFloat()
+            val cosAngle = cos(angle)
+            val sinAngle = sin(angle)
+
+            val compressedMagnitude = minHeightRatio + (smoothedAmplitudes[i] * maxCompressionRatio)
+            val currentBarLength = compressedMagnitude * maxBarLength
+
+            canvas.drawLine(
+                cx + baseRadius * cosAngle,
+                cy + baseRadius * sinAngle,
+                cx + (baseRadius + currentBarLength) * cosAngle,
+                cy + (baseRadius + currentBarLength) * sinAngle,
+                wavePaint
+            )
+        }
+    }
+
+    /**
+     * Draws a line-art smiley face whose open mouth morphs and wiggles dynamically with audio.
+     */
+    private fun drawVisSmiley(canvas: Canvas) {
+        val pointsCount = targetAmplitudes.size
+        val cx = width / 2f
+        val cy = height / 2f
+        val baseRadius = min(width, height) * 0.35f
+
+        wavePaint.style = Paint.Style.STROKE
+        wavePaint.strokeWidth = 6f
+        wavePaint.setShadowLayer(currentGlowRadius, 0f, 0f, Color.parseColor("#008a00"))
+
+        // 1. Draw outer head profile
+        canvas.drawCircle(cx, cy, baseRadius, wavePaint)
+
+        // 2. Draw eye line rings
+        val eyeOffsetX = baseRadius * 0.35f
+        val eyeOffsetY = baseRadius * 0.20f
+        val eyeRadius = baseRadius * 0.08f
+        canvas.drawCircle(cx - eyeOffsetX, cy - eyeOffsetY, eyeRadius, wavePaint)
+        canvas.drawCircle(cx + eyeOffsetX, cy - eyeOffsetY, eyeRadius, wavePaint)
+
+        // 3. Draw an elastic, closed-loop wavy mouth layout with scaled bounds
+        wavePath.reset()
+
+        val rx = baseRadius * 0.50f
+        val ry = baseRadius * 0.08f
+
+        // Loop completely around 360 degrees inclusive to seamlessly close the loop
+        for (i in 0..pointsCount) {
+            val index = i % pointsCount
+            val angle = (i * 2 * PI / pointsCount).toFloat()
+
+            val cosAngle = cos(angle)
+            val sinAngle = sin(angle)
+
+            // Parabolic mapping forces the oval base structure to warp into a smiling arc expression
+            val smileBend = (1f - cosAngle * cosAngle) * (baseRadius * 0.16f)
+
+            // THE FIX: Tamed macro expansion down to 0.6f and micro wiggles to 0.07f to keep mouth slim
+            val dynamicRy = (ry * (0.1f + dynamicVolumeMultiplier * 0.6f)) + (smoothedAmplitudes[index] * baseRadius * 0.07f)
+
+            val x = cx + rx * cosAngle
+            val y = cy + (baseRadius * 0.20f) + smileBend + (dynamicRy * sinAngle)
 
             if (i == 0) {
                 wavePath.moveTo(x, y)
@@ -347,55 +442,6 @@ class BaseGraphic @JvmOverloads constructor(
                 wavePath.lineTo(x, y)
             }
         }
-
         canvas.drawPath(wavePath, wavePaint)
-    }
-
-    /**
-     * Draws the radial circle bars visualizer projecting outwards from a central ring.
-     * Math for drawing this made by Gemini. Refactored to fit into this class by Emmett.
-     *
-     * @param canvas The canvas to be drawn on. Usually passed from onDraw()'s canvas.
-     */
-    private fun drawVisCircleBars(canvas: Canvas) {
-        val pointsCount = targetAmplitudes.size
-        wavePaint.strokeWidth = 12f
-        wavePaint.style = Paint.Style.STROKE
-        wavePaint.setShadowLayer(currentGlowRadius, 0f, 0f, Color.parseColor("#00FF00"))
-
-        // Find center points and calculate a safe bounding layout footprint
-        val cx = width / 2f
-        val cy = height / 2f
-        val baseRadius = min(width, height) * 0.25f
-        // Scale outward bar length limits by the dynamic volume multiplier
-        val maxBarLength = baseRadius * 0.50f * dynamicVolumeMultiplier
-
-        // Draw the inner solid reference ring layer
-        canvas.drawCircle(cx, cy, baseRadius, wavePaint)
-
-        // Subtle range compression modifiers specific to circle rendering
-        val minHeightRatio = 0.02f
-        val maxCompressionRatio = 0.80f
-
-        for (i in 0 until pointsCount) {
-            // Distribute angles evenly across 360 degrees
-            val angle = (i * 2 * PI / pointsCount).toFloat()
-
-            val cosAngle = cos(angle)
-            val sinAngle = sin(angle)
-
-            val compressedMagnitude = minHeightRatio + (smoothedAmplitudes[i] * maxCompressionRatio)
-            val currentBarLength = compressedMagnitude * maxBarLength
-
-            // Start point sits directly on the ring's edge
-            val startX = cx + baseRadius * cosAngle
-            val startY = cy + baseRadius * sinAngle
-
-            // End point shoots directly outward along the radial line vector
-            val endX = cx + (baseRadius + currentBarLength) * cosAngle
-            val endY = cy + (baseRadius + currentBarLength) * sinAngle
-
-            canvas.drawLine(startX, startY, endX, endY, wavePaint)
-        }
     }
 }
