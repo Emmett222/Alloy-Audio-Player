@@ -10,12 +10,13 @@ import android.view.View
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.hypot
 import kotlin.math.min
 import kotlin.math.sin
 
 /**
  * Base graphic for the green screen on the player. This is needed to switch between graphics.
- * Fully optimized with headroom limits and an elastic, tamed wavy talking smiley face.
+ * Made mostly with Gemini.
  *
  * @author Emmett Grebe
  * @version 5-26-2026
@@ -25,9 +26,7 @@ class BaseGraphic @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
-    /**
-     * vvvv -------------- IMMUTABLE VARIABLES -------------- vvvvv
-     */
+
     companion object {
         const val NOTHING = 0
         const val MENU = 1
@@ -56,9 +55,6 @@ class BaseGraphic @JvmOverloads constructor(
     private val wavePath = Path()
     private val mirrorPath = Path()
 
-    /**
-     * vvvv -------------- MUTABLE VARIABLES -------------- vvvvv
-     */
     var currentType: Int = 0
     private var currentGlowRadius = 14f
     private var currentLerpFactor = 0.12f
@@ -67,9 +63,6 @@ class BaseGraphic @JvmOverloads constructor(
     private var dynamicVolumeMultiplier = 1.0f
     private var targetVolumeMultiplier = 1.0f
 
-    /**
-     * vvvvv -------------- PUBLIC FUNCTIONS -------------- vvvvv
-     */
     @Synchronized
     fun changeScreen(screenType: Int) {
         if (currentType == screenType) return
@@ -77,13 +70,12 @@ class BaseGraphic @JvmOverloads constructor(
 
         updatePaintConfiguration()
 
-        var newPointsCount = 0
-        when (currentType) {
-            VIS_TYPE_BARS, VIS_TYPE_BOTTOM_BARS -> newPointsCount = 32
-            VIS_TYPE_CIRCLE_BARS, VIS_TYPE_CIRCLE_WAVE -> newPointsCount = 96
-            VIS_TYPE_CIRCLE_GROW -> newPointsCount = 48
-            VIS_TYPE_SMILEY -> newPointsCount = 64
-            else -> newPointsCount = 16
+        val newPointsCount = when (currentType) {
+            VIS_TYPE_BARS, VIS_TYPE_BOTTOM_BARS -> 32
+            VIS_TYPE_CIRCLE_BARS, VIS_TYPE_CIRCLE_WAVE -> 96
+            VIS_TYPE_CIRCLE_GROW -> 48
+            VIS_TYPE_SMILEY -> 64
+            else -> 16
         }
 
         currentLerpFactor = if (currentType == VIS_TYPE_BARS || currentType == VIS_TYPE_BOTTOM_BARS) 0.05f else 0.12f
@@ -100,52 +92,68 @@ class BaseGraphic @JvmOverloads constructor(
     }
 
     /**
-     * Updates the waveform based on new data.
+     * Updates the visualizer using Frequency Domain (FFT) data instead of raw waveforms.
      */
     @Synchronized
-    fun updateWaveform(waveform: ByteArray) {
+    fun updateFFT(fft: ByteArray) {
         val desiredPoints = targetAmplitudes.size
-        val skipStep = waveform.size / desiredPoints
-        if (skipStep < 1) return
+
+        // The first byte is the DC component, the second is Nyquist.
+        val usableFftSize = fft.size - 2
+        val maxBin = usableFftSize / 2
+
+        if (maxBin < desiredPoints) return
 
         var totalChunkEnergy = 0f
-        for (b in waveform) {
-            totalChunkEnergy += abs((b.toInt() and 0xFF - 128) / 128f)
-        }
-        val averageEnergy = if (waveform.isNotEmpty()) totalChunkEnergy / waveform.size else 0f
 
-        val noiseFloor = 0.06f
-        val maxExpectedEnergy = 0.26f
+        for (i in 0 until desiredPoints) {
+            val startPercent = i.toFloat() / desiredPoints
+            val endPercent = (i + 1).toFloat() / desiredPoints
+
+            // Logarithmic binning for human hearing curve
+            var startBin = (startPercent * startPercent * startPercent * maxBin).toInt().coerceAtLeast(1)
+            var endBin = (endPercent * endPercent * endPercent * maxBin).toInt().coerceAtMost(maxBin)
+
+            if (startBin >= endBin) endBin = startBin + 1
+
+            // Average the magnitudes across the calculated bin range
+            var bandMagnitudeSum = 0f
+            var binCount = 0
+
+            for (bin in startBin until endBin) {
+                val rawIndex = bin * 2
+                if (rawIndex >= fft.size - 1) break
+                val real = fft[rawIndex].toFloat()
+                val imaginary = fft[rawIndex + 1].toFloat()
+                bandMagnitudeSum += kotlin.math.hypot(real, imaginary)
+                binCount++
+            }
+
+            val avgMagnitude = if (binCount > 0) bandMagnitudeSum / binCount else 0f
+            totalChunkEnergy += avgMagnitude
+
+            // THE FIX 1: Tamed the high-frequency EQ boost from 7.0f down to 4.0f
+            val eqBoost = 1.0f + (startPercent * 4.0f)
+
+            // THE FIX 2: Raised the normalization ceiling from 45f to 90f to cut sensitivity in half
+            targetAmplitudes[i] = ((avgMagnitude * eqBoost) / 90f).coerceIn(0f, 1f)
+        }
+
+        // Macro Volume Engine (Calculates Beat Drops)
+        val averageEnergy = if (desiredPoints > 0) totalChunkEnergy / desiredPoints else 0f
+
+        // THE FIX 3: Raised the macro ceiling so it requires a much louder beat to trigger the screen stretch
+        val noiseFloor = 2.0f
+        val maxExpectedEnergy = 35.0f // Increased from 18.0f
 
         val normalizedEnergy = ((averageEnergy - noiseFloor) / (maxExpectedEnergy - noiseFloor)).coerceIn(0f, 1f)
         val powerEnergy = normalizedEnergy * normalizedEnergy * normalizedEnergy
 
         targetVolumeMultiplier = 0.1f + (powerEnergy * 2.5f)
 
-        for (i in 0 until desiredPoints) {
-            val rawIndex = i * skipStep
-            if (rawIndex >= waveform.size) break
-
-            val rawValue = (waveform[rawIndex].toInt() and 0xFF - 128) / 128f
-
-            val isLinearMode = currentType == VIS_TYPE_WAVE || currentType == VIS_TYPE_BARS || currentType == VIS_TYPE_BOTTOM_BARS || currentType == VIS_TYPE_MIRROR_WAVE
-            val windowMultiplier = if (isLinearMode) sin((i.toFloat() / (desiredPoints - 1)) * PI).toFloat() else 1.0f
-            val attenuationFactor = 0.15f + (normalizedEnergy * 0.85f)
-
-            val wantsAbsolute = currentType == VIS_TYPE_BARS || currentType == VIS_TYPE_CIRCLE_BARS || currentType == VIS_TYPE_BOTTOM_BARS || currentType == VIS_TYPE_CIRCLE_GROW
-            targetAmplitudes[i] = if (wantsAbsolute) {
-                abs(rawValue) * windowMultiplier * attenuationFactor
-            } else {
-                rawValue * windowMultiplier * attenuationFactor
-            }
-        }
-
         postInvalidateOnAnimation()
     }
 
-    /**
-     * vvvvv -------------- PRIVATE FUNCTIONS -------------- vvvvv
-     */
     private fun updatePaintConfiguration() {
         val isBarLayout = currentType == VIS_TYPE_BARS || currentType == VIS_TYPE_BOTTOM_BARS || currentType == VIS_TYPE_CIRCLE_BARS
         if (isBarLayout) {
@@ -159,9 +167,6 @@ class BaseGraphic @JvmOverloads constructor(
         }
     }
 
-    /**
-     * vvvvv -------------- DRAWING FUNCTIONS -------------- vvvvv
-     */
     @Synchronized
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -390,9 +395,6 @@ class BaseGraphic @JvmOverloads constructor(
         }
     }
 
-    /**
-     * Draws a line-art smiley face whose open mouth morphs and wiggles dynamically with audio.
-     */
     private fun drawVisSmiley(canvas: Canvas) {
         val pointsCount = targetAmplitudes.size
         val cx = width / 2f
@@ -403,23 +405,19 @@ class BaseGraphic @JvmOverloads constructor(
         wavePaint.strokeWidth = 6f
         wavePaint.setShadowLayer(currentGlowRadius, 0f, 0f, Color.parseColor("#008a00"))
 
-        // 1. Draw outer head profile
         canvas.drawCircle(cx, cy, baseRadius, wavePaint)
 
-        // 2. Draw eye line rings
         val eyeOffsetX = baseRadius * 0.35f
         val eyeOffsetY = baseRadius * 0.20f
         val eyeRadius = baseRadius * 0.08f
         canvas.drawCircle(cx - eyeOffsetX, cy - eyeOffsetY, eyeRadius, wavePaint)
         canvas.drawCircle(cx + eyeOffsetX, cy - eyeOffsetY, eyeRadius, wavePaint)
 
-        // 3. Draw an elastic, closed-loop wavy mouth layout with scaled bounds
         wavePath.reset()
 
         val rx = baseRadius * 0.50f
         val ry = baseRadius * 0.08f
 
-        // Loop completely around 360 degrees inclusive to seamlessly close the loop
         for (i in 0..pointsCount) {
             val index = i % pointsCount
             val angle = (i * 2 * PI / pointsCount).toFloat()
@@ -427,10 +425,7 @@ class BaseGraphic @JvmOverloads constructor(
             val cosAngle = cos(angle)
             val sinAngle = sin(angle)
 
-            // Parabolic mapping forces the oval base structure to warp into a smiling arc expression
             val smileBend = (1f - cosAngle * cosAngle) * (baseRadius * 0.16f)
-
-            // THE FIX: Tamed macro expansion down to 0.6f and micro wiggles to 0.07f to keep mouth slim
             val dynamicRy = (ry * (0.1f + dynamicVolumeMultiplier * 0.6f)) + (smoothedAmplitudes[index] * baseRadius * 0.07f)
 
             val x = cx + rx * cosAngle

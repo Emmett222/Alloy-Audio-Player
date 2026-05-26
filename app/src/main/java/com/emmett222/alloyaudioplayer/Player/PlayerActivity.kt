@@ -182,9 +182,7 @@ class PlayerActivity : AppCompatActivity() {
                                 waveform: ByteArray?,
                                 samplingRate: Int
                             ) {
-                                if (waveform != null) {
-                                    visualizerView.updateWaveform(waveform)
-                                }
+                                // Unused now
                             }
 
                             override fun onFftDataCapture(
@@ -192,14 +190,16 @@ class PlayerActivity : AppCompatActivity() {
                                 fft: ByteArray?,
                                 samplingRate: Int
                             ) {
-                                // Unused for now.
+                                if (fft != null) {
+                                    visualizerView.updateFFT(fft)
+                                }
                             }
                         }
                         newVis.setDataCaptureListener(
                             captureListener,
                             Visualizer.getMaxCaptureRate() / 2,
-                            true,
-                            false
+                            false,
+                            true
                         )
                         newVis.enabled = true
                         vis = newVis
