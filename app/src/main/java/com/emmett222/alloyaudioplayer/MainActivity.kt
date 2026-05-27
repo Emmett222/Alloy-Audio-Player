@@ -5,21 +5,19 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
-import android.view.View
-import android.widget.Button
+import android.view.HapticFeedbackConstants
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.material.button.MaterialButton
 import kotlin.arrayOf
 
 /**
  * Opening screen for Alloy. Asks for permissions if needed and takes user to file screen.
  *
  * @author Emmett Grebe
- * @version 5-20-2026
+ * @version 5-27-2026
  */
 class MainActivity : AppCompatActivity() {
 
@@ -50,14 +48,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var storageBtn: Button = findViewById(R.id.storage_btn)
+        val filesBtn: ImageButton = findViewById(R.id.filesBtn)
 
-        storageBtn.setOnClickListener {
+        filesBtn.setOnClickListener {
             if (checkPermission()) {
                 openFileList()
             } else {
                 requestPermission()
             }
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
 

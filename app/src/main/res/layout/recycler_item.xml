@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:padding="10dp"
     android:layout_height="wrap_content"
     android:background="@drawable/background_tile"
-    android:maxHeight="50dp"
-    >
+    android:maxHeight="50dp">
 
     <ImageView
         android:layout_width="36dp"
         android:layout_height="36dp"
+        android:tint="#00FF00"
         tools:src="@drawable/baseline_folder_24"
-        android:id="@+id/icon_view"/>
+        android:id="@+id/icon_view"
+        android:background="#0d380c"/>
 
     <TextView
         android:id="@+id/file_name_text_view"
+        android:padding="2dp"
         android:layout_width="296dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
