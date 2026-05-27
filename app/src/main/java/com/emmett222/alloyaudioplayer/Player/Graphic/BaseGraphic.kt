@@ -27,6 +27,7 @@ class BaseGraphic @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     companion object {
+        const val VIS_TYPE_NONE = 2
         const val VIS_TYPE_WAVE = 3
         const val VIS_TYPE_BARS = 4
         const val VIS_TYPE_CIRCLE_WAVE = 5
@@ -163,6 +164,9 @@ class BaseGraphic @JvmOverloads constructor(
     @Synchronized
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+
+        // Don't draw if type is nothing.
+        if (currentType == VIS_TYPE_NONE) return
 
         val pointsCount = targetAmplitudes.size
         if (pointsCount < 2) return

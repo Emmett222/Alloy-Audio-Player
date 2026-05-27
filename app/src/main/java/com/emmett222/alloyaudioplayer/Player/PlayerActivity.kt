@@ -384,7 +384,8 @@ class PlayerActivity : AppCompatActivity() {
         menuVisRecycler.adapter = VisualizerMenuAdapter(applicationContext) { clickedItem ->
             when (clickedItem) {
                 VisualizerMenuAdapter.NOVIS -> {
-                    // TODO make the vis function to turn it off completely.
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_NONE)
+                    backToVis(visGraphic, menuGraphic)
                 }
                 VisualizerMenuAdapter.LINEWAVE -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_WAVE)
