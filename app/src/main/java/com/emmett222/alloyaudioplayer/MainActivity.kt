@@ -57,10 +57,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val filesBtn: ImageButton = findViewById(R.id.filesBtn)
+        val wnBtn: ImageButton = findViewById(R.id.wnBtn)
 
         filesBtn.setOnClickListener {
             if (checkPermission()) {
                 openFileList()
+            } else {
+                requestPermission()
+            }
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+        wnBtn.setOnClickListener {
+            if (checkPermission()) {
+                startActivity(Intent(this@MainActivity, WhiteNoiseActivity::class.java))
             } else {
                 requestPermission()
             }

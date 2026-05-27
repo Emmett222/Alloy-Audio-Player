@@ -25,6 +25,9 @@
             android:name=".FileListActivity"
             android:exported="false" />
         <activity
+            android:name=".WhiteNoiseActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true" >
             <intent-filter>
@@ -43,6 +46,7 @@
                 <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
         </service>
+        <service android:name=".Background.WhiteNoiseEngine" />
     </application>
 
 </manifest>
