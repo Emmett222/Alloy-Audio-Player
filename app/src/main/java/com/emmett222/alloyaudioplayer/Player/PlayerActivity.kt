@@ -350,7 +350,7 @@ class PlayerActivity : AppCompatActivity() {
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleon)
                 shuffleOn = true;
             }
-
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
 
