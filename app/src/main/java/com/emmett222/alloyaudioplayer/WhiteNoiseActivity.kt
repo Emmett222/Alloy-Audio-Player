@@ -69,6 +69,9 @@ class WhiteNoiseActivity : AppCompatActivity() {
         val decBar: SeekBar = findViewById(R.id.decimationSeekBar)
         val filBar: SeekBar = findViewById(R.id.filtrationSeekBar)
         val modBar: SeekBar = findViewById(R.id.modulationSeekBar)
+        val spaBar: SeekBar = findViewById(R.id.spatialSeekBar)
+        val basBar: SeekBar = findViewById(R.id.bassCutSeekBar)
+        val winBar: SeekBar = findViewById(R.id.windSeekBar)
 
         // OnSeekBarChangeListener is like an interface. If you want to listen to seekbar, you must
         // do all 3 methods.
@@ -103,6 +106,45 @@ class WhiteNoiseActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) { // ONLY seek if the user touched it, not the system
                     noiseEngine?.updateModulation(progress)
+                }
+            }
+
+            // Unused methods.
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        spaBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            // Called whenever the seekbar is changed.
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) { // ONLY seek if the user touched it, not the system
+                    noiseEngine?.updateSpatialWidth(progress)
+                }
+            }
+
+            // Unused methods.
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        basBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            // Called whenever the seekbar is changed.
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) { // ONLY seek if the user touched it, not the system
+                    noiseEngine?.updateBassCut(progress)
+                }
+            }
+
+            // Unused methods.
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        winBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            // Called whenever the seekbar is changed.
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser) { // ONLY seek if the user touched it, not the system
+                    noiseEngine?.updateWindGusting(progress)
                 }
             }
 
