@@ -1,6 +1,7 @@
 package com.emmett222.alloyaudioplayer.Player
 
 import android.content.ComponentName
+import android.graphics.Color
 import android.media.MediaMetadataRetriever
 import android.media.audiofx.Visualizer
 import android.net.Uri
@@ -419,6 +420,11 @@ class PlayerActivity : AppCompatActivity() {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_SMILEY)
                     backToVis(visGraphic, menuGraphic)
                 }
+            }
+            if (clickedItem == VisualizerMenuAdapter.NOVIS) {
+                visualizerView.setBackgroundColor(Color.parseColor("#082107"))
+            } else {
+                visualizerView.setBackgroundColor(Color.parseColor("#0d380c"))
             }
         }
 
