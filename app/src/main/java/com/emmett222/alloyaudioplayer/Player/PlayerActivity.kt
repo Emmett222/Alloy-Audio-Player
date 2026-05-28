@@ -35,24 +35,41 @@ import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.StartMenuAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.VisualizerMenuAdapter
 import com.emmett222.alloyaudioplayer.R
 import java.io.File
+import kotlin.properties.Delegates
 
 /**
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 5-27-2026
+ * @version 5-28-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
+    /**
+     * vvvvv ---------- Files ---------- vvvvv
+     */
     lateinit var audioFile: File
+    lateinit var allFiles: Array<File>
+    var currentPosition = -1
+
+    /**
+     * vvvvv ---------- Player ---------- vvvvv
+     */
     lateinit var controller: MediaController
     var vis: Visualizer? = null // Nullable for later safety check.
+
+    /**
+     * vvvvv ---------- Status ---------- vvvvv
+     */
     var isStart: Boolean = true;
     var repeatOneOn: Boolean = false;
     var shuffleOn: Boolean = false;
     var repeatPlaylistOn: Boolean = false;
     var inMenu: Boolean = false
 
+    /**
+     * vvvvv ---------- Graphics ---------- vvvvv
+     */
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var updater: Runnable
     private lateinit var visualizerView: BaseGraphic
@@ -77,6 +94,7 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         this.audioFile = File(intent.getStringExtra("path"))
+        this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory})
         visualizerView = findViewById(R.id.visScreen)
 
         // This token is needed to connect to the service.
@@ -98,6 +116,7 @@ class PlayerActivity : AppCompatActivity() {
             setupTime()
             setupPauseBtn()
             setupFastBtns()
+            setupSkipBtns()
             setupRepeatOneBtn()
             setupShuffleBtn()
             setupMenuBtn()
@@ -148,6 +167,10 @@ class PlayerActivity : AppCompatActivity() {
         controller.prepare()
         controller.play()
     }
+
+    /**
+     * vvvvv -------------------- Setups -------------------- vvvvv
+     */
 
     /**
      * Sets up the audio visualizer.
@@ -317,6 +340,10 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupSkipBtns() {
+
+    }
+
     /**
      * Helper method to setup the repeat one button on load.
      */
@@ -445,14 +472,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Helper function to go back to visualizer.
-     */
-    private fun backToVis(visGraphic: BaseGraphic, menuGraphic: ConstraintLayout) {
-        menuGraphic.visibility = View.INVISIBLE
-        visGraphic.visibility = View.VISIBLE
-        inMenu = false
-    }
+
 
     /**
      * Helper method to setup the repeat playlist button on load.
@@ -482,6 +502,19 @@ class PlayerActivity : AppCompatActivity() {
         titleString.postDelayed({ // Only fires when the title is loaded.
             titleString.isSelected = true // So the marquee starts on load,
         }, 2000) // But waits two seconds before moving.
+    }
+
+    /**
+     * vvvvv -------------------- Helpers -------------------- vvvvv
+     */
+
+    /**
+     * Helper function to go back to visualizer.
+     */
+    private fun backToVis(visGraphic: BaseGraphic, menuGraphic: ConstraintLayout) {
+        menuGraphic.visibility = View.INVISIBLE
+        visGraphic.visibility = View.VISIBLE
+        inMenu = false
     }
 
     /**
