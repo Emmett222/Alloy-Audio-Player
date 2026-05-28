@@ -51,6 +51,7 @@ class PlayerActivity : AppCompatActivity() {
      */
     lateinit var audioFile: File
     lateinit var allFiles: Array<File>
+    lateinit var unShuffledAllFiles: Array<File>
     var currentPosition = -1
 
     /**
@@ -144,6 +145,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupFiles() {
         this.audioFile = File(intent.getStringExtra("path"))
         this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory})
+        this.unShuffledAllFiles = this.allFiles
 
         // withIndex() is like an iterator, but it keeps track of the index.
         for ((i, f) in this.allFiles.withIndex()) {
@@ -393,15 +395,24 @@ class PlayerActivity : AppCompatActivity() {
 
     /**
      * Helper method to setup the shuffle button on load.
-     * Right now, shuffle does nothing until the playlists are made.
      */
     private fun setupShuffleBtn() {
         val shuffleBtn: ImageButton = findViewById(R.id.shuffleBtn)
         shuffleBtn.setOnClickListener {
             if (shuffleOn) {
+                this.allFiles = unShuffledAllFiles
+                // withIndex() is like an iterator, but it keeps track of the index.
+                for ((i, f) in this.allFiles.withIndex()) {
+                    if (f == audioFile) {
+                        this.currentPosition = i
+                        break;
+                    }
+                }
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleoff)
                 shuffleOn = false;
             } else {
+                this.allFiles.shuffle()
+                this.currentPosition = -1
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleon)
                 shuffleOn = true;
             }
