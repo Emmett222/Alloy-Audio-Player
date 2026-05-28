@@ -185,7 +185,7 @@
         app:srcCompat="@drawable/btn_fr" />
 
     <ImageButton
-        android:id="@+id/fastRewind2"
+        android:id="@+id/skipBackBtn"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginEnd="8dp"
@@ -212,7 +212,7 @@
         app:srcCompat="@drawable/btn_ff" />
 
     <ImageButton
-        android:id="@+id/fastForward2"
+        android:id="@+id/skipForwardBtn"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_marginStart="8dp"

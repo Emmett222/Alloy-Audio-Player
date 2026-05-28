@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.ContactsContract
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.ImageButton
@@ -93,8 +94,8 @@ class PlayerActivity : AppCompatActivity() {
             insets
         }
 
-        this.audioFile = File(intent.getStringExtra("path"))
-        this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory})
+        setupFiles()
+
         visualizerView = findViewById(R.id.visScreen)
 
         // This token is needed to connect to the service.
@@ -110,9 +111,9 @@ class PlayerActivity : AppCompatActivity() {
             // THIS CODE RUNS ONLY WHEN CONNECTED
             controller = controllerFuture.get()
 
-            setupControllerFile()
+            setupControllerFile(audioFile)
             setupVisualizer()
-            setupTitle()
+            setupTitle(audioFile.name)
             setupTime()
             setupPauseBtn()
             setupFastBtns()
@@ -138,14 +139,30 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
+     * Helper method to setup the files and playlist of files.
+     */
+    private fun setupFiles() {
+        this.audioFile = File(intent.getStringExtra("path"))
+        this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory})
+
+        // withIndex() is like an iterator, but it keeps track of the index.
+        for ((i, f) in this.allFiles.withIndex()) {
+            if (f == audioFile) {
+                this.currentPosition = i
+                break;
+            }
+        }
+    }
+
+    /**
      * Helper method to setup the controller.
      */
-    private fun setupControllerFile() {
+    private fun setupControllerFile(newFile: File) {
         val retriever = MediaMetadataRetriever()
         var artistName = "Unknown Artist"
 
         try {
-            retriever.setDataSource(audioFile.absolutePath)
+            retriever.setDataSource(newFile.absolutePath)
             artistName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
                 ?: "Unknown Artist"
         } catch (e: Exception) {
@@ -155,9 +172,9 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         val mediaItemWithMetadata =
-            MediaItem.Builder().setUri(Uri.fromFile(audioFile)).setMediaMetadata(
+            MediaItem.Builder().setUri(Uri.fromFile(newFile)).setMediaMetadata(
                 MediaMetadata.Builder()
-                    .setTitle(audioFile.name)
+                    .setTitle(newFile.name)
                     .setArtist(artistName)
                     .setArtworkUri("android.resource://com.emmett222.alloyaudioplayer/drawable/background".toUri())
                     .build()
@@ -341,7 +358,17 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun setupSkipBtns() {
+        val skipFBtn: ImageButton = findViewById(R.id.skipForwardBtn)
+        val skipBBtn: ImageButton = findViewById(R.id.skipBackBtn)
 
+        skipFBtn.setOnClickListener {
+            skipForward()
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+        skipBBtn.setOnClickListener {
+            skipBackward()
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
     }
 
     /**
@@ -495,9 +522,9 @@ class PlayerActivity : AppCompatActivity() {
     /**
      * Helper method to setup scrolling title on load.
      */
-    private fun setupTitle() {
+    private fun setupTitle(title: String) {
         val titleString: TextView = findViewById(R.id.titleString)
-        titleString.text = audioFile.name
+        titleString.text = title
 
         titleString.postDelayed({ // Only fires when the title is loaded.
             titleString.isSelected = true // So the marquee starts on load,
@@ -507,6 +534,44 @@ class PlayerActivity : AppCompatActivity() {
     /**
      * vvvvv -------------------- Helpers -------------------- vvvvv
      */
+
+    /**
+     * Skips forward one song. If repeat playlist is on and the player is on the last song, it goes
+     * back to the beginning of the playlist. If not, does not skip.
+     */
+    fun skipForward() {
+        if ((currentPosition + 1 >= allFiles.size) && !repeatPlaylistOn) {
+            return
+        }
+
+        if (currentPosition + 1 >= allFiles.size) {
+            currentPosition = 0
+        } else {
+            currentPosition ++
+        }
+        this.audioFile = allFiles[currentPosition]
+        setupControllerFile(this.audioFile)
+        setupTitle(this.audioFile.name)
+    }
+
+    /**
+     * Skips backwards one song. If repeat playlist is on and the player is on the first song, skip
+     * backwards will take player to last song. If not, it does not do this.
+     */
+    fun skipBackward() {
+        if ((currentPosition == 0) && !repeatPlaylistOn) {
+            return
+        }
+
+        if (currentPosition == 0) {
+            currentPosition = (allFiles.size - 1)
+        } else {
+            currentPosition --
+        }
+        this.audioFile = allFiles[currentPosition]
+        setupControllerFile(this.audioFile)
+        setupTitle(this.audioFile.name)
+    }
 
     /**
      * Helper function to go back to visualizer.
