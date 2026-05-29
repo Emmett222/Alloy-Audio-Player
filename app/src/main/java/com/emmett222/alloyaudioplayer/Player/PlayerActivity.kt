@@ -157,7 +157,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupFiles() {
         this.audioFile = File(intent.getStringExtra("path"))
         this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory})
-        this.unShuffledAllFiles = this.allFiles
+        this.unShuffledAllFiles = this.allFiles.clone()
 
         // withIndex() is like an iterator, but it keeps track of the index.
         for ((i, f) in this.allFiles.withIndex()) {
@@ -413,23 +413,24 @@ class PlayerActivity : AppCompatActivity() {
         val shuffleBtn: ImageButton = findViewById(R.id.shuffleBtn)
         shuffleBtn.setOnClickListener {
             if (shuffleOn) {
-                this.allFiles = unShuffledAllFiles
-                // withIndex() is like an iterator, but it keeps track of the index.
-                for ((i, f) in this.allFiles.withIndex()) {
-                    if (f == audioFile) {
-                        this.currentPosition = i
-                        break;
-                    }
-                }
+                this.allFiles = unShuffledAllFiles.clone()
+                this.currentPosition = allFiles.indexOf(audioFile)
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleoff)
                 shuffleOn = false;
             } else {
-                this.allFiles.shuffle()
-                this.justShuffled = true
+                val mutablePlaylist = unShuffledAllFiles.toMutableList()
+
+                mutablePlaylist.remove(audioFile) // Pull out the active song
+                mutablePlaylist.shuffle()         // Shuffle the rest of the files
+                mutablePlaylist.add(0, audioFile) // Drop the active song right at the front (Index 0)
+
+                this.allFiles = mutablePlaylist.toTypedArray()
                 this.currentPosition = 0
+
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleon)
                 shuffleOn = true;
             }
+            this.currentPosition = allFiles.indexOf(audioFile)
             makeQueueMenu(audioQueue)
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
@@ -545,7 +546,8 @@ class PlayerActivity : AppCompatActivity() {
     private fun makeQueueMenu(queueItems: ArrayDeque<File>) {
         val items: Array<File> = allFiles.sliceArray(currentPosition..<allFiles.size)
         menuQueueRecycler.adapter = QueueAdapter(applicationContext, queueItems, items) { clickedItem ->
-            currentPosition = if (shuffleOn) unShuffledAllFiles.indexOf(clickedItem) else allFiles.indexOf(clickedItem)
+            currentPosition = allFiles.indexOf(clickedItem)
+            this.audioFile = clickedItem
             makeQueueMenu(queueItems)
             setupControllerFile(clickedItem)
             setupTitle(clickedItem.name)
@@ -599,11 +601,6 @@ class PlayerActivity : AppCompatActivity() {
 
         if (currentPosition + 1 >= allFiles.size) {
             currentPosition = 0
-        }
-        if (justShuffled) {
-            // If just shuffled, don't move currentPosition. The song is still the old song and is
-            // played before the new shuffled list.
-            justShuffled = false
         } else {
             currentPosition ++
         }
@@ -618,12 +615,10 @@ class PlayerActivity : AppCompatActivity() {
      * backwards will take player to last song. If not, it does not do this.
      */
     fun skipBackward() {
-        // If user just shuffled, there is nothing before the current song. Do nothing.
         // If the song is the first in the list and repeat playlist is not toggled, do nothing.
-        if (justShuffled || ((currentPosition == 0) && !repeatPlaylistOn)) {
+        if ((currentPosition == 0) && !repeatPlaylistOn) {
             return
         }
-
         if (currentPosition == 0) {
             currentPosition = (allFiles.size - 1)
         } else {
