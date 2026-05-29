@@ -548,21 +548,6 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Moves the queue forward.
-     */
-    private fun moveQueueForward() {
-
-    }
-
-    /**
-     * Moves the queue backward.
-     */
-    private fun moveQueueBackward() {
-
-    }
-
-
 
 
     /**
@@ -614,6 +599,7 @@ class PlayerActivity : AppCompatActivity() {
             currentPosition ++
         }
         this.audioFile = allFiles[currentPosition]
+        makeQueueMenu(audioQueue)
         setupControllerFile(this.audioFile)
         setupTitle(this.audioFile.name)
     }
@@ -633,6 +619,7 @@ class PlayerActivity : AppCompatActivity() {
             currentPosition --
         }
         this.audioFile = allFiles[currentPosition]
+        makeQueueMenu(audioQueue)
         setupControllerFile(this.audioFile)
         setupTitle(this.audioFile.name)
     }
