@@ -32,10 +32,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
 import com.emmett222.alloyaudioplayer.Player.Graphic.BaseGraphic
+import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.QueueAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.StartMenuAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.VisualizerMenuAdapter
 import com.emmett222.alloyaudioplayer.R
 import java.io.File
+import java.util.Queue
 import kotlin.properties.Delegates
 
 /**
@@ -53,6 +55,7 @@ class PlayerActivity : AppCompatActivity() {
     lateinit var allFiles: Array<File>
     lateinit var unShuffledAllFiles: Array<File>
     var currentPosition = -1
+    var audioQueue: ArrayDeque<File> = ArrayDeque<File>()
 
     /**
      * vvvvv ---------- Player ---------- vvvvv
@@ -75,6 +78,10 @@ class PlayerActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var updater: Runnable
     private lateinit var visualizerView: BaseGraphic
+    private lateinit var menuGraphic: ConstraintLayout
+    private lateinit var menuRecycler: RecyclerView
+    private lateinit var menuVisRecycler: RecyclerView
+    private lateinit var menuQueueRecycler: RecyclerView
 
     /**
      * Runs on opening the view.
@@ -98,6 +105,10 @@ class PlayerActivity : AppCompatActivity() {
         setupFiles()
 
         visualizerView = findViewById(R.id.visScreen)
+        menuGraphic = findViewById(R.id.menuContainer)
+        menuRecycler = menuGraphic.findViewById(R.id.menuRecycler)
+        menuVisRecycler = menuGraphic.findViewById(R.id.menuVisualizers)
+        menuQueueRecycler = menuGraphic.findViewById(R.id.menuQueue)
 
         // This token is needed to connect to the service.
         val sessionToken = SessionToken(this, ComponentName(this, MediaEngine::class.java))
@@ -426,70 +437,27 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupMenuBtn() {
         val menuBtn: ImageButton = findViewById(R.id.menuBtn)
         val visGraphic: BaseGraphic = findViewById(R.id.visScreen)
-        val menuGraphic: ConstraintLayout = findViewById(R.id.menuContainer)
-
-        val menuRecycler: RecyclerView = menuGraphic.findViewById(R.id.menuRecycler)
-        val menuVisRecycler: RecyclerView = menuGraphic.findViewById(R.id.menuVisualizers)
 
         menuRecycler.layoutManager = LinearLayoutManager(applicationContext)
         menuVisRecycler.layoutManager = LinearLayoutManager(applicationContext)
+        menuQueueRecycler.layoutManager = LinearLayoutManager(applicationContext)
+
+        makeVisMenu()
 
         // Whenever an item is clicked on the start menu, the start menu callback send the info
         // back to here. Uses the static global variables in the companion to determine which was
         // clicked.
         menuRecycler.adapter = StartMenuAdapter(applicationContext) { clickedItem ->
-            if (clickedItem == StartMenuAdapter.VISUALIZERS) {
-                menuRecycler.visibility = View.INVISIBLE
-                menuVisRecycler.visibility = View.VISIBLE
-            }
-        }
-
-        // Whenever an item is clicked on the visualizer menu, the start menu callback send the info
-        // back to here. Uses the static global variables in the companion to determine which was
-        // clicked.
-        menuVisRecycler.adapter = VisualizerMenuAdapter(applicationContext) { clickedItem ->
             when (clickedItem) {
-                VisualizerMenuAdapter.NOVIS -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_NONE)
-                    backToVis(visGraphic, menuGraphic)
+                StartMenuAdapter.VISUALIZERS -> {
+                    menuRecycler.visibility = View.INVISIBLE
+                    menuVisRecycler.visibility = View.VISIBLE
                 }
-                VisualizerMenuAdapter.LINEWAVE -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_WAVE)
-                    backToVis(visGraphic, menuGraphic)
+                StartMenuAdapter.QUEUE -> {
+                    menuRecycler.visibility = View.INVISIBLE
+                    makeQueueMenu(audioQueue)
+                    menuQueueRecycler.visibility = View.VISIBLE
                 }
-                VisualizerMenuAdapter.MIRLINEWAVE -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_MIRROR_WAVE)
-                    backToVis(visGraphic, menuGraphic)
-                }
-                VisualizerMenuAdapter.LINEBARS -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BARS)
-                    backToVis(visGraphic, menuGraphic)
-                }
-                VisualizerMenuAdapter.BOTLINEBARS -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BOTTOM_BARS)
-                    backToVis(visGraphic, menuGraphic)
-                }
-                VisualizerMenuAdapter.CIRCLEWAVE -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_WAVE)
-                    backToVis(visGraphic, menuGraphic)
-                }
-                VisualizerMenuAdapter.CIRCLEBAR -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_BARS)
-                    backToVis(visGraphic, menuGraphic)
-                }
-                VisualizerMenuAdapter.CIRCLEGROW -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_GROW)
-                    backToVis(visGraphic, menuGraphic)
-                }
-                VisualizerMenuAdapter.TALKINGSMILEY -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_SMILEY)
-                    backToVis(visGraphic, menuGraphic)
-                }
-            }
-            if (clickedItem == VisualizerMenuAdapter.NOVIS) {
-                visualizerView.setBackgroundColor(Color.parseColor("#082107"))
-            } else {
-                visualizerView.setBackgroundColor(Color.parseColor("#0d380c"))
             }
         }
 
@@ -504,11 +472,96 @@ class PlayerActivity : AppCompatActivity() {
 
                 menuRecycler.visibility = View.VISIBLE
                 menuVisRecycler.visibility = View.INVISIBLE
+                menuQueueRecycler.visibility = View.INVISIBLE
                 inMenu = true
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
+
+    /**
+     * Makes a new visualizer menu.
+     */
+    private fun makeVisMenu() {
+        // Whenever an item is clicked on the visualizer menu, the start menu callback send the info
+        // back to here. Uses the static global variables in the companion to determine which was
+        // clicked.
+        menuVisRecycler.adapter = VisualizerMenuAdapter(applicationContext) { clickedItem ->
+            when (clickedItem) {
+                VisualizerMenuAdapter.NOVIS -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_NONE)
+                    backToVis(visualizerView, menuGraphic)
+                }
+                VisualizerMenuAdapter.LINEWAVE -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_WAVE)
+                    backToVis(visualizerView, menuGraphic)
+                }
+                VisualizerMenuAdapter.MIRLINEWAVE -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_MIRROR_WAVE)
+                    backToVis(visualizerView, menuGraphic)
+                }
+                VisualizerMenuAdapter.LINEBARS -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BARS)
+                    backToVis(visualizerView, menuGraphic)
+                }
+                VisualizerMenuAdapter.BOTLINEBARS -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BOTTOM_BARS)
+                    backToVis(visualizerView, menuGraphic)
+                }
+                VisualizerMenuAdapter.CIRCLEWAVE -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_WAVE)
+                    backToVis(visualizerView, menuGraphic)
+                }
+                VisualizerMenuAdapter.CIRCLEBAR -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_BARS)
+                    backToVis(visualizerView, menuGraphic)
+                }
+                VisualizerMenuAdapter.CIRCLEGROW -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_GROW)
+                    backToVis(visualizerView, menuGraphic)
+                }
+                VisualizerMenuAdapter.TALKINGSMILEY -> {
+                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_SMILEY)
+                    backToVis(visualizerView, menuGraphic)
+                }
+            }
+            if (clickedItem == VisualizerMenuAdapter.NOVIS) {
+                visualizerView.setBackgroundColor(Color.parseColor("#082107"))
+            } else {
+                visualizerView.setBackgroundColor(Color.parseColor("#0d380c"))
+            }
+        }
+    }
+
+    /**
+     * Makes a new queue menu. Replaces old queue menu with new one.
+     *
+     * @param queueItems Items from the queue.
+     */
+    private fun makeQueueMenu(queueItems: ArrayDeque<File>) {
+        val items: Array<File> = allFiles.sliceArray(currentPosition..<allFiles.size)
+        menuQueueRecycler.adapter = QueueAdapter(applicationContext, queueItems, items) { clickedItem ->
+            currentPosition = if (shuffleOn) unShuffledAllFiles.indexOf(clickedItem) else allFiles.indexOf(clickedItem)
+            makeQueueMenu(queueItems)
+            setupControllerFile(clickedItem)
+            setupTitle(clickedItem.name)
+        }
+    }
+
+    /**
+     * Moves the queue forward.
+     */
+    private fun moveQueueForward() {
+
+    }
+
+    /**
+     * Moves the queue backward.
+     */
+    private fun moveQueueBackward() {
+
+    }
+
 
 
 
