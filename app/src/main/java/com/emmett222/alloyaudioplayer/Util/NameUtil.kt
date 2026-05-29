@@ -1,9 +1,17 @@
 package com.emmett222.alloyaudioplayer.Util
 
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.media.MediaMetadataRetriever
+import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.blue
 import java.io.File
 import java.util.TreeMap
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.green
+import androidx.core.graphics.red
 
 /**
  * A utilities class for commonly used functions that deal with names.
@@ -38,9 +46,10 @@ object NameUtil {
      * @param alphabetTree TreeMap to use. This can be made from generateAlphabetTable(). Needs:
      * - Keys: Each letter of the alphabet.
      * - Entries: 0-255 spread out amongst the letters evenly.
+     * @param gradient If the color will have a gradient or not.
      * @return Int Color based off of the first 3 letters of the string.
      */
-    fun getColorFromName(name: String, alphabetTree: TreeMap<Char, Int>) : Int {
+    fun getColorFromName(name: String, alphabetTree: TreeMap<Char, Int>, gradient: Boolean) : Drawable {
         val char0 = if (name.isNotEmpty()) name[0].uppercaseChar() else 'A'
         val char1 = if (name.length > 1) name[1].uppercaseChar() else 'A'
         val char2 = if (name.length > 2) name[2].uppercaseChar() else 'A'
@@ -49,7 +58,20 @@ object NameUtil {
         val g = alphabetTree.getOrDefault(char1, 0)
         val b = alphabetTree.getOrDefault(char2, 0)
 
-        return Color.rgb(r, g, b)
+        val baseColor = Color.rgb(r, g, b)
+        if (!gradient) return baseColor.toDrawable()
+
+        val dimAmount = 50
+        val dimR = (Color.red(baseColor) - dimAmount).coerceIn(0, 255)
+        val dimG = (Color.green(baseColor) - dimAmount).coerceIn(0, 255)
+        val dimB = (Color.blue(baseColor) - dimAmount).coerceIn(0, 255)
+
+        val secondaryColor = Color.rgb(dimR, dimG, dimB)
+        val gradient: GradientDrawable = GradientDrawable()
+        gradient.orientation = GradientDrawable.Orientation.BL_TR
+        gradient.colors = intArrayOf(baseColor, secondaryColor)
+
+        return gradient
     }
 
     /**

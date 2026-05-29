@@ -8,7 +8,9 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingStart="8dp"> <ImageView
+    android:paddingStart="8dp">
+
+    <ImageView
     android:id="@+id/icon_view"
     android:layout_width="40dp"
     android:layout_height="40dp"
@@ -21,7 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:fontFamily="sans-serif-smallcaps"
-        android:textColor="#000000"
         tools:text="Documents" />
 </LinearLayout>
 

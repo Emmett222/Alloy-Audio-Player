@@ -17,9 +17,11 @@ import androidx.navigation.Navigator
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
 import com.emmett222.alloyaudioplayer.Player.PlayerActivity
+import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 import java.util.TreeMap
+import java.util.jar.Attributes
 
 /**
  * Shows all the audio files and directories in a neat list. Shows audio files with a unique color
@@ -58,9 +60,20 @@ class MyAdapter(val context: Context, var files: Array<File>) :
         if (selectedFile.isDirectory) {
             holder.imageView.setImageResource(R.drawable.baseline_folder_24)
             holder.cdCase.visibility = View.INVISIBLE
+            holder.textView.setTextColor(Color.parseColor("#000000"))
         } else {
             holder.imageView.setImageResource(R.drawable.baseline_audio_file_24)
-            holder.itemView.setBackgroundColor(NameUtil.getColorFromName(selectedFile.name, alphabetTree))
+
+            val color = NameUtil.getColorFromName(selectedFile.name, alphabetTree, true)
+            val oppositeColor = ColorUtil.textColorFromColor(color)
+            holder.itemView.background = color
+            holder.textView.setTextColor(oppositeColor)
+            if (oppositeColor == Color.WHITE) {
+                holder.imageView.setColorFilter(ColorUtil.brightenColor(color, 60))
+            } else {
+                holder.imageView.setColorFilter(ColorUtil.darkenColor(color, 60))
+            }
+
         }
 
         holder.itemView.setOnClickListener() {
