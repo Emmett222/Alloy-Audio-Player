@@ -293,6 +293,7 @@ class PlayerActivity : AppCompatActivity() {
                     }
                     Player.STATE_ENDED -> {
                         handler.removeCallbacks(updater)
+                        skipForward()
                     }
                     Player.STATE_BUFFERING -> {
                         // Unused for now.
