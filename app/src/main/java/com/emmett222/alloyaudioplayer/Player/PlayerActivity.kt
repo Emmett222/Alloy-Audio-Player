@@ -69,6 +69,7 @@ class PlayerActivity : AppCompatActivity() {
     var isStart: Boolean = true;
     var repeatOneOn: Boolean = false;
     var shuffleOn: Boolean = false;
+    var justShuffled: Boolean = false
     var repeatPlaylistOn: Boolean = false;
     var inMenu: Boolean = false
 
@@ -424,10 +425,12 @@ class PlayerActivity : AppCompatActivity() {
                 shuffleOn = false;
             } else {
                 this.allFiles.shuffle()
-                this.currentPosition = -1
+                this.justShuffled = true
+                this.currentPosition = 0
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleon)
                 shuffleOn = true;
             }
+            makeQueueMenu(audioQueue)
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
@@ -596,6 +599,11 @@ class PlayerActivity : AppCompatActivity() {
 
         if (currentPosition + 1 >= allFiles.size) {
             currentPosition = 0
+        }
+        if (justShuffled) {
+            // If just shuffled, don't move currentPosition. The song is still the old song and is
+            // played before the new shuffled list.
+            justShuffled = false
         } else {
             currentPosition ++
         }
@@ -610,7 +618,9 @@ class PlayerActivity : AppCompatActivity() {
      * backwards will take player to last song. If not, it does not do this.
      */
     fun skipBackward() {
-        if ((currentPosition == 0) && !repeatPlaylistOn) {
+        // If user just shuffled, there is nothing before the current song. Do nothing.
+        // If the song is the first in the list and repeat playlist is not toggled, do nothing.
+        if (justShuffled || ((currentPosition == 0) && !repeatPlaylistOn)) {
             return
         }
 
