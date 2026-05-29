@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.ContactsContract
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.ImageButton
@@ -34,17 +33,15 @@ import com.emmett222.alloyaudioplayer.Background.MediaEngine
 import com.emmett222.alloyaudioplayer.Player.Graphic.BaseGraphic
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.QueueAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.StartMenuAdapter
-import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.VisualizerMenuAdapter
+import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.*
 import com.emmett222.alloyaudioplayer.R
 import java.io.File
-import java.util.Queue
-import kotlin.properties.Delegates
 
 /**
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 5-28-2026
+ * @version 5-29-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
@@ -125,16 +122,16 @@ class PlayerActivity : AppCompatActivity() {
             controller = controllerFuture.get()
 
             setupControllerFile(audioFile)
-            setupVisualizer()
-            setupTitle(audioFile.name)
-            setupTime()
-            setupPauseBtn()
             setupFastBtns()
-            setupSkipBtns()
-            setupRepeatOneBtn()
-            setupShuffleBtn()
             setupMenuBtn()
+            setupShuffleBtn()
+            setupSkipBtns()
+            setupTime()
+            setupTitle(audioFile.name)
+            setupPauseBtn()
+            setupRepeatOneBtn()
             setupRepeatPlaylistBtn()
+            setupVisualizer()
 
         }, ContextCompat.getMainExecutor(this))
 
@@ -152,7 +149,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Helper method to setup the files and playlist of files.
+     * Helper method to set up the files and playlist of files.
      */
     private fun setupFiles() {
         this.audioFile = File(intent.getStringExtra("path"))
@@ -169,7 +166,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Helper method to setup the controller.
+     * Helper method to set up the controller.
      */
     private fun setupControllerFile(newFile: File) {
         val retriever = MediaMetadataRetriever()
@@ -270,7 +267,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Helper method to setup the time views on load.
+     * Helper method to set up the time views on load.
      */
     private fun setupTime() {
         val endText: TextView = findViewById(R.id.endNum)
@@ -334,7 +331,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Helper method to setup the pause button on load.
+     * Helper method to set up the pause button on load.
      */
     private fun setupPauseBtn() {
         val playBtn: ImageButton = findViewById(R.id.playBtn)
@@ -353,7 +350,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Helper method to setup the fast forward and fast rewind buttons.
+     * Helper method to set up the fast-forward and fast rewind buttons.
      */
     private fun setupFastBtns() {
         val ffBtn: ImageButton = findViewById(R.id.fastForward)
@@ -387,7 +384,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Helper method to setup the repeat one button on load.
+     * Helper method to set up the repeat one button on load.
      */
     private fun setupRepeatOneBtn() {
         val repeatOneBtn: ImageButton = findViewById(R.id.repeatOneBtn)
@@ -407,7 +404,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Helper method to setup the shuffle button on load.
+     * Helper method to set up the shuffle button on load.
      */
     private fun setupShuffleBtn() {
         val shuffleBtn: ImageButton = findViewById(R.id.shuffleBtn)
@@ -557,7 +554,7 @@ class PlayerActivity : AppCompatActivity() {
 
 
     /**
-     * Helper method to setup the repeat playlist button on load.
+     * Helper method to set up the repeat playlist button on load.
      * Right now, repeat playlist does nothing until the playlists are made.
      */
     private fun setupRepeatPlaylistBtn() {
@@ -575,7 +572,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Helper method to setup scrolling title on load.
+     * Helper method to set up scrolling title on load.
      */
     private fun setupTitle(title: String) {
         val titleString: TextView = findViewById(R.id.titleString)
