@@ -28,10 +28,12 @@ import java.util.jar.Attributes
  * on them.
  *
  * @author Emmett Grebe
- * @version 5-29-2026
+ * @version 5-30-2026
  */
-class MyAdapter(val context: Context, var files: Array<File>) :
-    RecyclerView.Adapter<MyAdapter.ViewHolder>() {
+class MyAdapter(val context: Context,
+                var files: Array<File>,
+                private val onItemClick: (File) -> Unit
+) : RecyclerView.Adapter<MyAdapter.ViewHolder>() {
 
     // Keys: Each letter of the alphabet.
     // Entries: 0-255 spread out amongst the letters evenly.
@@ -79,19 +81,7 @@ class MyAdapter(val context: Context, var files: Array<File>) :
         }
 
         holder.itemView.setOnClickListener() {
-            if (selectedFile.isDirectory) {
-                val intent: Intent = Intent(context, FileListActivity::class.java)
-                val path: String = selectedFile.absolutePath
-                intent.putExtra("path", path)
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-            } else {
-                val intent: Intent = Intent(context, PlayerActivity::class.java)
-                val path: String = selectedFile.path
-                intent.putExtra("path", path)
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-            }
+            onItemClick(selectedFile)
         }
     }
 

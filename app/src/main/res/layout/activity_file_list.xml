@@ -37,6 +37,7 @@
         tools:layout_editor_absoluteY="1dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:paddingBottom="4dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
 
