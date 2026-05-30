@@ -29,7 +29,15 @@ class QueueAdapter(val context: Context,
                    private val onItemClick: (File, Boolean, Boolean) -> Unit
 ) : RecyclerView.Adapter<QueueAdapter.ViewHolder>() {
 
-    val allItems: List<File> = queueItems + items
+    val allItems: List<File> = if (items.isNotEmpty()) {
+        if (items.size == 1) {
+            (items + queueItems).toList()
+        } else {
+            (arrayOf(items[0]) + queueItems + items.copyOfRange(1, items.size - 1)).toList()
+        }
+    } else {
+        queueItems.toList()
+    }
 
     /**
      * Runs on creation.
@@ -44,7 +52,7 @@ class QueueAdapter(val context: Context,
      * Runs on binding.
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val isInQueue = (position <= queueItems.size - 1)
+        val isInQueue = ((position != 0) && (position <= queueItems.size))
         val currItem = allItems[position]
         holder.textView.text = NameUtil.removeDescriptors(currItem.name)
 

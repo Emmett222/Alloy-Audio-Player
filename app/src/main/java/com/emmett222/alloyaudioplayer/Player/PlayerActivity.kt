@@ -555,7 +555,7 @@ class PlayerActivity : AppCompatActivity() {
                 setupTitle(clickedItem.name)
             }
             if (isAddQueue) {
-                queueItems.add(clickedItem)
+                queueItems.addLast(clickedItem)
             }
             if (isRemove) {
                 if (queueItems.contains(clickedItem)) {
@@ -612,6 +612,16 @@ class PlayerActivity : AppCompatActivity() {
      * back to the beginning of the playlist. If not, does not skip.
      */
     fun skipForward() {
+        // Skip through queue
+        if (audioQueue.isNotEmpty()) {
+            this.audioFile = audioQueue.first()
+            audioQueue.removeFirst()
+            makeQueueMenu(audioQueue)
+            setupControllerFile(this.audioFile)
+            setupTitle(this.audioFile.name)
+            return
+        }
+
         if ((currentPosition + 1 >= allFiles.size) && !repeatPlaylistOn) {
             return
         }
