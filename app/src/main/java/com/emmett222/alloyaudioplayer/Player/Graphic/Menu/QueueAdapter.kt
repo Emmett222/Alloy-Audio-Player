@@ -17,8 +17,8 @@ import java.io.File
 
 /**
  * Queue screen for the player.
- * Callback returns the file clicked, a boolean for if it is added to queue, and a boolean for if
- * the file is removed from the playlist.
+ * Callback returns the file clicked, a boolean for if it is added to queue, a boolean for if
+ * the file is removed from the playlist, and a boolean if it is in the queue or not.
  *
  * @author Emmett Grebe
  * @version 5-30-2026
@@ -26,14 +26,14 @@ import java.io.File
 class QueueAdapter(val context: Context,
                    val queueItems: ArrayDeque<File>,
                    val items: Array<File>,
-                   private val onItemClick: (File, Boolean, Boolean) -> Unit
+                   private val onItemClick: (File, Boolean, Boolean, Boolean) -> Unit
 ) : RecyclerView.Adapter<QueueAdapter.ViewHolder>() {
 
     val allItems: List<File> = if (items.isNotEmpty()) {
         if (items.size == 1) {
             (items + queueItems).toList()
         } else {
-            (arrayOf(items[0]) + queueItems + items.copyOfRange(1, items.size - 1)).toList()
+            (arrayOf(items[0]) + queueItems + items.copyOfRange(1, items.size)).toList()
         }
     } else {
         queueItems.toList()
@@ -58,17 +58,20 @@ class QueueAdapter(val context: Context,
 
         holder.itemView.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            onItemClick(currItem, false, false) // Forward the click event back to the Activity
+            onItemClick(currItem, false, false, isInQueue) // Forward the click event back to the Activity
         }
         holder.queueBtn.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            onItemClick(currItem, true, false) // Forward the click event back to the Activity
+            onItemClick(currItem, true, false, isInQueue) // Forward the click event back to the Activity
         }
         holder.removeBtn.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            onItemClick(currItem, false, true) // Forward the click event back to the Activity
+            onItemClick(currItem, false, true, isInQueue) // Forward the click event back to the Activity
         }
 
+        if (position == 0) {
+            holder.removeBtn.visibility = View.GONE
+        }
         if (isInQueue) {
             holder.imageView.setImageResource(R.drawable.menu_queue_songqueue)
         } else {

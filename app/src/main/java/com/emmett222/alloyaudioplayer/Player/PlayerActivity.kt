@@ -547,7 +547,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun makeQueueMenu(queueItems: ArrayDeque<File>) {
         val items: Array<File> = allFiles.sliceArray(currentPosition..<allFiles.size)
         menuQueueRecycler.adapter = QueueAdapter(this, queueItems, items)
-        { clickedItem, isAddQueue, isRemove ->
+        { clickedItem, isAddQueue, isRemove, isInQueue ->
             if (!isAddQueue && !isRemove) {
                 currentPosition = allFiles.indexOf(clickedItem)
                 this.audioFile = clickedItem
@@ -558,7 +558,7 @@ class PlayerActivity : AppCompatActivity() {
                 queueItems.addLast(clickedItem)
             }
             if (isRemove) {
-                if (queueItems.contains(clickedItem)) {
+                if (isInQueue) {
                     queueItems.remove(clickedItem)
                 } else {
                     allFiles =
@@ -616,6 +616,12 @@ class PlayerActivity : AppCompatActivity() {
         if (audioQueue.isNotEmpty()) {
             this.audioFile = audioQueue.first()
             audioQueue.removeFirst()
+
+            val newPos = allFiles.indexOf(this.audioFile)
+            if (newPos != -1) {
+                this.currentPosition = newPos
+            }
+
             makeQueueMenu(audioQueue)
             setupControllerFile(this.audioFile)
             setupTitle(this.audioFile.name)
