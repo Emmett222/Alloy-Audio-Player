@@ -55,11 +55,12 @@ class MyAdapter(val context: Context, var files: Array<File>) :
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val selectedFile = files[position]
-        holder.textView.text = NameUtil.removeDescriptors(selectedFile.name)
+
 
         if (selectedFile.isDirectory) {
             holder.imageView.setImageResource(R.drawable.baseline_folder_24)
             holder.cdCase.visibility = View.INVISIBLE
+            holder.textView.text = selectedFile.name
             holder.textView.setTextColor(Color.parseColor("#000000"))
         } else {
             holder.imageView.setImageResource(R.drawable.baseline_audio_file_24)
@@ -67,6 +68,7 @@ class MyAdapter(val context: Context, var files: Array<File>) :
             val color = NameUtil.getColorFromName(selectedFile.name, alphabetTree, true)
             val oppositeColor = ColorUtil.textColorFromColor(color)
             holder.itemView.background = color
+            holder.textView.text = NameUtil.removeDescriptors(selectedFile.name)
             holder.textView.setTextColor(oppositeColor)
             if (oppositeColor == Color.WHITE) {
                 holder.imageView.setColorFilter(ColorUtil.brightenColor(color, 60))
