@@ -35,6 +35,7 @@ import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.QueueAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.StartMenuAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.*
 import com.emmett222.alloyaudioplayer.R
+import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 
 /**
@@ -576,7 +577,7 @@ class PlayerActivity : AppCompatActivity() {
      */
     private fun setupTitle(title: String) {
         val titleString: TextView = findViewById(R.id.titleString)
-        titleString.text = title
+        titleString.text = NameUtil.removeDescriptors(title)
 
         titleString.postDelayed({ // Only fires when the title is loaded.
             titleString.isSelected = true // So the marquee starts on load,

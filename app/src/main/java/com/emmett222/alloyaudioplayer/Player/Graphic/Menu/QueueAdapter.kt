@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.R
+import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 
 class QueueAdapter(val context: Context,
@@ -36,7 +37,7 @@ class QueueAdapter(val context: Context,
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val isInQueue = (position <= queueItems.size - 1)
         val currItem = allItems[position]
-        holder.textView.text = currItem.name
+        holder.textView.text = NameUtil.removeDescriptors(currItem.name)
 
         holder.itemView.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
