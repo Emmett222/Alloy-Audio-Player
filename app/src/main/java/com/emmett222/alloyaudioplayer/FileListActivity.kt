@@ -35,7 +35,20 @@ class FileListActivity : AppCompatActivity() {
         val path: String? = intent.getStringExtra("path")
 
         val root: File = File(path)
-        val files: Array<File>? = root.listFiles()
+        val rawFiles: Array<File>? = root.listFiles()
+        val files: Array<File>? = rawFiles?.filter { file ->
+            file.isDirectory ||
+                    file.extension.equals("mp3", true) ||
+                    file.extension.equals("m4a", true) ||
+                    file.extension.equals("opus", true) ||
+                    file.extension.equals("aac", true) ||
+                    file.extension.equals("aif", true) ||
+                    file.extension.equals("aiff", true) ||
+                    file.extension.equals("cda", true) ||
+                    file.extension.equals("flac", true) ||
+                    file.extension.equals("ogg", true) ||
+                    file.extension.equals("wav", true)
+        }?.toTypedArray()
 
         if (files == null || files.size == 0) {
             noFilesText.visibility = View.VISIBLE
@@ -45,6 +58,6 @@ class FileListActivity : AppCompatActivity() {
         noFilesText.visibility = View.INVISIBLE
 
         recyclerView.setLayoutManager(LinearLayoutManager(this@FileListActivity))
-        recyclerView.setAdapter(MyAdapter(applicationContext, files))
+        recyclerView.setAdapter(MyAdapter(this, files))
     }
 }
