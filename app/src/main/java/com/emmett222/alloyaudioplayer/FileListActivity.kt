@@ -3,6 +3,7 @@ package com.emmett222.alloyaudioplayer
 import com.emmett222.alloyaudioplayer.MyAdapter
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -35,6 +36,26 @@ class FileListActivity : AppCompatActivity() {
         val path: String? = intent.getStringExtra("path")
 
         val root: File = File(path)
+        val backBtn: ImageButton = findViewById(R.id.imageBtn)
+        val folderNameText: TextView = findViewById(R.id.folderName)
+        val infoBtn: ImageButton = findViewById(R.id.infoBtn)
+
+        if (path != null) {
+            folderNameText.text = root.name
+        } else {
+            folderNameText.text = "Root"
+        }
+
+        backBtn.setOnClickListener {
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+            finish()
+        }
+
+        infoBtn.setOnClickListener {
+            it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+
         val rawFiles: Array<File>? = root.listFiles()
         val files: Array<File>? = rawFiles?.filter { file ->
             file.isDirectory ||
