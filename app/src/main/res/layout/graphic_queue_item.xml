@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#0d380c"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp">
+
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="54dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <ImageView
+        android:id="@+id/icon_view"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        tools:src="@drawable/baseline_folder_24" />
+
+    <TextView
+        android:id="@+id/file_name_text_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginStart="12dp"
+
+        android:layout_marginEnd="16dp"
+
+        android:includeFontPadding="false"
+        android:layout_gravity="center_vertical"
+
+        android:fontFamily="sans-serif-smallcaps"
+        android:textColor="#00ff00"
+        android:maxLines="2"
+        android:ellipsize="end"
+        tools:text="Documents" />
+
+    <ImageButton
+        android:id="@+id/queueBtn"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:background="@android:color/transparent"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/menu_queue_add"
+        app:tint="#00ff00" />
+
+    <ImageButton
+        android:id="@+id/removeBtn"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:background="@android:color/transparent"
+        android:scaleType="centerInside"
+        app:srcCompat="@drawable/menu_queue_remove"
+        app:tint="#00ff00" />
+</LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="#00ff00" />
+
+</LinearLayout>

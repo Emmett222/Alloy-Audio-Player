@@ -543,7 +543,7 @@ class PlayerActivity : AppCompatActivity() {
      */
     private fun makeQueueMenu(queueItems: ArrayDeque<File>) {
         val items: Array<File> = allFiles.sliceArray(currentPosition..<allFiles.size)
-        menuQueueRecycler.adapter = QueueAdapter(applicationContext, queueItems, items) { clickedItem ->
+        menuQueueRecycler.adapter = QueueAdapter(this, queueItems, items) { clickedItem ->
             currentPosition = allFiles.indexOf(clickedItem)
             this.audioFile = clickedItem
             makeQueueMenu(queueItems)

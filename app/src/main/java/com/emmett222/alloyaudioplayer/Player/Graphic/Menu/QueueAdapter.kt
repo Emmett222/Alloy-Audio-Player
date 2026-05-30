@@ -7,6 +7,7 @@ import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -27,7 +28,7 @@ class QueueAdapter(val context: Context,
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QueueAdapter.ViewHolder {
         // Initiates the XML layout into the view object.
-        val view = LayoutInflater.from(context).inflate(R.layout.graphic_menu_item, parent, false)
+        val view = LayoutInflater.from(context).inflate(R.layout.graphic_queue_item, parent, false)
         return ViewHolder(view)
     }
 
@@ -63,5 +64,7 @@ class QueueAdapter(val context: Context,
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView: TextView = itemView.findViewById(R.id.file_name_text_view)
         val imageView: ImageView = itemView.findViewById(R.id.icon_view)
+        val queueBtn: ImageButton = itemView.findViewById(R.id.queueBtn)
+        val removeBtn: ImageButton = itemView.findViewById(R.id.removeBtn)
     }
 }
