@@ -15,10 +15,18 @@ import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 
+/**
+ * Queue screen for the player.
+ * Callback returns the file clicked, a boolean for if it is added to queue, and a boolean for if
+ * the file is removed from the playlist.
+ *
+ * @author Emmett Grebe
+ * @version 5-30-2026
+ */
 class QueueAdapter(val context: Context,
                    val queueItems: ArrayDeque<File>,
                    val items: Array<File>,
-                   private val onItemClick: (File) -> Unit
+                   private val onItemClick: (File, Boolean, Boolean) -> Unit
 ) : RecyclerView.Adapter<QueueAdapter.ViewHolder>() {
 
     val allItems: List<File> = queueItems + items
@@ -42,7 +50,15 @@ class QueueAdapter(val context: Context,
 
         holder.itemView.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-            onItemClick(currItem) // Forward the click event back to the Activity
+            onItemClick(currItem, false, false) // Forward the click event back to the Activity
+        }
+        holder.queueBtn.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            onItemClick(currItem, true, false) // Forward the click event back to the Activity
+        }
+        holder.removeBtn.setOnClickListener {
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+            onItemClick(currItem, false, true) // Forward the click event back to the Activity
         }
 
         if (isInQueue) {

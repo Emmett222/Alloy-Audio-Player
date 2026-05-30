@@ -42,7 +42,7 @@ import java.io.File
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 5-29-2026
+ * @version 5-30-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
@@ -154,7 +154,7 @@ class PlayerActivity : AppCompatActivity() {
      */
     private fun setupFiles() {
         this.audioFile = File(intent.getStringExtra("path"))
-        this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory})
+        this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory })
         this.unShuffledAllFiles = this.allFiles.clone()
 
         // withIndex() is like an iterator, but it keeps track of the index.
@@ -420,7 +420,10 @@ class PlayerActivity : AppCompatActivity() {
 
                 mutablePlaylist.remove(audioFile) // Pull out the active song
                 mutablePlaylist.shuffle()         // Shuffle the rest of the files
-                mutablePlaylist.add(0, audioFile) // Drop the active song right at the front (Index 0)
+                mutablePlaylist.add(
+                    0,
+                    audioFile
+                ) // Drop the active song right at the front (Index 0)
 
                 this.allFiles = mutablePlaylist.toTypedArray()
                 this.currentPosition = 0
@@ -543,15 +546,31 @@ class PlayerActivity : AppCompatActivity() {
      */
     private fun makeQueueMenu(queueItems: ArrayDeque<File>) {
         val items: Array<File> = allFiles.sliceArray(currentPosition..<allFiles.size)
-        menuQueueRecycler.adapter = QueueAdapter(this, queueItems, items) { clickedItem ->
-            currentPosition = allFiles.indexOf(clickedItem)
-            this.audioFile = clickedItem
+        menuQueueRecycler.adapter = QueueAdapter(this, queueItems, items)
+        { clickedItem, isAddQueue, isRemove ->
+            if (!isAddQueue && !isRemove) {
+                currentPosition = allFiles.indexOf(clickedItem)
+                this.audioFile = clickedItem
+                setupControllerFile(clickedItem)
+                setupTitle(clickedItem.name)
+            }
+            if (isAddQueue) {
+                queueItems.add(clickedItem)
+            }
+            if (isRemove) {
+                if (queueItems.contains(clickedItem)) {
+                    queueItems.remove(clickedItem)
+                } else {
+                    allFiles =
+                        allFiles.filter { currFile -> currFile != clickedItem }.toTypedArray()
+                    unShuffledAllFiles =
+                        unShuffledAllFiles.filter { currFile -> currFile != clickedItem }
+                            .toTypedArray()
+                }
+            }
             makeQueueMenu(queueItems)
-            setupControllerFile(clickedItem)
-            setupTitle(clickedItem.name)
         }
     }
-
 
 
     /**
@@ -600,7 +619,7 @@ class PlayerActivity : AppCompatActivity() {
         if (currentPosition + 1 >= allFiles.size) {
             currentPosition = 0
         } else {
-            currentPosition ++
+            currentPosition++
         }
         this.audioFile = allFiles[currentPosition]
         makeQueueMenu(audioQueue)
@@ -620,7 +639,7 @@ class PlayerActivity : AppCompatActivity() {
         if (currentPosition == 0) {
             currentPosition = (allFiles.size - 1)
         } else {
-            currentPosition --
+            currentPosition--
         }
         this.audioFile = allFiles[currentPosition]
         makeQueueMenu(audioQueue)
