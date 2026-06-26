@@ -37,6 +37,10 @@ class MediaEngine : MediaSessionService() {
         fun getCurrentPosition(): Long {
             return instance!!.mediaPlayer.currentPosition
         }
+
+        fun getPaused(): Boolean {
+            return instance!!.mediaPlayer.isPlaying
+        }
     }
 
     @OptIn(UnstableApi::class)

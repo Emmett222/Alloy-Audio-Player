@@ -400,6 +400,12 @@ class PlayerActivity : AppCompatActivity() {
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
+
+        if (isOld && !MediaEngine.getPaused()) {
+            controller.pause()
+            playBtn.setImageResource(R.drawable.btn_play)
+            handler.removeCallbacks(updater)
+        }
     }
 
     /**
