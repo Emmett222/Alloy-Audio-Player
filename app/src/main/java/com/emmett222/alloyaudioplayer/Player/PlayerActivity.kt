@@ -72,6 +72,7 @@ class PlayerActivity : AppCompatActivity() {
     /**
      * vvvvv ---------- Status ---------- vvvvv
      */
+    var isOld: Boolean = false
     var isStart: Boolean = true;
     var repeatOneOn: Boolean = false;
     var shuffleOn: Boolean = false;
@@ -109,6 +110,7 @@ class PlayerActivity : AppCompatActivity() {
             insets
         }
 
+        this.isOld = intent.getStringExtra("isOld") == "true"
         setupFiles()
 
         visualizerView = findViewById(R.id.visScreen)
@@ -186,11 +188,10 @@ class PlayerActivity : AppCompatActivity() {
      */
     @OptIn(UnstableApi::class)
     private fun setupFiles() {
-        try {
-            this.audioFile = File(intent.getStringExtra("path"))
-        } catch (e: NullPointerException) {
+        if (isOld) {
             this.audioFile = MediaEngine.getCurrentFile()
-            return
+        } else {
+            this.audioFile = File(intent.getStringExtra("path"))
         }
 
         onFileChangeListener?.invoke(this.audioFile)
@@ -253,7 +254,7 @@ class PlayerActivity : AppCompatActivity() {
      */
     @OptIn(UnstableApi::class)
     private fun setupVisualizer() {
-        visualizerView.changeScreen(5)
+        visualizerView.changeScreen(5) // later change this for settings.
 
         var currentActiveSessionId = -1
 
@@ -376,6 +377,10 @@ class PlayerActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+
+        if (isOld) {
+            controller.seekTo(MediaEngine.getCurrentPosition())
+        }
     }
 
     /**

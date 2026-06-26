@@ -105,6 +105,7 @@ class FileListActivity : AppCompatActivity() {
                 // If it's a song asset, execute standard audio media engine boot playback routines
                 val intent = Intent(this, PlayerActivity::class.java).apply {
                     putExtra("path", clickedFile.absolutePath)
+                    putExtra("isOld", "false")
                 }
                 startActivity(intent)
             }
@@ -136,7 +137,9 @@ class FileListActivity : AppCompatActivity() {
         }
 
         songTitleText.setOnClickListener {
-            val intent = Intent(this, PlayerActivity::class.java)
+            val intent = Intent(this, PlayerActivity::class.java).apply {
+                putExtra("isOld", "true")
+            }
             startActivity(intent)
         }
     }

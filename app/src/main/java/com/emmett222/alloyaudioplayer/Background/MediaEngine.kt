@@ -12,6 +12,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.DefaultMediaNotificationProvider
+import androidx.media3.session.MediaController
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.emmett222.alloyaudioplayer.R
@@ -31,6 +32,10 @@ class MediaEngine : MediaSessionService() {
         private var instance: MediaEngine? = null
         fun getCurrentFile(): File {
             return instance?.mediaPlayer?.currentMediaItem?.requestMetadata?.mediaUri?.toFile()!!
+        }
+
+        fun getCurrentPosition(): Long {
+            return instance!!.mediaPlayer.currentPosition
         }
     }
 
