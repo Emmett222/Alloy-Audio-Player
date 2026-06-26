@@ -21,7 +21,7 @@
             android:name=".Player.PlayerActivity"
             android:launchMode="singleInstance"
             android:exported="true"
-            android:theme="@style/Theme.AlloyAudioPlayer" />
+            android:theme="@style/Theme.AlloyAudioPlayer.PlayerLaunch" />
         <activity
             android:name=".FileListActivity"
             android:exported="false" />
