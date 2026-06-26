@@ -1,6 +1,7 @@
 package com.emmett222.alloyaudioplayer.Player
 
 import android.content.ComponentName
+import android.content.Intent
 import android.graphics.Color
 import android.media.MediaMetadataRetriever
 import android.media.audiofx.Visualizer
@@ -8,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.MediaStore
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.widget.ImageButton
@@ -18,6 +20,7 @@ import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -42,9 +45,14 @@ import java.io.File
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 5-30-2026
+ * @version 6-26-2026
  */
 class PlayerActivity : AppCompatActivity() {
+
+    companion object {
+        // These are companion callbacks.
+        var onFileChangeListener: ((File) -> Unit)? = null
+    }
 
     /**
      * vvvvv ---------- Files ---------- vvvvv
@@ -140,6 +148,30 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
+     * This runs when a new intent is made for this activity. This is set up in a way to do nothing
+     * if the "path" extra is null. This is so this activity can be reopened with all of it's data
+     * inside.
+     *
+     * @param intent The Intent to use for a new activity on new song being opened.
+     */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+
+        val newPath = intent.getStringExtra("path")
+        if (newPath != null) {
+            val newFile = File(newPath)
+
+            // Only interrupt playback if it's actually a new song
+            if (!::audioFile.isInitialized || audioFile.absolutePath != newFile.absolutePath) {
+                setupFiles() // Reset playlist arrays
+                setupControllerFile(audioFile) // Tell Media3 to play the new song
+                setupTitle(audioFile.name)
+            }
+        }
+    }
+
+    /**
      * Runs when activity is ended. Kills the visualizer to avoid crashes.
      */
     override fun onDestroy() {
@@ -152,8 +184,17 @@ class PlayerActivity : AppCompatActivity() {
     /**
      * Helper method to set up the files and playlist of files.
      */
+    @OptIn(UnstableApi::class)
     private fun setupFiles() {
-        this.audioFile = File(intent.getStringExtra("path"))
+        try {
+            this.audioFile = File(intent.getStringExtra("path"))
+        } catch (e: NullPointerException) {
+            this.audioFile = MediaEngine.getCurrentFile()
+            return
+        }
+
+        onFileChangeListener?.invoke(this.audioFile)
+
         this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory })
         this.unShuffledAllFiles = this.allFiles.clone()
 
@@ -184,12 +225,18 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         val mediaItemWithMetadata =
-            MediaItem.Builder().setUri(Uri.fromFile(newFile)).setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(newFile.name)
-                    .setArtist(artistName)
-                    .setArtworkUri("android.resource://com.emmett222.alloyaudioplayer/drawable/background".toUri())
-                    .build()
+            MediaItem.Builder().setUri(Uri.fromFile(newFile))
+                .setRequestMetadata(
+                    MediaItem.RequestMetadata.Builder()
+                        .setMediaUri(Uri.fromFile(newFile))
+                        .build()
+                )
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(newFile.name)
+                        .setArtist(artistName)
+                        .setArtworkUri("android.resource://com.emmett222.alloyaudioplayer/drawable/background".toUri())
+                        .build()
             ).build()
 
         controller.setMediaItem(mediaItemWithMetadata)

@@ -2,7 +2,9 @@ package com.emmett222.alloyaudioplayer.Background
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.MediaStore
 import androidx.annotation.OptIn
+import androidx.core.net.toFile
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -13,20 +15,30 @@ import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.emmett222.alloyaudioplayer.R
+import java.io.File
 
 /**
  * Background service for audio playing.
  *
  * @author Emmett Grebe
- * @version 5-20-2026
+ * @version 6-26-2026
  */
 class MediaEngine : MediaSessionService() {
     private var mediaSession: MediaSession? = null
     lateinit var mediaPlayer: Player
 
+    companion object {
+        private var instance: MediaEngine? = null
+        fun getCurrentFile(): File {
+            return instance?.mediaPlayer?.currentMediaItem?.requestMetadata?.mediaUri?.toFile()!!
+        }
+    }
+
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
+
+        instance = this
 
         // The default provider automatically handles the notification channel,
         // the 3-button layout, and the album art background extraction.
@@ -72,7 +84,7 @@ class MediaEngine : MediaSessionService() {
         mediaSession = MediaSession.Builder(this, mediaPlayer)
             .setCallback(MediaSessionCallback())
             .build()
-
+        mediaPlayer
         val extras = Bundle().apply {
             putInt("AUDIO_SESSION_ID", basePlayer.audioSessionId)
         }
@@ -88,6 +100,7 @@ class MediaEngine : MediaSessionService() {
             release()
             mediaSession = null
         }
+        instance = null
         super.onDestroy()
     }
 
@@ -99,6 +112,7 @@ class MediaEngine : MediaSessionService() {
             release()
             mediaSession = null
         }
+        instance = null
         super.onTaskRemoved(rootIntent)
     }
 

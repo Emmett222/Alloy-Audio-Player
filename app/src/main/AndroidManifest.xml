@@ -19,7 +19,8 @@
         android:theme="@style/Theme.AlloyAudioPlayer" >
         <activity
             android:name=".Player.PlayerActivity"
-            android:exported="false"
+            android:launchMode="singleInstance"
+            android:exported="true"
             android:theme="@style/Theme.AlloyAudioPlayer" />
         <activity
             android:name=".FileListActivity"
