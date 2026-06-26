@@ -675,11 +675,6 @@ class PlayerActivity : AppCompatActivity() {
             this.audioFile = audioQueue.first()
             audioQueue.removeFirst()
 
-            val newPos = allFiles.indexOf(this.audioFile)
-            if (newPos != -1) {
-                this.currentPosition = newPos
-            }
-
             makeQueueMenu(audioQueue)
             setupControllerFile(this.audioFile)
             setupTitle(this.audioFile.name)
