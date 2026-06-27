@@ -603,11 +603,23 @@ class PlayerActivity : AppCompatActivity() {
      * @param queueItems Items from the queue.
      */
     private fun makeQueueMenu(queueItems: ArrayDeque<File>) {
-        val items: Array<File> = allFiles.sliceArray(currentPosition..<allFiles.size)
-        menuQueueRecycler.adapter = QueueAdapter(this, queueItems, items)
+        val nextIndex = currentPosition + 1
+        val items: Array<File> = if (nextIndex < allFiles.size) {
+            allFiles.sliceArray(nextIndex..<allFiles.size)
+        } else {
+            emptyArray()
+        }
+
+        menuQueueRecycler.adapter = QueueAdapter(this, this.audioFile, queueItems, items)
         { clickedItem, isAddQueue, isRemove, isInQueue ->
             if (!isAddQueue && !isRemove) {
-                currentPosition = allFiles.indexOf(clickedItem)
+                // User manually clicked a row item to force play it
+                val playlistIndex = allFiles.indexOf(clickedItem)
+                if (playlistIndex != -1) {
+                    // Only move the pointer if they clicked a standard track from the playlist
+                    currentPosition = playlistIndex
+                }
+
                 this.audioFile = clickedItem
                 setupControllerFile(clickedItem)
                 setupTitle(clickedItem.name)
@@ -672,8 +684,7 @@ class PlayerActivity : AppCompatActivity() {
     fun skipForward() {
         // Skip through queue
         if (audioQueue.isNotEmpty()) {
-            this.audioFile = audioQueue.first()
-            audioQueue.removeFirst()
+            this.audioFile = audioQueue.removeFirst()
 
             makeQueueMenu(audioQueue)
             setupControllerFile(this.audioFile)

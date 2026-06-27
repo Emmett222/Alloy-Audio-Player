@@ -24,20 +24,13 @@ import java.io.File
  * @version 5-30-2026
  */
 class QueueAdapter(val context: Context,
+                   val currentItem: File,
                    val queueItems: ArrayDeque<File>,
                    val items: Array<File>,
                    private val onItemClick: (File, Boolean, Boolean, Boolean) -> Unit
 ) : RecyclerView.Adapter<QueueAdapter.ViewHolder>() {
 
-    val allItems: List<File> = if (items.isNotEmpty()) {
-        if (items.size == 1) {
-            (items + queueItems).toList()
-        } else {
-            (arrayOf(items[0]) + queueItems + items.copyOfRange(1, items.size)).toList()
-        }
-    } else {
-        queueItems.toList()
-    }
+    val allItems: List<File> = listOf(currentItem) + queueItems + items
 
     /**
      * Runs on creation.
