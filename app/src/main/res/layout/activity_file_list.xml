@@ -15,17 +15,17 @@
         android:text="NO FILES FOUND"
         android:visibility="invisible"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topBtnContainer" />
+        app:layout_constraintTop_toBottomOf="@+id/lineTop" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
+        android:background="@drawable/background"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topBtnContainer"
+        app:layout_constraintTop_toBottomOf="@+id/lineTop"
         app:layout_constraintBottom_toTopOf="@id/currSongContainer"
         app:layout_constraintVertical_bias="0.0" />
 
@@ -79,6 +79,29 @@
             android:background="@android:color/transparent"
             app:srcCompat="@drawable/files_info" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/lineTop"
+        android:layout_width="0dp"
+        android:scaleType="fitXY"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/nofiles_textview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topBtnContainer"
+        app:layout_constraintBottom_toTopOf="@id/recycler_view"
+        app:srcCompat="@drawable/background_line" />
+
+    <ImageView
+        android:id="@+id/lineBottom"
+        android:layout_width="0dp"
+        android:scaleType="fitXY"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/currSongContainer"
+        app:layout_constraintEnd_toEndOf="@+id/nofiles_textview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_view"
+        android:rotation="180"
+        app:srcCompat="@drawable/background_line" />
 
     <LinearLayout
         android:id="@+id/currSongContainer"
