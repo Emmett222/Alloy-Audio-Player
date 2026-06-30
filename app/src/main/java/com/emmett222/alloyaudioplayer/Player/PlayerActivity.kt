@@ -93,6 +93,7 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var menuRecycler: RecyclerView
     private lateinit var menuVisRecycler: RecyclerView
     private lateinit var menuQueueRecycler: RecyclerView
+    private lateinit var menuFilesRecycler: RecyclerView
 
     /**
      * Runs on opening the view.
@@ -121,6 +122,7 @@ class PlayerActivity : AppCompatActivity() {
         menuRecycler = menuGraphic.findViewById(R.id.menuRecycler)
         menuVisRecycler = menuGraphic.findViewById(R.id.menuVisualizers)
         menuQueueRecycler = menuGraphic.findViewById(R.id.menuQueue)
+        menuFilesRecycler = menuGraphic.findViewById(R.id.menuFiles)
 
         // This token is needed to connect to the service.
         val sessionToken = SessionToken(this, ComponentName(this, MediaEngine::class.java))
@@ -547,8 +549,10 @@ class PlayerActivity : AppCompatActivity() {
         menuRecycler.layoutManager = LinearLayoutManager(applicationContext)
         menuVisRecycler.layoutManager = LinearLayoutManager(applicationContext)
         menuQueueRecycler.layoutManager = LinearLayoutManager(applicationContext)
+        menuFilesRecycler.layoutManager = LinearLayoutManager(applicationContext)
 
         makeVisMenu()
+        makeFilesMenu()
 
         // Whenever an item is clicked on the start menu, the start menu callback send the info
         // back to here. Uses the static global variables in the companion to determine which was
@@ -563,6 +567,10 @@ class PlayerActivity : AppCompatActivity() {
                     menuRecycler.visibility = View.INVISIBLE
                     makeQueueMenu(audioQueue)
                     menuQueueRecycler.visibility = View.VISIBLE
+                }
+                StartMenuAdapter.FILES -> {
+                    menuRecycler.visibility = View.INVISIBLE
+                    menuFilesRecycler.visibility = View.VISIBLE
                 }
             }
         }
@@ -579,6 +587,7 @@ class PlayerActivity : AppCompatActivity() {
                 menuRecycler.visibility = View.VISIBLE
                 menuVisRecycler.visibility = View.INVISIBLE
                 menuQueueRecycler.visibility = View.INVISIBLE
+                menuFilesRecycler.visibility = View.INVISIBLE
                 inMenu = true
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -636,6 +645,18 @@ class PlayerActivity : AppCompatActivity() {
             } else {
                 visualizerView.setBackgroundColor(Color.parseColor("#0d380c"))
             }
+        }
+    }
+
+    /**
+     * Makes a new files menu.
+     */
+    private fun makeFilesMenu() {
+        // Whenever an item is clicked on the files menu, the start menu callback send the info
+        // back to here. Uses the static global variables in the companion to determine which was
+        // clicked.
+        menuFilesRecycler.adapter = FilesMenuAdapter(this, audioFile.parentFile.listFiles()) { clickedItem ->
+
         }
     }
 
