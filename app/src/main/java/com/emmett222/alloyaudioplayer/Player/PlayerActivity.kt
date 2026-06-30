@@ -552,7 +552,7 @@ class PlayerActivity : AppCompatActivity() {
         menuFilesRecycler.layoutManager = LinearLayoutManager(applicationContext)
 
         makeVisMenu()
-        makeFilesMenu()
+        makeFilesMenu(audioFile.parentFile)
 
         // Whenever an item is clicked on the start menu, the start menu callback send the info
         // back to here. Uses the static global variables in the companion to determine which was
@@ -651,12 +651,29 @@ class PlayerActivity : AppCompatActivity() {
     /**
      * Makes a new files menu.
      */
-    private fun makeFilesMenu() {
+    private fun makeFilesMenu(folder: File) {
+        val filteredFiles: Array<File>? = folder.listFiles()?.filter { file ->
+            file.isDirectory ||
+                    file.extension.equals("mp3", true) ||
+                    file.extension.equals("m4a", true) ||
+                    file.extension.equals("opus", true) ||
+                    file.extension.equals("aac", true) ||
+                    file.extension.equals("aif", true) ||
+                    file.extension.equals("aiff", true) ||
+                    file.extension.equals("cda", true) ||
+                    file.extension.equals("flac", true) ||
+                    file.extension.equals("ogg", true) ||
+                    file.extension.equals("wav", true)
+        }?.toTypedArray()
         // Whenever an item is clicked on the files menu, the start menu callback send the info
         // back to here. Uses the static global variables in the companion to determine which was
         // clicked.
-        menuFilesRecycler.adapter = FilesMenuAdapter(this, audioFile.parentFile.listFiles()) { clickedItem ->
+        menuFilesRecycler.adapter = FilesMenuAdapter(this, filteredFiles) { clickedItem ->
+            if (clickedItem.isDirectory) { // Folder.
 
+            } else { // Audio file.
+                audioQueue.addLast(clickedItem)
+            }
         }
     }
 

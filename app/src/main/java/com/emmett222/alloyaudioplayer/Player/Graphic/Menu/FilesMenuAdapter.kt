@@ -23,7 +23,7 @@ import java.util.TreeMap
  * @version 6-30-2026
  */
 class FilesMenuAdapter(val context: Context,
-                       var files: Array<File>,
+                       var files: Array<File>?,
                        private val onItemClick: (File) -> Unit
 ) : RecyclerView.Adapter<FilesMenuAdapter.ViewHolder>() {
 
@@ -42,8 +42,8 @@ class FilesMenuAdapter(val context: Context,
      * Runs on binding.
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
-        val currItem = files[position]
+        if (files == null) return
+        val currItem = files!![position]
         holder.textView.text = currItem.name
 
         if (currItem.isDirectory) {
@@ -65,7 +65,7 @@ class FilesMenuAdapter(val context: Context,
             holder.queueBtn.visibility = View.VISIBLE
         }
 
-        holder.itemView.setOnClickListener {
+        holder.queueBtn.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             onItemClick(currItem) // Forward the click event back to the Activity
         }
@@ -77,7 +77,7 @@ class FilesMenuAdapter(val context: Context,
      *
      * @return Size of the items on the menu.
      */
-    override fun getItemCount(): Int { return files.size }
+    override fun getItemCount(): Int { return files?.size ?: 0 }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView: TextView = itemView.findViewById(R.id.file_name_text_view)
