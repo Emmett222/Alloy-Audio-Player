@@ -10,7 +10,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
+import android.view.MotionEvent
 import android.view.View
 import android.widget.ImageButton
 import android.widget.SeekBar
@@ -40,6 +42,7 @@ import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.*
 import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
+import kotlin.math.abs
 
 /**
  * Player screen for Alloy Audio Player.
@@ -132,6 +135,7 @@ class PlayerActivity : AppCompatActivity() {
             // THIS CODE RUNS ONLY WHEN CONNECTED
             controller = controllerFuture.get()
 
+            setupGestures()
             setupControllerFile(audioFile)
             setupFastBtns()
             setupMenuBtn()
@@ -181,6 +185,44 @@ class PlayerActivity : AppCompatActivity() {
         vis?.release()
         vis = null
         super.onDestroy()
+    }
+
+    /**
+     * Sets up custom gestures for going out of the player.
+     */
+    private fun setupGestures() {
+        // The 'object : ' syntax is used to create an anonymous class. It is a one time object that
+        // implements an interface or extends a class, without needing to create a new .kt file.
+        // Think of it as "Create an (object) that acts like (:) this class/interface (____) and
+        // let me customize it.
+        val gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?, // Start
+                e2: MotionEvent,  // End
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 == null) return false
+                val diffY = e2.y - e1.y
+                val diffX = e2.x - e1.x
+
+                // Motion determining.
+                // Swipe from top to bottom quickly.
+                if ((e1.y < 200) && abs(diffY) > abs(diffX)) { // Top of screen downwards
+                    if ((diffY > 150) && (abs(velocityY) > 150)) { // Far enough and fast enough.
+                        finish() // Go out of the player.
+                    }
+                }
+
+                return false
+            }
+        })
+
+        // Intercept touches on the root view
+        findViewById<View>(R.id.main).setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            true
+        }
     }
 
     /**
