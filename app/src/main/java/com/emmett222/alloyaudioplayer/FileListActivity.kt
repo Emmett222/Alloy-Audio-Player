@@ -188,10 +188,12 @@ class FileListActivity : AppCompatActivity() {
         }
 
         songTitleText.setOnClickListener {
-            val intent = Intent(this, PlayerActivity::class.java).apply {
-                putExtra("isOld", "true")
+            if (!songTitleText.text.equals("")) {
+                val intent = Intent(this, PlayerActivity::class.java).apply {
+                    putExtra("isOld", "true")
+                }
+                startActivity(intent)
             }
-            startActivity(intent)
         }
     }
 
