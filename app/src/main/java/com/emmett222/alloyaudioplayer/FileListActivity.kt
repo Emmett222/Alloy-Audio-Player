@@ -9,6 +9,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageButton
 import android.widget.MediaController
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -21,6 +22,12 @@ import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 import java.util.jar.Attributes
 
+/**
+ * Lists the files. Only shows audio files.
+ *
+ * @author Emmett Grebe
+ * @version 6-30-2026
+ */
 class FileListActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
@@ -29,8 +36,6 @@ class FileListActivity : AppCompatActivity() {
     private lateinit var songTitleText: TextView
     private lateinit var currentFolder: File
     private lateinit var initialRootFolder: File
-
-    private var controller: MediaController? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +52,16 @@ class FileListActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        // This replaces the default back button functionality.
+        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                goBack()
+            }
+        }
+        // This adds the custom call back to the dispatcher. The dispatcher is responsible for
+        // handling the back click.
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
         recyclerView = findViewById(R.id.recycler_view)
         noFilesText = findViewById(R.id.nofiles_textview)
@@ -121,15 +136,7 @@ class FileListActivity : AppCompatActivity() {
 
         backBtn.setOnClickListener {
             it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
-
-            // If we are at the very beginning or can't go up, close the screen
-            if (currentFolder == initialRootFolder || currentFolder.parentFile == null) {
-                finish()
-            } else {
-                // Step back up one level in the folder structure tree
-                currentFolder = currentFolder.parentFile!!
-                loadDirectory(currentFolder)
-            }
+            goBack()
         }
 
         infoBtn.setOnClickListener {
@@ -141,6 +148,21 @@ class FileListActivity : AppCompatActivity() {
                 putExtra("isOld", "true")
             }
             startActivity(intent)
+        }
+    }
+
+    /**
+     * Goes back one level of the file system. If there is nowhere else to go, like the root folder,
+     * it closes the activity.
+     */
+    private fun goBack() {
+        // If we are at the very beginning or can't go up, close the screen
+        if (currentFolder == initialRootFolder || currentFolder.parentFile == null) {
+            finish()
+        } else {
+            // Step back up one level in the folder structure tree
+            currentFolder = currentFolder.parentFile!!
+            loadDirectory(currentFolder)
         }
     }
 }
