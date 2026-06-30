@@ -45,7 +45,7 @@ import java.io.File
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 6-26-2026
+ * @version 6-30-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
@@ -708,19 +708,28 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Skips backwards one song. If repeat playlist is on and the player is on the first song, skip
-     * backwards will take player to last song. If not, it does not do this.
+     * Skips backwards one song.
+     * If song is more than 10 seconds in, start current song over. If not:
+     * If repeat playlist is on and the player is on the first song, skip backwards will take player
+     * to last song. If not, it does not do this.
      */
     fun skipBackward() {
         // If the song is the first in the list and repeat playlist is not toggled, do nothing.
         if ((currentPosition == 0) && !repeatPlaylistOn) {
             return
         }
+        if (controller.currentPosition > 10000) { // 10 Seconds
+            controller.seekTo(0) // Go back to beginning.
+            return
+        }
+        // Skip back around if repeat playlist is toggled.
         if (currentPosition == 0) {
             currentPosition = (allFiles.size - 1)
+        // Just go back one.
         } else {
             currentPosition--
         }
+        // Re-set everything back up.
         this.audioFile = allFiles[currentPosition]
         makeQueueMenu(audioQueue)
         setupControllerFile(this.audioFile)
