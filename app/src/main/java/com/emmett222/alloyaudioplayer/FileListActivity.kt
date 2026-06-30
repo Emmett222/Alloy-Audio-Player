@@ -4,6 +4,8 @@ import android.content.Intent
 import com.emmett222.alloyaudioplayer.MyAdapter
 import android.os.Bundle
 import android.provider.MediaStore
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ImageButton
@@ -21,6 +23,7 @@ import com.emmett222.alloyaudioplayer.Player.PlayerActivity
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 import java.util.jar.Attributes
+import kotlin.math.abs
 
 /**
  * Lists the files. Only shows audio files.
@@ -74,6 +77,7 @@ class FileListActivity : AppCompatActivity() {
         currentFolder = File(path)
         initialRootFolder = File(path)
 
+        setupGestures()
         setupBtns()
 
         loadDirectory(currentFolder)
@@ -124,6 +128,46 @@ class FileListActivity : AppCompatActivity() {
                 }
                 startActivity(intent)
             }
+        }
+    }
+
+    /**
+     * Sets up custom gestures for going out of the player.
+     */
+    private fun setupGestures() {
+        // The 'object : ' syntax is used to create an anonymous class. It is a one time object that
+        // implements an interface or extends a class, without needing to create a new .kt file.
+        // Think of it as "Create an (object) that acts like (:) this class/interface (____) and
+        // let me customize it.
+        val gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(
+                e1: MotionEvent?, // Start
+                e2: MotionEvent,  // End
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 == null) return false
+                val diffY = e2.y - e1.y
+                val diffX = e2.x - e1.x
+
+                // Motion determining.
+                // Swipe from left to right quickly.
+                if ((e1.x < 300) && abs(diffX) > abs(diffY)) { // Left of screen right
+                    if ((diffX > 150) && (abs(velocityX) > 150)) { // Far enough and fast enough.
+                        goBack() // Go back one folder.
+                    }
+                }
+
+                return false
+            }
+        })
+
+        // Intercept touches on the root view
+        // '_' represents the View parameter. Underscore is used to safely ignore it, since it is
+        // not needed.
+        findViewById<View>(R.id.main).setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            true
         }
     }
 
