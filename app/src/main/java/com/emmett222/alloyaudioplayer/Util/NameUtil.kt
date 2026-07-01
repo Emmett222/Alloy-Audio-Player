@@ -17,7 +17,7 @@ import androidx.core.graphics.red
  * A utilities class for commonly used functions that deal with names.
  *
  * @author Emmett Grebe
- * @version 5-29-2026
+ * @version 7-1-2026
  */
 object NameUtil {
     /**
@@ -47,7 +47,7 @@ object NameUtil {
      * - Keys: Each letter of the alphabet.
      * - Entries: 0-255 spread out amongst the letters evenly.
      * @param gradient If the color will have a gradient or not.
-     * @return Int Color based off of the first 3 letters of the string.
+     * @return Drawable based off of the first 3 letters of the string.
      */
     fun getColorFromName(name: String, alphabetTree: TreeMap<Char, Int>, gradient: Boolean) : Drawable {
         val char0 = if (name.isNotEmpty()) name[0].uppercaseChar() else 'A'
@@ -72,6 +72,29 @@ object NameUtil {
         gradient.colors = intArrayOf(baseColor, secondaryColor)
 
         return gradient
+    }
+
+    /**
+     * Uses the first 3 letters of a string to get a unique color. If string has less than 3
+     * letters, then only remaining letters are used.
+     *
+     * @param name String to use.
+     * @param alphabetTree TreeMap to use. This can be made from generateAlphabetTable(). Needs:
+     * - Keys: Each letter of the alphabet.
+     * - Entries: 0-255 spread out amongst the letters evenly.
+     * @return Int Color based off of the first 3 letters of the string.
+     */
+    fun getColorFromName(name: String, alphabetTree: TreeMap<Char, Int>) : Int {
+        val char0 = if (name.isNotEmpty()) name[0].uppercaseChar() else 'A'
+        val char1 = if (name.length > 1) name[1].uppercaseChar() else 'A'
+        val char2 = if (name.length > 2) name[2].uppercaseChar() else 'A'
+
+        val r = alphabetTree.getOrDefault(char0, 0)
+        val g = alphabetTree.getOrDefault(char1, 0)
+        val b = alphabetTree.getOrDefault(char2, 0)
+
+        val baseColor = Color.rgb(r, g, b)
+        return baseColor
     }
 
     /**
