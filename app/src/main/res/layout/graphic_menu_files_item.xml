@@ -10,6 +10,7 @@
     android:paddingEnd="10dp">
 
     <LinearLayout
+        android:id="@+id/all"
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:orientation="horizontal"
@@ -22,7 +23,6 @@
             android:layout_width="34dp"
             android:layout_height="34dp"
             android:tint="#666666"
-            android:background="@drawable/cstm_rounded_corners"
             tools:src="@drawable/baseline_folder_24" />
 
         <TextView
