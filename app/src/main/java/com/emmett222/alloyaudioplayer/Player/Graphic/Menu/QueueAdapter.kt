@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
+import java.util.TreeMap
 
 /**
  * Queue screen for the player.
@@ -30,6 +31,7 @@ class QueueAdapter(val context: Context,
                    private val onItemClick: (File, Boolean, Boolean, Boolean) -> Unit
 ) : RecyclerView.Adapter<QueueAdapter.ViewHolder>() {
 
+    private var alphabetTree: TreeMap<Char, Int> = NameUtil.generateAlphabetTable()
     val allItems: List<File> = listOf(currentItem) + queueItems + items
 
     /**
@@ -71,7 +73,7 @@ class QueueAdapter(val context: Context,
             holder.imageView.setImageResource(R.drawable.menu_queue_song)
         }
 
-        holder.imageView.setColorFilter(Color.GREEN)
+        holder.imageView.setColorFilter(NameUtil.getColorFromName(currItem.name, alphabetTree))
     }
 
     /**
