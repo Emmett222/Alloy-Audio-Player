@@ -2,6 +2,8 @@ package com.emmett222.alloyaudioplayer.Player.Graphic.Menu
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -12,7 +14,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.R
+import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
+import com.emmett222.alloyaudioplayer.Util.StringUtil
 import java.io.File
 import java.util.TreeMap
 
@@ -22,7 +26,7 @@ import java.util.TreeMap
  * the file is removed from the playlist, and a boolean if it is in the queue or not.
  *
  * @author Emmett Grebe
- * @version 5-30-2026
+ * @version 7-4-2026
  */
 class QueueAdapter(val context: Context,
                    val currentItem: File,
@@ -30,9 +34,8 @@ class QueueAdapter(val context: Context,
                    val items: Array<File>,
                    private val onItemClick: (File, Boolean, Boolean, Boolean) -> Unit
 ) : RecyclerView.Adapter<QueueAdapter.ViewHolder>() {
-
-    private var alphabetTree: TreeMap<Char, Int> = NameUtil.generateAlphabetTable()
     val allItems: List<File> = listOf(currentItem) + queueItems + items
+    private val handler = Handler(Looper.getMainLooper())
 
     /**
      * Runs on creation.
@@ -74,6 +77,15 @@ class QueueAdapter(val context: Context,
         }
 
         holder.imageView.setColorFilter(NameUtil.getColorFromName(currItem.name))
+
+        // Put the heavy task in the background. This stops it from freezing up and not doing
+        // the animations.
+        handler.post {
+            if (holder.adapterPosition == position) {
+                val ms = FileUtil.getDurationFromFile(context, currItem.absolutePath)
+                holder.timeText.text = StringUtil.formatMinutesAndSeconds(ms.toInt())
+            }
+        }
     }
 
     /**
@@ -85,6 +97,7 @@ class QueueAdapter(val context: Context,
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView: TextView = itemView.findViewById(R.id.file_name_text_view)
+        val timeText: TextView = itemView.findViewById(R.id.time)
         val imageView: ImageView = itemView.findViewById(R.id.icon_view)
         val queueBtn: ImageButton = itemView.findViewById(R.id.queueBtn)
         val removeBtn: ImageButton = itemView.findViewById(R.id.removeBtn)
