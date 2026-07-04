@@ -1,7 +1,9 @@
 package com.emmett222.alloyaudioplayer.Util
 
 import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
+import java.io.File
 
 /**
  * Utility object for help with files.
@@ -47,5 +49,30 @@ object FileUtil {
             }
         }
         return 0L // Return 0 if there was an issue along the way.
+    }
+
+    /**
+     * Gets the name of the artist from a file.
+     *
+     * @param file The audio file to get the author from.
+     * @return A string containing the author of the given audio file.
+     */
+    fun getArtistFromFile(file: File) : String {
+        val retriever = MediaMetadataRetriever()
+
+        return try {
+            // Sets the data source to the file path
+            retriever.setDataSource(file.absolutePath)
+
+            // Extracts the metadata field for ARTIST
+            retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+                ?: "Unknown Artist" // Returns default if null
+
+        } catch (e: Exception) {
+            "Unknown Artist" // Handles errors (e.g., file not found or unsupported format)
+        } finally {
+            // Release the retriever to prevent memory leaks
+            retriever.release()
+        }
     }
 }
