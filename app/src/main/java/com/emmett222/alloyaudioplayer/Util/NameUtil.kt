@@ -20,6 +20,9 @@ import androidx.core.graphics.red
  * @version 7-1-2026
  */
 object NameUtil {
+
+    private var alphabetTree: TreeMap<Char, Int> = generateAlphabetTable()
+
     /**
      * Generates a TreeMap with:
      * - Keys: Each letter of the alphabet.
@@ -49,7 +52,7 @@ object NameUtil {
      * @param gradient If the color will have a gradient or not.
      * @return Drawable based off of the first 3 letters of the string.
      */
-    fun getColorFromName(name: String, alphabetTree: TreeMap<Char, Int>, gradient: Boolean) : Drawable {
+    fun getColorFromName(name: String, gradient: Boolean) : Drawable {
         val char0 = if (name.isNotEmpty()) name[0].uppercaseChar() else 'A'
         val char1 = if (name.length > 1) name[1].uppercaseChar() else 'A'
         val char2 = if (name.length > 2) name[2].uppercaseChar() else 'A'
@@ -84,7 +87,7 @@ object NameUtil {
      * - Entries: 0-255 spread out amongst the letters evenly.
      * @return Int Color based off of the first 3 letters of the string.
      */
-    fun getColorFromName(name: String, alphabetTree: TreeMap<Char, Int>) : Int {
+    fun getColorFromName(name: String) : Int {
         val char0 = if (name.isNotEmpty()) name[0].uppercaseChar() else 'A'
         val char1 = if (name.length > 1) name[1].uppercaseChar() else 'A'
         val char2 = if (name.length > 2) name[2].uppercaseChar() else 'A'

@@ -73,7 +73,7 @@ class QueueAdapter(val context: Context,
             holder.imageView.setImageResource(R.drawable.menu_queue_song)
         }
 
-        holder.imageView.setColorFilter(NameUtil.getColorFromName(currItem.name, alphabetTree))
+        holder.imageView.setColorFilter(NameUtil.getColorFromName(currItem.name))
     }
 
     /**

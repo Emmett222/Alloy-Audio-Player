@@ -29,8 +29,6 @@ class FilesMenuAdapter(val context: Context,
                        var files: Array<File>,
                        private val onItemClick: (File) -> Unit
 ) : RecyclerView.Adapter<FilesMenuAdapter.ViewHolder>() {
-
-    private var alphabetTree: TreeMap<Char, Int> = NameUtil.generateAlphabetTable()
     private val items: Array<File?> = buildList {
         if (backOption != null && backOption?.name != "emulated") {
             add(backOption) // Kotlin smart casts this perfectly to a non-null File
@@ -66,7 +64,7 @@ class FilesMenuAdapter(val context: Context,
             holder.imageView.setColorFilter(Color.GREEN)
 
         } else { // Audio files.
-            val color = NameUtil.getColorFromName(currItem.name, alphabetTree, true)
+            val color = NameUtil.getColorFromName(currItem.name, true)
             val oppositeColor = ColorUtil.textColorFromColor(color)
 
             holder.imageView.setImageResource(R.drawable.baseline_audio_file_24)
