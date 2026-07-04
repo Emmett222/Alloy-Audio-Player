@@ -17,6 +17,7 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
@@ -190,7 +191,7 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Sets up custom gestures for going out of the player.
+     * Sets up custom gestures.
      */
     private fun setupGestures() {
         // The 'object : ' syntax is used to create an anonymous class. It is a one time object that
@@ -225,6 +226,17 @@ class PlayerActivity : AppCompatActivity() {
             gestureDetector.onTouchEvent(event)
             true
         }
+
+        // This replaces the default back button functionality.
+        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (inMenu) backToVis(visualizerView, menuGraphic)
+                else finish()
+            }
+        }
+        // This adds the custom call back to the dispatcher. The dispatcher is responsible for
+        // handling the back click.
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     /**
