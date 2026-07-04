@@ -33,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="11dp"
                 android:gravity="center"
-                android:text="00:00:00" />
+                android:text="--:--" />
 
         </LinearLayout>
 

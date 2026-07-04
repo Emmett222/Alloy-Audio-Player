@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
+import com.emmett222.alloyaudioplayer.Util.StringUtil
 import java.io.File
 import java.util.TreeMap
 
@@ -23,9 +24,10 @@ import java.util.TreeMap
  * @author Emmett Grebe
  * @version 7-1-2026
  */
-class MyAdapter(val context: Context,
-                var files: Array<File>,
-                private val onItemClick: (File) -> Unit
+class MyAdapter(
+    val context: Context,
+    var files: Array<File>,
+    private val onItemClick: (File) -> Unit
 ) : RecyclerView.Adapter<MyAdapter.ViewHolder>() {
 
     private val handler = Handler(Looper.getMainLooper())
@@ -77,7 +79,7 @@ class MyAdapter(val context: Context,
             handler.post {
                 if (holder.adapterPosition == position) {
                     val ms = FileUtil.getDurationFromFile(context, selectedFile.absolutePath)
-                    holder.timeText.text = formatMinutesAndSeconds(ms.toInt())
+                    holder.timeText.text = StringUtil.formatMinutesAndSeconds(ms.toInt())
                 }
             }
         }
@@ -97,16 +99,5 @@ class MyAdapter(val context: Context,
         val cdCase: ImageView = itemView.findViewById(R.id.cd_case_overlay)
     }
 
-    /**
-     * Format milliseconds to minutes and seconds.
-     * @param m Time in milliseconds.
-     * @return String of the time in the format of x:xx.
-     */
-    fun formatMinutesAndSeconds(m: Int): String {
-        val minutes = (m / 1000) / 60
-        val seconds = (m / 1000) % 60
 
-        // Formats to x:xx.
-        return String.format("%d:%02d", minutes, seconds)
-    }
 }
