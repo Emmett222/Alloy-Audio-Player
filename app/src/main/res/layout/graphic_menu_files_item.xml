@@ -12,18 +12,34 @@
     <LinearLayout
         android:id="@+id/all"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="56dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp">
 
-        <ImageView
-            android:id="@+id/icon_view"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
-            android:tint="#666666"
-            tools:src="@drawable/baseline_folder_24" />
+        <LinearLayout
+            android:layout_width="42dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/icon_view"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:tint="#666666"
+                tools:src="@drawable/baseline_folder_24" />
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="11dp"
+                android:gravity="center"
+                android:textColor="#00ff00"
+                android:text="--:--" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/file_name_text_view"

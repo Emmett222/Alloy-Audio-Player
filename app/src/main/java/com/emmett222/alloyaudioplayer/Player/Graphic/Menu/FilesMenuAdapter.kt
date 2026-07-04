@@ -3,6 +3,8 @@ package com.emmett222.alloyaudioplayer.Player.Graphic.Menu
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.Handler
+import android.os.Looper
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +16,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
+import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
+import com.emmett222.alloyaudioplayer.Util.StringUtil
 import java.io.File
 import java.util.TreeMap
 
@@ -22,7 +26,7 @@ import java.util.TreeMap
  * Files menu to select the audio file wanted. Only shows audio files.
  *
  * @author Emmett Grebe
- * @version 7-1-2026
+ * @version 7-4-2026
  */
 class FilesMenuAdapter(val context: Context,
                        var backOption: File?,
@@ -35,7 +39,7 @@ class FilesMenuAdapter(val context: Context,
         }
         addAll(files) // Appends the rest
     }.toTypedArray()
-    private var size = files.size
+    private val handler = Handler(Looper.getMainLooper())
 
     /**
      * Runs on creation.
@@ -62,6 +66,7 @@ class FilesMenuAdapter(val context: Context,
             }
             holder.queueBtn.visibility = View.GONE
             holder.imageView.setColorFilter(Color.GREEN)
+            holder.timeText.visibility = View.GONE
 
         } else { // Audio files.
             val color = NameUtil.getColorFromName(currItem.name, true)
@@ -78,6 +83,15 @@ class FilesMenuAdapter(val context: Context,
             holder.textView.text = NameUtil.removeDescriptors(currItem.name)
 
             holder.queueBtn.visibility = View.VISIBLE
+
+            // Put the heavy task in the background. This stops it from freezing up and not doing
+            // the animations.
+            handler.post {
+                if (holder.adapterPosition == position) {
+                    val ms = FileUtil.getDurationFromFile(context, currItem.absolutePath)
+                    holder.timeText.text = StringUtil.formatMinutesAndSeconds(ms.toInt())
+                }
+            }
         }
 
         if (currItem.isDirectory) {
@@ -110,6 +124,7 @@ class FilesMenuAdapter(val context: Context,
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val all: LinearLayout = itemView.findViewById(R.id.all)
         val textView: TextView = itemView.findViewById(R.id.file_name_text_view)
+        val timeText: TextView = itemView.findViewById(R.id.time)
         val imageView: ImageView = itemView.findViewById(R.id.icon_view)
         val queueBtn: ImageButton = itemView.findViewById(R.id.queueBtn)
     }
