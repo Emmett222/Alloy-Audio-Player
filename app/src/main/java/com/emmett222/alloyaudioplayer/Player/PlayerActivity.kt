@@ -62,8 +62,8 @@ class PlayerActivity : AppCompatActivity() {
      * vvvvv ---------- Files ---------- vvvvv
      */
     lateinit var audioFile: File
-    lateinit var allFiles: Array<File>
-    lateinit var unShuffledAllFiles: Array<File>
+    lateinit var allFiles: MutableList<File>
+    lateinit var unShuffledAllFiles: MutableList<File>
     var currentPosition = -1
     var audioQueue: ArrayDeque<File> = ArrayDeque<File>()
 
@@ -116,7 +116,11 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         this.isOld = intent.getStringExtra("isOld") == "true"
-        setupFiles()
+        if (isOld) {
+            setupFiles(MediaEngine.getCurrentFile())
+        } else {
+            setupFiles(File(intent.getStringExtra("path")))
+        }
 
         visualizerView = findViewById(R.id.visScreen)
         menuGraphic = findViewById(R.id.menuContainer)
@@ -241,27 +245,18 @@ class PlayerActivity : AppCompatActivity() {
 
     /**
      * Helper method to set up the files and playlist of files.
+     *
+     * @param file The audio file to be played.
      */
     @OptIn(UnstableApi::class)
-    private fun setupFiles() {
-        if (isOld) {
-            this.audioFile = MediaEngine.getCurrentFile()
-        } else {
-            this.audioFile = File(intent.getStringExtra("path"))
-        }
-
+    private fun setupFiles(file: File) {
+        this.audioFile = file
         onFileChangeListener?.invoke(this.audioFile)
 
-        this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory })
-        this.unShuffledAllFiles = this.allFiles.clone()
+        this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory }).toMutableList()
+        this.unShuffledAllFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory }).toMutableList()
 
-        // withIndex() is like an iterator, but it keeps track of the index.
-        for ((i, f) in this.allFiles.withIndex()) {
-            if (f == audioFile) {
-                this.currentPosition = i
-                break;
-            }
-        }
+        allFiles.indexOf(audioFile)
     }
 
     /**
