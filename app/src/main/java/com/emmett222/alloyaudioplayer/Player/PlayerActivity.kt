@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.media.MediaMetadataRetriever
 import android.media.audiofx.Visualizer
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -37,9 +38,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
 import com.emmett222.alloyaudioplayer.Player.Graphic.BaseGraphic
-import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.QueueAdapter
+import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.QueueMenu.QueueAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.StartMenuAdapter
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.*
+import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.QueueMenu.Objects.QueueRowItem
 import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
@@ -49,7 +51,7 @@ import kotlin.math.abs
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 6-30-2026
+ * @version 7-17-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
@@ -104,7 +106,7 @@ class PlayerActivity : AppCompatActivity() {
 
         // This makes Android's navigation bar become transparent.
         enableEdgeToEdge()
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
 
@@ -177,7 +179,7 @@ class PlayerActivity : AppCompatActivity() {
 
             // Only interrupt playback if it's actually a new song
             if (!::audioFile.isInitialized || audioFile.absolutePath != newFile.absolutePath) {
-                setupFiles() // Reset playlist arrays
+                setupFiles(newFile) // Reset playlist arrays
                 setupControllerFile(audioFile) // Tell Media3 to play the new song
                 setupTitle(audioFile.name)
             }
@@ -256,7 +258,7 @@ class PlayerActivity : AppCompatActivity() {
         this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory }).toMutableList()
         this.unShuffledAllFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory }).toMutableList()
 
-        allFiles.indexOf(audioFile)
+        this.currentPosition = allFiles.indexOf(audioFile)
     }
 
     /**
@@ -520,7 +522,8 @@ class PlayerActivity : AppCompatActivity() {
         val shuffleBtn: ImageButton = findViewById(R.id.shuffleBtn)
         shuffleBtn.setOnClickListener {
             if (shuffleOn) {
-                this.allFiles = unShuffledAllFiles.clone()
+                this.allFiles.clear()
+                this.allFiles.addAll(unShuffledAllFiles)
                 this.currentPosition = allFiles.indexOf(audioFile)
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleoff)
                 shuffleOn = false;
@@ -534,7 +537,7 @@ class PlayerActivity : AppCompatActivity() {
                     audioFile
                 ) // Drop the active song right at the front (Index 0)
 
-                this.allFiles = mutablePlaylist.toTypedArray()
+                this.allFiles = mutablePlaylist
                 this.currentPosition = 0
 
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleon)
@@ -676,11 +679,15 @@ class PlayerActivity : AppCompatActivity() {
         // Whenever an item is clicked on the files menu, the start menu callback send the info
         // back to here. Uses the static global variables in the companion to determine which was
         // clicked.
-        menuFilesRecycler.adapter = FilesMenuAdapter(this, backOption, filteredFiles) { clickedItem ->
+        menuFilesRecycler.adapter = FilesMenuAdapter(this, backOption, filteredFiles) { clickedItem, isGoTo ->
             if (clickedItem.isDirectory) { // Folder.
                 makeFilesMenu(clickedItem.parentFile, clickedItem)
             } else {
-                audioQueue.addLast(clickedItem)
+                if (isGoTo) {
+                    setupFiles(clickedItem)
+                } else {
+                    audioQueue.addLast(clickedItem)
+                }
             }
         }
     }
@@ -691,43 +698,76 @@ class PlayerActivity : AppCompatActivity() {
      * @param queueItems Items from the queue.
      */
     private fun makeQueueMenu(queueItems: ArrayDeque<File>) {
-        val nextIndex = currentPosition + 1
-        val items: Array<File> = if (nextIndex < allFiles.size) {
-            allFiles.sliceArray(nextIndex..<allFiles.size)
-        } else {
-            emptyArray()
+        val masterList = mutableListOf<QueueRowItem>()
+        // Add the active song
+        masterList.add(QueueRowItem(this.audioFile, true, false))
+
+        // Add the queue tracks
+        queueItems.forEach { file ->
+            masterList.add(QueueRowItem(file, false, true))
         }
 
-        menuQueueRecycler.adapter = QueueAdapter(this, this.audioFile, queueItems, items)
-        { clickedItem, isAddQueue, isRemove, isInQueue ->
-            if (!isAddQueue && !isRemove) {
-                // User manually clicked a row item to force play it
-                val playlistIndex = allFiles.indexOf(clickedItem)
-                if (playlistIndex != -1) {
-                    // Only move the pointer if they clicked a standard track from the playlist
-                    currentPosition = playlistIndex
-                }
+        // Add the rest of the playlist tracks
+        val nextIndex = currentPosition + 1
+        if (nextIndex < allFiles.size) {
+            for (i in nextIndex until allFiles.size) {
+                masterList.add(QueueRowItem(allFiles[i], false, false))
+            }
+        }
 
-                this.audioFile = clickedItem
-                setupControllerFile(clickedItem)
-                setupTitle(clickedItem.name)
-            }
-            if (isAddQueue) {
+        menuQueueRecycler.adapter = QueueAdapter(
+            this, masterList,
+            onItemClick = { clickedItem, ->
+                    // User manually clicked a row item to force play it
+                    val playlistIndex = allFiles.indexOf(clickedItem)
+                    if (playlistIndex != -1) {
+                        // Only move the pointer if they clicked a standard track from the playlist
+                        currentPosition = playlistIndex
+                    }
+
+                    this.audioFile = clickedItem
+                    setupControllerFile(clickedItem)
+                    setupTitle(clickedItem.name)
+                    makeQueueMenu(queueItems)
+                },
+            onQueueClick = { clickedItem, ->
                 queueItems.addLast(clickedItem)
-            }
-            if (isRemove) {
+                makeQueueMenu(queueItems)
+            },
+            onRemoveClick = { clickedItem, isInQueue ->
                 if (isInQueue) {
                     queueItems.remove(clickedItem)
                 } else {
                     allFiles =
-                        allFiles.filter { currFile -> currFile != clickedItem }.toTypedArray()
+                        allFiles.filter { currFile -> currFile != clickedItem }.toMutableList()
                     unShuffledAllFiles =
                         unShuffledAllFiles.filter { currFile -> currFile != clickedItem }
-                            .toTypedArray()
+                            .toMutableList()
                 }
+                makeQueueMenu(queueItems)
+            },
+            onItemMove = { finalModelList ->
+                // Build a clean queue stream by filtering for items flagged as queue entries
+                val newQueue = ArrayDeque<File>()
+                finalModelList.filter { it.isInQueue }.forEach { newQueue.add(it.file) }
+                this.audioQueue = newQueue
+
+                // Build the unplayed playlist tracks by filtering for standard tracks
+                val remainingPlaylistTracks = finalModelList
+                    .filter { !it.isCurrentPlaying && !it.isInQueue }
+                    .map { it.file }
+
+                val historyTracks = allFiles.subList(0, currentPosition + 1)
+                this.allFiles = (historyTracks + remainingPlaylistTracks).toMutableList()
+
+                this.currentPosition = allFiles.indexOf(audioFile)
+
+                // Update the adapter with the ALREADY sorted final model list
+                val adapter = menuQueueRecycler.adapter as QueueAdapter
+                adapter.updateData(finalModelList.toMutableList())
             }
-            makeQueueMenu(queueItems)
-        }
+        )
+
     }
 
 

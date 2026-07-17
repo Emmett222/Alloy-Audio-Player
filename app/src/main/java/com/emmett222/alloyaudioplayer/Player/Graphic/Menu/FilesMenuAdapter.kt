@@ -26,12 +26,12 @@ import java.util.TreeMap
  * Files menu to select the audio file wanted. Only shows audio files.
  *
  * @author Emmett Grebe
- * @version 7-4-2026
+ * @version 7-10-2026
  */
 class FilesMenuAdapter(val context: Context,
                        var backOption: File?,
                        var files: Array<File>,
-                       private val onItemClick: (File) -> Unit
+                       private val onItemClick: (File, Boolean) -> Unit
 ) : RecyclerView.Adapter<FilesMenuAdapter.ViewHolder>() {
     private val items: Array<File?> = buildList {
         if (backOption != null && backOption?.name != "emulated") {
@@ -97,12 +97,16 @@ class FilesMenuAdapter(val context: Context,
         if (currItem.isDirectory) {
             holder.all.setOnClickListener {
                 it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                onItemClick(currItem) // Forward the click event back to the Activity
+                onItemClick(currItem, false) // Forward the click event back to the Activity
             }
         } else {
             holder.queueBtn.setOnClickListener {
                 it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                onItemClick(currItem) // Forward the click event back to the Activity
+                onItemClick(currItem, false) // Forward the click event back to the Activity
+            }
+            holder.all.setOnClickListener {
+                it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                onItemClick(currItem, true) // Forward the click event back to the Activity
             }
         }
 
