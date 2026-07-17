@@ -1,5 +1,6 @@
 package com.emmett222.alloyaudioplayer.Player.Graphic.Menu.QueueMenu
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.os.Handler
@@ -168,10 +169,7 @@ class QueueAdapter(val context: Context,
                 viewHolder: RecyclerView.ViewHolder,
                 direction: Int
             ) {
-                val position = viewHolder.absoluteAdapterPosition
-                val removedItem = listItems[position]
-
-                onRemoveClick(removedItem.file, removedItem.isInQueue)
+                visuallyRemoveItem(viewHolder.absoluteAdapterPosition)
             }
 
             /**
@@ -211,9 +209,33 @@ class QueueAdapter(val context: Context,
      *
      * @param newItems The new list of items for the layout to use.
      */
+    @SuppressLint("NotifyDataSetChanged")
     fun updateData(newItems: List<QueueRowItem>) {
+        val oldSize = this.listItems.size
+        val newSize = newItems.size
+
         this.listItems.clear()
         this.listItems.addAll(newItems)
+
+        if (newSize < oldSize) { // Only for when an item is deleted it needs to force refresh.
+            notifyDataSetChanged()
+        }
+    }
+
+    /**
+     * Removes an item visually from the adapter.
+     *
+     * @param position The position of the item to be removed visually.
+     */
+    private fun visuallyRemoveItem(position: Int) {
+        if (position == RecyclerView.NO_POSITION) return
+
+        val itemToRemove = listItems[position]
+        listItems.removeAt(position)
+
+        notifyItemRemoved(position)
+
+        onRemoveClick(itemToRemove.file, itemToRemove.isInQueue)
     }
 
     /**

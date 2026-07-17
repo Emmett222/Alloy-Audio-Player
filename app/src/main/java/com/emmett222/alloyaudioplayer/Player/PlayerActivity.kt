@@ -736,15 +736,13 @@ class PlayerActivity : AppCompatActivity() {
             },
             onRemoveClick = { clickedItem, isInQueue ->
                 if (isInQueue) {
-                    queueItems.remove(clickedItem)
+                    audioQueue.remove(clickedItem)
+                    allFiles.remove(clickedItem)
                 } else {
-                    allFiles =
-                        allFiles.filter { currFile -> currFile != clickedItem }.toMutableList()
-                    unShuffledAllFiles =
-                        unShuffledAllFiles.filter { currFile -> currFile != clickedItem }
-                            .toMutableList()
+                    allFiles.remove(clickedItem)
+                    unShuffledAllFiles.remove(clickedItem)
                 }
-                makeQueueMenu(queueItems)
+                this.currentPosition = allFiles.indexOf(audioFile)
             },
             onItemMove = { finalModelList ->
                 // Build a clean queue stream by filtering for items flagged as queue entries
