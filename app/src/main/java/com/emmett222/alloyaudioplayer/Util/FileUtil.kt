@@ -9,7 +9,7 @@ import java.io.File
  * Utility object for help with files.
  *
  * @author Emmett Grebe
- * @version 7-4-2026
+ * @version 7-17-2026
  */
 object FileUtil {
     /**
@@ -49,6 +49,19 @@ object FileUtil {
             }
         }
         return 0L // Return 0 if there was an issue along the way.
+    }
+
+    /**
+     * Determines if a file is an audio file or not by checking its extension.
+     * Extensions include: mp3, m4a, opus, aac, aif, aiff, cda, flac, off, wav.
+     *
+     * @param file The file to check.
+     * @return True if audio file, false if not.
+     */
+    fun isAudioFile(file: File) : Boolean {
+        val extensions =
+            arrayOf("mp3", "m4a", "opus", "aac", "aif", "aiff", "cda", "flac", "ogg", "wav")
+        return extensions.contains(file.extension)
     }
 
     /**

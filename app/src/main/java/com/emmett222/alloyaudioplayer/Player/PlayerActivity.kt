@@ -2,7 +2,6 @@ package com.emmett222.alloyaudioplayer.Player
 
 import android.content.ComponentName
 import android.content.Intent
-import android.graphics.Color
 import android.media.MediaMetadataRetriever
 import android.media.audiofx.Visualizer
 import android.net.Uri
@@ -10,7 +9,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.MediaStore
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -24,7 +22,6 @@ import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -46,6 +43,8 @@ import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 import kotlin.math.abs
+import androidx.core.graphics.toColorInt
+import com.emmett222.alloyaudioplayer.Util.FileUtil
 
 /**
  * Player screen for Alloy Audio Player.
@@ -67,7 +66,7 @@ class PlayerActivity : AppCompatActivity() {
     lateinit var allFiles: MutableList<File>
     lateinit var unShuffledAllFiles: MutableList<File>
     var currentPosition = -1
-    var audioQueue: ArrayDeque<File> = ArrayDeque<File>()
+    var audioQueue: ArrayDeque<File> = ArrayDeque()
 
     /**
      * vvvvv ---------- Player ---------- vvvvv
@@ -79,11 +78,10 @@ class PlayerActivity : AppCompatActivity() {
      * vvvvv ---------- Status ---------- vvvvv
      */
     var isOld: Boolean = false
-    var isStart: Boolean = true;
-    var repeatOneOn: Boolean = false;
-    var shuffleOn: Boolean = false;
-    var justShuffled: Boolean = false
-    var repeatPlaylistOn: Boolean = false;
+    var isStart: Boolean = true
+    var repeatOneOn: Boolean = false
+    var shuffleOn: Boolean = false
+    var repeatPlaylistOn: Boolean = false
     var inMenu: Boolean = false
 
     /**
@@ -121,7 +119,8 @@ class PlayerActivity : AppCompatActivity() {
         if (isOld) {
             setupFiles(MediaEngine.getCurrentFile())
         } else {
-            setupFiles(File(intent.getStringExtra("path")))
+            // !! is fine here because it will always have a path given to it if it is not old.
+            setupFiles(File(intent.getStringExtra("path")!!))
         }
 
         visualizerView = findViewById(R.id.visScreen)
@@ -228,10 +227,10 @@ class PlayerActivity : AppCompatActivity() {
         })
 
         // Intercept touches on the root view
-        findViewById<View>(R.id.main).setOnTouchListener { _, event ->
+        findViewById<View>(R.id.main).setOnTouchListener(fun(_: View, event: MotionEvent): Boolean {
             gestureDetector.onTouchEvent(event)
-            true
-        }
+            return true
+        })
 
         // This replaces the default back button functionality.
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
@@ -255,8 +254,9 @@ class PlayerActivity : AppCompatActivity() {
         this.audioFile = file
         onFileChangeListener?.invoke(this.audioFile)
 
-        this.allFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory }).toMutableList()
-        this.unShuffledAllFiles = this.audioFile.parentFile.listFiles({ file -> !file.isDirectory }).toMutableList()
+        // !! is fine here because files are checked to be not null.
+        this.allFiles = this.audioFile.parentFile?.listFiles { file -> (!file.isDirectory) && (file != null) }!!.toMutableList()
+        this.unShuffledAllFiles = this.audioFile.parentFile?.listFiles { file -> (!file.isDirectory) && (file != null) }!!.toMutableList()
 
         this.currentPosition = allFiles.indexOf(audioFile)
     }
@@ -273,7 +273,7 @@ class PlayerActivity : AppCompatActivity() {
             artistName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
                 ?: "Unknown Artist"
         } catch (e: Exception) {
-            // Log error or handle missing file
+            e.printStackTrace()
         } finally {
             retriever.release()
         }
@@ -309,7 +309,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupVisualizer() {
         visualizerView.changeScreen(5) // later change this for settings.
 
-        var currentActiveSessionId = -1
+        val currentActiveSessionId = -1
 
         controller.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
@@ -340,7 +340,7 @@ class PlayerActivity : AppCompatActivity() {
                                 waveform: ByteArray?,
                                 samplingRate: Int
                             ) {
-                                // Unused now
+                                // Unused for now
                             }
 
                             override fun onFftDataCapture(
@@ -361,7 +361,6 @@ class PlayerActivity : AppCompatActivity() {
                         )
                         newVis.enabled = true
                         vis = newVis
-                        currentActiveSessionId = sessionId // Mark session ID for guard later.
                     }
                 }
             }
@@ -442,7 +441,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupPauseBtn() {
         val playBtn: ImageButton = findViewById(R.id.playBtn)
         playBtn.setOnClickListener {
-            if (controller.isPlaying == true) {
+            if (controller.isPlaying) {
                 controller.pause()
                 playBtn.setImageResource(R.drawable.btn_play)
                 handler.removeCallbacks(updater)
@@ -562,7 +561,7 @@ class PlayerActivity : AppCompatActivity() {
         menuFilesRecycler.layoutManager = LinearLayoutManager(applicationContext)
 
         makeVisMenu()
-        makeFilesMenu(audioFile.parentFile.parentFile, audioFile.parentFile)
+        makeFilesMenu(audioFile.parentFile?.parentFile, audioFile.parentFile)
 
         // Whenever an item is clicked on the start menu, the start menu callback send the info
         // back to here. Uses the static global variables in the companion to determine which was
@@ -615,71 +614,55 @@ class PlayerActivity : AppCompatActivity() {
             when (clickedItem) {
                 VisualizerMenuAdapter.NOVIS -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_NONE)
-                    backToVis(visualizerView, menuGraphic)
                 }
                 VisualizerMenuAdapter.LINEWAVE -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_WAVE)
-                    backToVis(visualizerView, menuGraphic)
                 }
                 VisualizerMenuAdapter.MIRLINEWAVE -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_MIRROR_WAVE)
-                    backToVis(visualizerView, menuGraphic)
                 }
                 VisualizerMenuAdapter.LINEBARS -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BARS)
-                    backToVis(visualizerView, menuGraphic)
                 }
                 VisualizerMenuAdapter.BOTLINEBARS -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BOTTOM_BARS)
-                    backToVis(visualizerView, menuGraphic)
                 }
                 VisualizerMenuAdapter.CIRCLEWAVE -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_WAVE)
-                    backToVis(visualizerView, menuGraphic)
                 }
                 VisualizerMenuAdapter.CIRCLEBAR -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_BARS)
-                    backToVis(visualizerView, menuGraphic)
                 }
                 VisualizerMenuAdapter.CIRCLEGROW -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_GROW)
-                    backToVis(visualizerView, menuGraphic)
                 }
                 VisualizerMenuAdapter.TALKINGSMILEY -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_SMILEY)
-                    backToVis(visualizerView, menuGraphic)
                 }
             }
             if (clickedItem == VisualizerMenuAdapter.NOVIS) {
-                visualizerView.setBackgroundColor(Color.parseColor("#082107"))
+                visualizerView.setBackgroundColor("#082107".toColorInt())
             } else {
-                visualizerView.setBackgroundColor(Color.parseColor("#0d380c"))
+                visualizerView.setBackgroundColor("#0d380c".toColorInt())
             }
+            backToVis(visualizerView, menuGraphic)
         }
     }
 
     /**
      * Makes a new files menu.
      */
-    private fun makeFilesMenu(backOption: File?, folder: File) {
+    private fun makeFilesMenu(backOption: File?, folder: File?) {
+        if (backOption == null || folder == null) return
         val rawFiles = folder.listFiles() ?: return
         val filteredFiles: Array<File> = rawFiles.filter { file ->
-            file.isDirectory ||
-                    file.extension.equals("mp3", true) ||
-                    file.extension.equals("m4a", true) ||
-                    file.extension.equals("opus", true) ||
-                    file.extension.equals("aac", true) ||
-                    file.extension.equals("aif", true) ||
-                    file.extension.equals("aiff", true) ||
-                    file.extension.equals("cda", true) ||
-                    file.extension.equals("flac", true) ||
-                    file.extension.equals("ogg", true) ||
-                    file.extension.equals("wav", true)
+            file.isDirectory || FileUtil.isAudioFile(file)
         }.toTypedArray()
         // Whenever an item is clicked on the files menu, the start menu callback send the info
         // back to here. Uses the static global variables in the companion to determine which was
         // clicked.
-        menuFilesRecycler.adapter = FilesMenuAdapter(this, backOption, filteredFiles) { clickedItem, isGoTo ->
+        menuFilesRecycler.adapter = FilesMenuAdapter(this, backOption, filteredFiles)
+        { clickedItem, isGoTo ->
             if (clickedItem.isDirectory) { // Folder.
                 makeFilesMenu(clickedItem.parentFile, clickedItem)
             } else {
@@ -711,13 +694,16 @@ class PlayerActivity : AppCompatActivity() {
         val nextIndex = currentPosition + 1
         if (nextIndex < allFiles.size) {
             for (i in nextIndex until allFiles.size) {
-                masterList.add(QueueRowItem(allFiles[i], false, false))
+                masterList.add(QueueRowItem(allFiles[i],
+                    isCurrentPlaying = false,
+                    isInQueue = false
+                ))
             }
         }
 
         menuQueueRecycler.adapter = QueueAdapter(
             this, masterList,
-            onItemClick = { clickedItem, ->
+            onItemClick = { clickedItem ->
                     // User manually clicked a row item to force play it
                     val playlistIndex = allFiles.indexOf(clickedItem)
                     if (playlistIndex != -1) {
@@ -730,7 +716,7 @@ class PlayerActivity : AppCompatActivity() {
                     setupTitle(clickedItem.name)
                     makeQueueMenu(queueItems)
                 },
-            onQueueClick = { clickedItem, ->
+            onQueueClick = { clickedItem ->
                 queueItems.addLast(clickedItem)
                 makeQueueMenu(queueItems)
             },
@@ -800,10 +786,6 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * vvvvv -------------------- Helpers -------------------- vvvvv
-     */
-
-    /**
      * Skips forward one song. If repeat playlist is on and the player is on the last song, it goes
      * back to the beginning of the playlist. If not, does not skip.
      */
@@ -855,7 +837,7 @@ class PlayerActivity : AppCompatActivity() {
         } else {
             currentPosition--
         }
-        // Re-set everything back up.
+        // Set everything back up.
         this.audioFile = allFiles[currentPosition]
         makeQueueMenu(audioQueue)
         setupControllerFile(this.audioFile)
