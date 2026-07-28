@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.R
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
@@ -41,12 +42,17 @@ class FilesMenuAdapter(val context: Context,
     }.toTypedArray()
     private val handler = Handler(Looper.getMainLooper())
 
+    private var shortenTitles: Boolean = false
+
     /**
      * Runs on creation.
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // Initiates the XML layout into the view object.
         val view = LayoutInflater.from(context).inflate(R.layout.graphic_menu_files_item, parent, false)
+
+        shortenTitles = SettingsChange.getShortMode(context)
+
         return ViewHolder(view)
     }
 
@@ -80,7 +86,11 @@ class FilesMenuAdapter(val context: Context,
                 holder.imageView.setColorFilter(ColorUtil.darkenColor(color, 60))
             }
 
-            holder.textView.text = NameUtil.removeDescriptors(currItem.name)
+            if (shortenTitles) {
+                holder.textView.text = NameUtil.removeDescriptors(currItem.name)
+            } else {
+                holder.textView.text = currItem.name
+            }
 
             holder.queueBtn.visibility = View.VISIBLE
 

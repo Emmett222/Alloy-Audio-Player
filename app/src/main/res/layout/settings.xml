@@ -292,7 +292,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Always Repeat:"
+                        android:text="Always Repeat playlist:"
                         android:textColor="#00ff00"
                         android:textSize="20sp" />
                     <TextView

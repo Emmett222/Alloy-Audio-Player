@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.QueueMenu.Objects.QueueRowItem
 import com.emmett222.alloyaudioplayer.R
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import com.emmett222.alloyaudioplayer.Util.StringUtil
@@ -43,12 +44,16 @@ class QueueAdapter(val context: Context,
     private lateinit var ithCallback: ItemTouchHelper.SimpleCallback
     private lateinit var ith: ItemTouchHelper
 
+    private var shortenTitles: Boolean = false
+
     /**
      * Runs on creation.
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // Initiates the XML layout into the view object.
         val view = LayoutInflater.from(context).inflate(R.layout.graphic_queue_item, parent, false)
+
+        shortenTitles = SettingsChange.getShortMode(context)
 
         return ViewHolder(view)
     }
@@ -58,7 +63,12 @@ class QueueAdapter(val context: Context,
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currItem = listItems[position]
-        holder.textView.text = NameUtil.removeDescriptors(currItem.file.name)
+
+        if (shortenTitles) {
+            holder.textView.text = NameUtil.removeDescriptors(currItem.file.name)
+        } else {
+            holder.textView.text = currItem.file.name
+        }
 
         holder.itemView.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)

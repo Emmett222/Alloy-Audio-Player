@@ -84,6 +84,7 @@ class PlayerActivity : AppCompatActivity() {
     var repeatOneOn: Boolean = false
     var shuffleOn: Boolean = false
     var repeatPlaylistOn: Boolean = false
+    var shortenTitles: Boolean = false
     var inMenu: Boolean = false
 
     /**
@@ -133,6 +134,9 @@ class PlayerActivity : AppCompatActivity() {
         menuFilesRecycler = menuGraphic.findViewById(R.id.menuFiles)
 
         visType = SettingsChange.getVisType(this)
+        repeatPlaylistOn = SettingsChange.getRepeatMode(this)
+        shuffleOn = SettingsChange.getShufMode(this)
+        shortenTitles = SettingsChange.getShortMode(this)
 
         // This token is needed to connect to the service.
         val sessionToken = SessionToken(this, ComponentName(this, MediaEngine::class.java))
@@ -794,7 +798,12 @@ class PlayerActivity : AppCompatActivity() {
      */
     private fun setupTitle(title: String) {
         val titleString: TextView = findViewById(R.id.titleString)
-        titleString.text = NameUtil.removeDescriptors(title)
+        if (shortenTitles) {
+            titleString.text = NameUtil.removeDescriptors(title)
+        } else {
+            titleString.text = title
+        }
+
 
         titleString.postDelayed({ // Only fires when the title is loaded.
             titleString.isSelected = true // So the marquee starts on load,
