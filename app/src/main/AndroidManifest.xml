@@ -29,6 +29,9 @@
             android:name=".WhiteNoiseActivity"
             android:exported="false" />
         <activity
+            android:name=".Settings.SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true" >
             <intent-filter>

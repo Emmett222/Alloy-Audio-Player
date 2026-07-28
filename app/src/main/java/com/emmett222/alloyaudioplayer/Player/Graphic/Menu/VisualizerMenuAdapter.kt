@@ -22,18 +22,18 @@ class VisualizerMenuAdapter(val context: Context,
 ) : RecyclerView.Adapter<VisualizerMenuAdapter.ViewHolder>() {
 
     companion object {
-        const val NOVIS = "No visualizer"
-        const val LINEWAVE = "Line with waves"
-        const val MIRLINEWAVE = "Mirrored line with waves"
-        const val LINEBARS = "Bars from the middle"
-        const val BOTLINEBARS = "Bars from the bottom"
-        const val CIRCLEWAVE = "Circle with waves"
-        const val CIRCLEBAR = "Circle with bars"
-        const val CIRCLEGROW = "Growing circles"
+        const val NOVIS = "No Visualizer"
+        const val LINEWAVE = "Waves"
+        const val MIRLINEWAVE = "Mirrored Waves"
+        const val LINEBARS = "Middle Bars"
+        const val BOTLINEBARS = "Bottom Bars"
+        const val CIRCLEWAVE = "Circle Waves"
+        const val CIRCLEBAR = "Circle Bars"
+        const val CIRCLEGROW = "Growing Circle"
         const val TALKINGSMILEY = "Smiley face"
-    }
 
-    private var items: Array<String> = arrayOf(NOVIS, LINEWAVE, MIRLINEWAVE, LINEBARS, BOTLINEBARS, CIRCLEWAVE, CIRCLEBAR, CIRCLEGROW, TALKINGSMILEY)
+        var items: Array<String> = arrayOf(NOVIS, LINEWAVE, MIRLINEWAVE, LINEBARS, BOTLINEBARS, CIRCLEWAVE, CIRCLEBAR, CIRCLEGROW, TALKINGSMILEY)
+    }
 
     /**
      * Runs on creation.

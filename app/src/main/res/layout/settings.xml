@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background2">
+
+    <ImageView
+        android:id="@+id/lineTop"
+        android:layout_width="0dp"
+        app:layout_constraintWidth_percent="0.9"
+        android:scaleType="fitXY"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/Scrollcontainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/background_line" />
+
+    <ScrollView
+        android:id="@+id/Scrollcontainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintWidth_percent="0.9"
+        app:layout_constraintHeight_percent="0.90"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+
+        android:background="@color/dark_green"
+        >
+<!--Container for all settings-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+<!--Line above file list settings-->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:background="#6600ff00" />
+<!--File list settings clickable zone-->
+                <LinearLayout
+                    android:id="@+id/fileListTitleContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/fileIcon"
+                        android:scaleType="centerInside"
+                        android:layout_width="50dp"
+                        android:layout_height="35dp"
+                        app:srcCompat="@drawable/menu_files"
+                        app:tint="#00ff00" />
+                    <TextView
+                        android:id="@+id/fileListTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:textColor="#00ff00"
+                        android:textSize="27sp"
+                        android:paddingLeft="15dp"
+                        android:text="File List" />
+                    <ImageView
+                        android:id="@+id/fileDropdown"
+                        android:layout_width="50dp"
+                        android:layout_height="35dp"
+                        app:srcCompat="@drawable/settings_dropdown" />
+                </LinearLayout>
+            <LinearLayout
+                android:id="@+id/filesSettingsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="35dp"
+                android:paddingRight="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="12dp"
+                android:visibility="gone">
+<!--Line above animation settings-->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="#6600ff00" />
+<!--Animation settings-->
+                <LinearLayout
+                    android:id="@+id/settingAnimRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingAnimLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Animation:"
+                        android:textColor="#00ff00"
+                        android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/settingAnimValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/settingAnimBtns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingAnimLeft"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Left"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/settingAnimRight"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Right"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"/>
+                    <TextView
+                        android:id="@+id/settingAnimNone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="None"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+<!--Line above shorten file names-->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="#6600ff00" />
+<!--Shorten file name setting-->
+                <LinearLayout
+                    android:id="@+id/settingShortenRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingShortLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Shorten file names:"
+                        android:textColor="#00ff00"
+                        android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/settingShortenValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/settingShortBtns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/settingShortYes"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Yes"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/settingShortNo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="No"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+            </LinearLayout>
+<!--Line above player settings-->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:background="#6600ff00" />
+            <LinearLayout
+                android:id="@+id/playerTitleContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+<!--Player settings dropdown clickable zone-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/playerIcon"
+                        android:scaleType="fitCenter"
+                        android:layout_width="50dp"
+                        android:layout_height="35dp"
+                        app:srcCompat="@drawable/music_cast_24px"
+                        app:tint="#00ff00" />
+                    <TextView
+                        android:id="@+id/playerTitle"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        android:textColor="#00ff00"
+                        android:textSize="27sp"
+                        android:paddingLeft="15dp"
+                        android:text="Player" />
+                    <ImageView
+                        android:id="@+id/playerDropdown"
+                        android:layout_width="50dp"
+                        android:layout_height="35dp"
+                        app:srcCompat="@drawable/settings_dropdown" />
+                </LinearLayout>
+            </LinearLayout>
+<!--Container for player settings-->
+            <LinearLayout
+                android:id="@+id/playerSettingsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="35dp"
+                android:paddingRight="20dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="12dp"
+                android:visibility="gone">
+<!--Line above repeat settings-->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="#6600ff00" />
+<!--Repeat settings-->
+                <LinearLayout
+                    android:id="@+id/settingRepeatRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingRLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Always Repeat:"
+                        android:textColor="#00ff00"
+                        android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/settingRValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Yes"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/settingRepeatRowBtns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingRYes"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Yes"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/settingRNo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="No"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+<!--Line below repeat settings-->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="#6600ff00" />
+<!--Shuffle settings-->
+                <LinearLayout
+                    android:id="@+id/settingAutoShuffleRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/settingASLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Always Shuffle:"
+                        android:textColor="#00ff00"
+                        android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/settingASValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Yes"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/settingShuffleRowBtns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingShufYes"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Yes"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp" />
+                    <TextView
+                        android:id="@+id/settingShufNo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="No"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+<!--Visualizer settings-->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="#6600ff00" />
+                <LinearLayout
+                    android:id="@+id/settingVisualizerRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/settingVisualizerLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Default Visualizer:"
+                        android:textColor="#00ff00"
+                        android:textSize="20sp" />
+                    <!--Visualizer value-->
+                    <TextView
+                        android:id="@+id/settingVisualizerValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Circle Wave"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+                </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <LinearLayout
+                            android:id="@+id/settingVBtns1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <!--No visualizer-->
+                            <TextView
+                                android:id="@+id/settingVNone"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="No Visualizer"
+                                android:textColor="#00ff00"
+                                android:textSize="16sp" />
+                            <!--Waves-->
+                            <TextView
+                                android:id="@+id/settingVLW"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Waves"
+                                android:textColor="#00ff00"
+                                android:textSize="16sp"/>
+                    </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/settingVBtns2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <!--Mirrored Waves-->
+                            <TextView
+                                android:id="@+id/settingVMLW"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Mirrored Waves"
+                                android:textColor="#00ff00"
+                                android:textSize="16sp" />
+                            <!--Middle Bars-->
+                            <TextView
+                                android:id="@+id/settingVBM"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Middle Bars"
+                                android:textColor="#00ff00"
+                                android:textSize="16sp"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/settingVBtns3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <!--Bottom bars-->
+                            <TextView
+                                android:id="@+id/settingVBB"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Bottom Bars"
+                                android:textColor="#00ff00"
+                                android:textSize="16sp" />
+                            <!--Circle waves-->
+                            <TextView
+                                android:id="@+id/settingVCW"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Circle Waves"
+                                android:textColor="#00ff00"
+                                android:textSize="16sp"/>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/settingVBtns4"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <!--Circle with bars-->
+                            <TextView
+                                android:id="@+id/settingVCB"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Circle Bars"
+                                android:textColor="#00ff00"
+                                android:textSize="16sp" />
+                            <!--Growing circle-->
+                            <TextView
+                                android:id="@+id/settingVGC"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Growing Circle"
+                                android:textColor="#00ff00"
+                                android:textSize="16sp"/>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/settingVBtns5"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:paddingTop="8dp"
+                            android:paddingBottom="8dp"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <!--Smiley face-->
+                            <TextView
+                                android:id="@+id/settingVSF"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Smiley Face"
+                                android:textColor="#00ff00"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+<!--Line below visualizers-->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:background="#6600ff00" />
+        </LinearLayout>
+    </ScrollView>
+<!--Line below settings-->
+    <ImageView
+        android:id="@+id/lineBottom"
+        android:layout_width="0dp"
+        app:layout_constraintWidth_percent="0.9"
+        android:scaleType="fitXY"
+        android:layout_height="wrap_content"
+        android:rotation="180"
+        app:srcCompat="@drawable/background_line"
+        app:layout_constraintTop_toBottomOf="@id/Scrollcontainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

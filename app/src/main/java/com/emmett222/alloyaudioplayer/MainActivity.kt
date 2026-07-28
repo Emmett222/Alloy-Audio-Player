@@ -12,13 +12,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.emmett222.alloyaudioplayer.Settings.SettingsActivity
 import kotlin.arrayOf
 
 /**
  * Opening screen for Alloy. Asks for permissions if needed and takes user to file screen.
  *
  * @author Emmett Grebe
- * @version 5-27-2026
+ * @version 7-28-2026
  */
 class MainActivity : AppCompatActivity() {
 
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
 
         val filesBtn: ImageButton = findViewById(R.id.filesBtn)
         val wnBtn: ImageButton = findViewById(R.id.wnBtn)
+        val settingsBtn: ImageButton = findViewById(R.id.settingsBtn)
 
         filesBtn.setOnClickListener {
             if (checkPermission()) {
@@ -71,6 +73,15 @@ class MainActivity : AppCompatActivity() {
         wnBtn.setOnClickListener {
             if (checkPermission()) {
                 startActivity(Intent(this@MainActivity, WhiteNoiseActivity::class.java))
+            } else {
+                requestPermission()
+            }
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+
+        settingsBtn.setOnClickListener {
+            if (checkPermission()) {
+                startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
             } else {
                 requestPermission()
             }

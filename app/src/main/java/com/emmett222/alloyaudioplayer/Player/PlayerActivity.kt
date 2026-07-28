@@ -44,13 +44,14 @@ import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 import kotlin.math.abs
 import androidx.core.graphics.toColorInt
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 
 /**
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 7-17-2026
+ * @version 7-28-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
@@ -73,6 +74,7 @@ class PlayerActivity : AppCompatActivity() {
      */
     lateinit var controller: MediaController
     var vis: Visualizer? = null // Nullable for later safety check.
+    var visType = 5
 
     /**
      * vvvvv ---------- Status ---------- vvvvv
@@ -129,6 +131,8 @@ class PlayerActivity : AppCompatActivity() {
         menuVisRecycler = menuGraphic.findViewById(R.id.menuVisualizers)
         menuQueueRecycler = menuGraphic.findViewById(R.id.menuQueue)
         menuFilesRecycler = menuGraphic.findViewById(R.id.menuFiles)
+
+        visType = SettingsChange.getVisType(this)
 
         // This token is needed to connect to the service.
         val sessionToken = SessionToken(this, ComponentName(this, MediaEngine::class.java))
@@ -307,18 +311,19 @@ class PlayerActivity : AppCompatActivity() {
      */
     @OptIn(UnstableApi::class)
     private fun setupVisualizer() {
-        visualizerView.changeScreen(5) // later change this for settings.
+        visualizerView.changeScreen(visType)
 
-        val currentActiveSessionId = -1
+        var currentActiveSessionId = -1
 
         controller.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 if (playbackState == Player.STATE_READY) {
                     val sessionId = controller.sessionExtras.getInt("AUDIO_SESSION_ID", 0)
 
-                    // Guard: Only run with valid ID and it's from the running one.
+                    // Only run with valid ID and it's from the running one.
                     // This is so it doesn't crash when user seek ahead.
                     if (sessionId > 0 && sessionId != currentActiveSessionId) {
+                        currentActiveSessionId = sessionId
 
                         // Clean up.
                         vis?.enabled = false
@@ -362,6 +367,8 @@ class PlayerActivity : AppCompatActivity() {
                         newVis.enabled = true
                         vis = newVis
                     }
+                } else {
+                    vis?.enabled = false
                 }
             }
         })
@@ -614,30 +621,39 @@ class PlayerActivity : AppCompatActivity() {
             when (clickedItem) {
                 VisualizerMenuAdapter.NOVIS -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_NONE)
+                    SettingsChange.saveVisType(this, 0)
                 }
                 VisualizerMenuAdapter.LINEWAVE -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_WAVE)
+                    SettingsChange.saveVisType(this, 1)
                 }
                 VisualizerMenuAdapter.MIRLINEWAVE -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_MIRROR_WAVE)
+                    SettingsChange.saveVisType(this, 2)
                 }
                 VisualizerMenuAdapter.LINEBARS -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BARS)
+                    SettingsChange.saveVisType(this, 3)
                 }
                 VisualizerMenuAdapter.BOTLINEBARS -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BOTTOM_BARS)
+                    SettingsChange.saveVisType(this, 4)
                 }
                 VisualizerMenuAdapter.CIRCLEWAVE -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_WAVE)
+                    SettingsChange.saveVisType(this, 5)
                 }
                 VisualizerMenuAdapter.CIRCLEBAR -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_BARS)
+                    SettingsChange.saveVisType(this, 6)
                 }
                 VisualizerMenuAdapter.CIRCLEGROW -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_GROW)
+                    SettingsChange.saveVisType(this, 7)
                 }
                 VisualizerMenuAdapter.TALKINGSMILEY -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_SMILEY)
+                    SettingsChange.saveVisType(this, 8)
                 }
             }
             if (clickedItem == VisualizerMenuAdapter.NOVIS) {
