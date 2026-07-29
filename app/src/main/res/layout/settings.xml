@@ -28,7 +28,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-
         android:background="@color/dark_green"
         >
 <!--Container for all settings-->
@@ -36,8 +35,222 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+            <!--Line above general settings-->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:background="#6600ff00" />
+            <!--General settings clickable zone-->
+            <LinearLayout
+                android:id="@+id/generalTitleContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/generalIcon"
+                    android:layout_width="50dp"
+                    android:layout_height="35dp"
+                    app:srcCompat="@drawable/settings_general"
+                    app:tint="#00ff00" />
+                <TextView
+                    android:id="@+id/generalTitle"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:textColor="#00ff00"
+                    android:textSize="27sp"
+                    android:paddingLeft="15dp"
+                    android:text="General" />
+                <ImageView
+                    android:id="@+id/generalDropdown"
+                    android:layout_width="50dp"
+                    android:layout_height="35dp"
+                    app:srcCompat="@drawable/settings_dropdown" />
+            </LinearLayout>
+        <LinearLayout
+            android:id="@+id/generalSettingsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="35dp"
+            android:paddingRight="20dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone">
+            <!--Line above color settings-->
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:background="#6600ff00" />
+            <!--Text color settings-->
+            <LinearLayout
+                android:id="@+id/settingColorRow1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/settingTextColorLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Text color:"
+                    android:textColor="#00ff00"
+                    android:textSize="20sp" />
+                <TextView
+                    android:id="@+id/settingColorValue1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="#00FF00"
+                    android:textColor="#00ff00"
+                    android:textSize="16sp"
+                    android:textStyle="italic" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/settingColorBtns1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/settingColor1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Select text color"
+                    android:textColor="#00ff00"
+                    android:textSize="16sp"
+                    android:gravity="center"/>
+            </LinearLayout>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:background="#6600ff00" />
+            <!--Text color settings-->
+            <LinearLayout
+                android:id="@+id/settingColorRow2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/settingBackgroundColorLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Background color:"
+                    android:textColor="#00ff00"
+                    android:textSize="20sp" />
+                <TextView
+                    android:layout_marginLeft="3dp"
+                    android:id="@+id/settingColorValue2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="#00FF00"
+                    android:textColor="#00ff00"
+                    android:textSize="16sp"
+                    android:textStyle="italic" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/settingColorBtns2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/settingColor2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Select background color"
+                    android:textColor="#00ff00"
+                    android:textSize="16sp"
+                    android:gravity="center"/>
+            </LinearLayout>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dp"
+                android:background="#6600ff00" />
+            <!--Text color settings-->
+            <LinearLayout
+                android:id="@+id/settingAccentColorRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/settingAccentColorLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Accent color:"
+                    android:textColor="#00ff00"
+                    android:textSize="20sp" />
+                <TextView
+                    android:layout_marginLeft="3dp"
+                    android:id="@+id/settingColorValue3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="#00FF00"
+                    android:textColor="#00ff00"
+                    android:textSize="16sp"
+                    android:textStyle="italic" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/settingColorBtns3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:id="@+id/settingColor3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Select accent color"
+                    android:textColor="#00ff00"
+                    android:textSize="16sp"
+                    android:gravity="center"/>
+            </LinearLayout>
+        </LinearLayout>
+
 <!--Line above file list settings-->
-            <View
+            <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_marginTop="3dp"
@@ -112,7 +325,7 @@
                         android:id="@+id/settingAnimValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
+                        android:text="Left"
                         android:textColor="#00ff00"
                         android:textSize="16sp"
                         android:textStyle="italic" />
@@ -135,7 +348,8 @@
                         android:layout_weight="1"
                         android:text="Left"
                         android:textColor="#00ff00"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:gravity="center"/>
                     <TextView
                         android:id="@+id/settingAnimRight"
                         android:layout_width="0dp"
@@ -143,7 +357,8 @@
                         android:layout_weight="1"
                         android:text="Right"
                         android:textColor="#00ff00"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:gravity="center"/>
                     <TextView
                         android:id="@+id/settingAnimNone"
                         android:layout_width="0dp"
@@ -151,7 +366,8 @@
                         android:layout_weight="1"
                         android:text="None"
                         android:textColor="#00ff00"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:gravity="center"/>
                 </LinearLayout>
 <!--Line above shorten file names-->
                 <View
@@ -184,7 +400,7 @@
                         android:id="@+id/settingShortenValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=""
+                        android:text="Yes"
                         android:textColor="#00ff00"
                         android:textSize="16sp"
                         android:textStyle="italic" />
@@ -206,7 +422,8 @@
                         android:layout_weight="1"
                         android:text="Yes"
                         android:textColor="#00ff00"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:gravity="center"/>
                     <TextView
                         android:id="@+id/settingShortNo"
                         android:layout_width="0dp"
@@ -214,11 +431,12 @@
                         android:layout_weight="1"
                         android:text="No"
                         android:textColor="#00ff00"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:gravity="center"/>
                 </LinearLayout>
             </LinearLayout>
 <!--Line above player settings-->
-            <View
+            <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_marginTop="3dp"
@@ -322,7 +540,8 @@
                         android:layout_weight="1"
                         android:text="Yes"
                         android:textColor="#00ff00"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:gravity="center"/>
                     <TextView
                         android:id="@+id/settingRNo"
                         android:layout_width="0dp"
@@ -330,7 +549,8 @@
                         android:layout_weight="1"
                         android:text="No"
                         android:textColor="#00ff00"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:gravity="center"/>
                 </LinearLayout>
 <!--Line below repeat settings-->
                 <View
@@ -385,7 +605,8 @@
                         android:layout_weight="1"
                         android:text="Yes"
                         android:textColor="#00ff00"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:gravity="center"/>
                     <TextView
                         android:id="@+id/settingShufNo"
                         android:layout_width="0dp"
@@ -393,7 +614,8 @@
                         android:layout_weight="1"
                         android:text="No"
                         android:textColor="#00ff00"
-                        android:textSize="16sp"/>
+                        android:textSize="16sp"
+                        android:gravity="center"/>
                 </LinearLayout>
 <!--Visualizer settings-->
                 <View
@@ -453,7 +675,8 @@
                                 android:layout_weight="1"
                                 android:text="No Visualizer"
                                 android:textColor="#00ff00"
-                                android:textSize="16sp" />
+                                android:textSize="16sp"
+                                android:gravity="center"/>
                             <!--Waves-->
                             <TextView
                                 android:id="@+id/settingVLW"
@@ -462,7 +685,8 @@
                                 android:layout_weight="1"
                                 android:text="Waves"
                                 android:textColor="#00ff00"
-                                android:textSize="16sp"/>
+                                android:textSize="16sp"
+                                android:gravity="center"/>
                     </LinearLayout>
                         <LinearLayout
                             android:id="@+id/settingVBtns2"
@@ -482,7 +706,8 @@
                                 android:layout_weight="1"
                                 android:text="Mirrored Waves"
                                 android:textColor="#00ff00"
-                                android:textSize="16sp" />
+                                android:textSize="16sp"
+                                android:gravity="center"/>
                             <!--Middle Bars-->
                             <TextView
                                 android:id="@+id/settingVBM"
@@ -491,7 +716,8 @@
                                 android:layout_weight="1"
                                 android:text="Middle Bars"
                                 android:textColor="#00ff00"
-                                android:textSize="16sp"/>
+                                android:textSize="16sp"
+                                android:gravity="center"/>
                         </LinearLayout>
 
                         <LinearLayout
@@ -512,7 +738,8 @@
                                 android:layout_weight="1"
                                 android:text="Bottom Bars"
                                 android:textColor="#00ff00"
-                                android:textSize="16sp" />
+                                android:textSize="16sp"
+                                android:gravity="center"/>
                             <!--Circle waves-->
                             <TextView
                                 android:id="@+id/settingVCW"
@@ -521,7 +748,8 @@
                                 android:layout_weight="1"
                                 android:text="Circle Waves"
                                 android:textColor="#00ff00"
-                                android:textSize="16sp"/>
+                                android:textSize="16sp"
+                                android:gravity="center"/>
                         </LinearLayout>
                         <LinearLayout
                             android:id="@+id/settingVBtns4"
@@ -541,7 +769,8 @@
                                 android:layout_weight="1"
                                 android:text="Circle Bars"
                                 android:textColor="#00ff00"
-                                android:textSize="16sp" />
+                                android:textSize="16sp"
+                                android:gravity="center"/>
                             <!--Growing circle-->
                             <TextView
                                 android:id="@+id/settingVGC"
@@ -550,7 +779,8 @@
                                 android:layout_weight="1"
                                 android:text="Growing Circle"
                                 android:textColor="#00ff00"
-                                android:textSize="16sp"/>
+                                android:textSize="16sp"
+                                android:gravity="center"/>
                         </LinearLayout>
                         <LinearLayout
                             android:id="@+id/settingVBtns5"
@@ -570,12 +800,13 @@
                                 android:layout_weight="1"
                                 android:text="Smiley Face"
                                 android:textColor="#00ff00"
-                                android:textSize="16sp" />
+                                android:textSize="16sp"
+                                android:gravity="center"/>
                         </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 <!--Line below visualizers-->
-            <View
+            <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_marginTop="3dp"

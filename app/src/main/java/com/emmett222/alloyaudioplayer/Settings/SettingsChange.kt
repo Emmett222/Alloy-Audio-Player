@@ -2,17 +2,21 @@ package com.emmett222.alloyaudioplayer.Settings
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
 import androidx.core.content.edit
 
 /**
  * Object that can set and get settings.
  *
  * @author Emmett Grebe
- * @version 7-27-2026
+ * @version 7-29-2026
  */
 object SettingsChange {
     private const val PREFS_NAME = "AlloyPlayerPrefs"
 
+    const val KEY_COLOR_TYPE_1 = "color_type_1"
+    const val KEY_COLOR_TYPE_2 = "color_type_2"
+    const val KEY_COLOR_TYPE_3 = "color_type_3"
     const val KEY_ANIM_TYPE = "animation_type"
     const val KEY_SHORT_MODE = "shorten_type"
     const val KEY_VIS_TYPE = "visualizer_type"
@@ -27,6 +31,29 @@ object SettingsChange {
      */
     private fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
+
+    // --- COLOR SETTINGS ---
+    fun saveColor1(context: Context, color: Int) {
+        getPrefs(context).edit { putInt(KEY_COLOR_TYPE_1, color) }
+    }
+    fun getColor1(context: Context): Int {
+        // The second parameter (#00FF00) is the default fallback if the ledger is empty
+        return getPrefs(context).getInt(KEY_COLOR_TYPE_1, Color.parseColor("#00FF00"))
+    }
+    fun saveColor2(context: Context, color: Int) {
+        getPrefs(context).edit { putInt(KEY_COLOR_TYPE_2, color) }
+    }
+    fun getColor2(context: Context): Int {
+        // The second parameter (#0d380c) is the default fallback if the ledger is empty
+        return getPrefs(context).getInt(KEY_COLOR_TYPE_2, Color.parseColor("#0d380c"))
+    }
+    fun saveColor3(context: Context, color: Int) {
+        getPrefs(context).edit { putInt(KEY_COLOR_TYPE_3, color) }
+    }
+    fun getColor3(context: Context): Int {
+        // The second parameter (#0d380c) is the default fallback if the ledger is empty
+        return getPrefs(context).getInt(KEY_COLOR_TYPE_3, Color.parseColor("#0d380c"))
     }
 
     // --- ANIMATION SETTINGS ---

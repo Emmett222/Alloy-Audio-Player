@@ -1,32 +1,46 @@
 package com.emmett222.alloyaudioplayer.Settings
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.graphics.Color
 import android.os.Bundle
+import android.text.InputType
 import android.view.HapticFeedbackConstants
 import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.children
 import com.emmett222.alloyaudioplayer.Player.Graphic.BaseGraphic
 import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.VisualizerMenuAdapter
 import com.emmett222.alloyaudioplayer.R
+import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import org.w3c.dom.Text
 
 /**
  * Screen for changing settings.
  *
  * @author Emmett Grebe
- * @version 7-28-2026
+ * @version 7-29-2026
  */
 class SettingsActivity : AppCompatActivity() {
+    var generalOpen: Boolean = false
     var filesOpen: Boolean = false
     var playerOpen: Boolean = false
 
+    private lateinit var colorValue1: TextView
+    private lateinit var colorValue2: TextView
+    private lateinit var colorValue3: TextView
     private lateinit var animValue: TextView
     private lateinit var shortenValue: TextView
     private lateinit var repeatValue: TextView
@@ -68,6 +82,9 @@ class SettingsActivity : AppCompatActivity() {
 //        // handling the back click.
 //        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
+        colorValue1 = findViewById(R.id.settingColorValue1)
+        colorValue2 = findViewById(R.id.settingColorValue2)
+        colorValue3 = findViewById(R.id.settingColorValue3)
         animValue = findViewById(R.id.settingAnimValue)
         shortenValue = findViewById(R.id.settingShortenValue)
         repeatValue = findViewById(R.id.settingRValue)
@@ -77,6 +94,7 @@ class SettingsActivity : AppCompatActivity() {
         setupValues()
         setupDropdowns()
         setupButtons()
+        setupColorButtons()
     }
 
     /**
@@ -106,14 +124,29 @@ class SettingsActivity : AppCompatActivity() {
      * Sets up the dropdowns. Makes them drop down to show settings inside.
      */
     private fun setupDropdowns() {
+        val generalTitle: LinearLayout = findViewById(R.id.generalTitleContainer)
         val fileTitle: LinearLayout = findViewById(R.id.fileListTitleContainer)
         val playerTitle: LinearLayout = findViewById(R.id.playerTitleContainer)
 
+        val generalArrow: ImageView = findViewById(R.id.generalDropdown)
         val fileArrow: ImageView = findViewById(R.id.fileDropdown)
         val playerArrow: ImageView = findViewById(R.id.playerDropdown)
 
+        val generalContainer: LinearLayout = findViewById(R.id.generalSettingsContainer)
         val fileContainer: LinearLayout = findViewById(R.id.filesSettingsContainer)
         val playerContainer: LinearLayout = findViewById(R.id.playerSettingsContainer)
+
+        generalTitle.setOnClickListener {
+            if (generalOpen) {
+                generalArrow.rotation = 0F
+                generalContainer.visibility = View.GONE
+                generalOpen = false
+            } else {
+                generalArrow.rotation = 180F
+                generalContainer.visibility = View.VISIBLE
+                generalOpen = true
+            }
+        }
 
         fileTitle.setOnClickListener {
             if (filesOpen) {
@@ -275,5 +308,85 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Sets up the color buttons.
+     */
+    private fun setupColorButtons() {
+        val color1Button: TextView = findViewById(R.id.settingColor1)
+        val color2Button: TextView = findViewById(R.id.settingColor2)
+        val color3Button: TextView = findViewById(R.id.settingColor3)
+
+        color1Button.setOnClickListener {
+            showColorPickerDialog(1)
+            color1Button.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+        color2Button.setOnClickListener {
+            showColorPickerDialog(2)
+            color2Button.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+        color3Button.setOnClickListener {
+            showColorPickerDialog(3)
+            color3Button.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        }
+    }
+
+    /**
+     * Shows a color picker dialog. Just asks user for input of a hex code.
+     *
+     * @param colorNumber 1 for text, 2 for background, 3 for accents.
+     * @returns The color as an Int.
+     */
+    private fun showColorPickerDialog(colorNumber: Int) {
+        // Make the pop-up builder.
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Set Custom Color")
+        builder.setMessage("Enter a hex code (e.g., #00FF00 for green)")
+
+        // User input.
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_TEXT
+        input.setText("#") // Pre-fill the hashtag to help the user out
+
+        // Some style.
+        input.setPadding(50, 40, 50, 40)
+        builder.setView(input)
+
+        // Save button.
+        builder.setPositiveButton("Save") { dialog, _ ->
+            val hexString = input.text.toString().trim()
+
+            try {
+                // Throws an error if the hex is incorrect.
+                val colorInt = Color.parseColor(hexString)
+                when (colorNumber) {
+                    1 -> {
+                        SettingsChange.saveColor1(this, colorInt)
+                        colorValue1.text = hexString
+                        ColorUtil.updateAllTextColors(findViewById<ScrollView>(R.id.Scrollcontainer), colorInt)
+                    }
+                    2 -> {
+                        SettingsChange.saveColor2(this, colorInt)
+                        colorValue2.text = hexString
+                        findViewById<ScrollView>(R.id.Scrollcontainer).background = colorInt.toDrawable()
+                    }
+                    3 -> {
+                        SettingsChange.saveColor3(this, colorInt)
+                        colorValue3.text = hexString
+                        ColorUtil.updateAllAccentColors(findViewById<ScrollView>(R.id.Scrollcontainer), colorInt)
+                    }
+                }
+                Toast.makeText(this, "Color saved!", Toast.LENGTH_SHORT).show()
+            } catch (e: IllegalArgumentException) {
+                Toast.makeText(this, "Invalid Hex Code!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Cancel Button
+        builder.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.cancel()
+        }
+        builder.show()
     }
 }

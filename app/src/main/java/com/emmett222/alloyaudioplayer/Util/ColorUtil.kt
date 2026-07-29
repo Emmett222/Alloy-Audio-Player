@@ -4,16 +4,22 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.blue
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import androidx.core.view.children
 
 /**
  * A utilities class for commonly used functions that deal with colors.
  *
  * @author Emmett Grebe
- * @version 5-29-2026
+ * @version 7-29-2026
  */
 object ColorUtil {
     /**
@@ -84,5 +90,45 @@ object ColorUtil {
         }
 
         return if (luminance > 0.4) Color.BLACK else Color.WHITE
+    }
+
+    /**
+     * Updates all text colors in a container. Recursively looks through a view and it's children
+     * for TextViews to change the color.
+     *
+     * @param view The View to search through
+     * @param newColor The color to change all the text color to.
+     */
+    fun updateAllTextColors(view: View, newColor: Int) {
+        if (view is TextView) {
+            view.setTextColor(newColor)
+        }
+        else if (view is ViewGroup) {
+            for (child in view.children) {
+                updateAllTextColors(child, newColor)
+            }
+        }
+    }
+
+    /**
+     * Updates all accent colors in a container. Recursively looks through a view and it's children
+     * for Images to change the color.
+     *
+     * @param view The View to search through
+     * @param newColor The color to change all the accent colors to.
+     */
+    fun updateAllAccentColors(view: View, newColor: Int) {
+        if (view is ImageView) {
+            if (view.drawable != null) {
+                view.setColorFilter(newColor)
+            } else {
+                view.background = newColor.toDrawable()
+            }
+        }
+        else if (view is ViewGroup) {
+            for (child in view.children) {
+                updateAllAccentColors(child, newColor)
+            }
+        }
     }
 }

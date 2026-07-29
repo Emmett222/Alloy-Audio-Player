@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
 import com.emmett222.alloyaudioplayer.Player.PlayerActivity
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 import java.util.jar.Attributes
@@ -39,6 +40,8 @@ class FileListActivity : AppCompatActivity() {
     private lateinit var songTitleText: TextView
     private lateinit var currentFolder: File
     private lateinit var initialRootFolder: File
+
+    private var shortenTitles: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +73,8 @@ class FileListActivity : AppCompatActivity() {
         noFilesText = findViewById(R.id.nofiles_textview)
         folderNameText = findViewById(R.id.folderName)
         songTitleText = findViewById(R.id.currSongTitle)
+
+        shortenTitles = SettingsChange.getShortMode(this)
 
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -118,7 +123,11 @@ class FileListActivity : AppCompatActivity() {
                 loadDirectory(currentFolder)
             } else {
                 PlayerActivity.onFileChangeListener = { activeTrack ->
-                    songTitleText.text = NameUtil.removeDescriptors(activeTrack.name)
+                    if (shortenTitles) {
+                        songTitleText.text = NameUtil.removeDescriptors(activeTrack.name)
+                    } else {
+                        songTitleText.text = activeTrack.name
+                    }
                 }
 
                 // If it's a song asset, execute standard audio media engine boot playback routines

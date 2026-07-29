@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
@@ -22,7 +23,7 @@ import java.util.TreeMap
  * on them.
  *
  * @author Emmett Grebe
- * @version 7-1-2026
+ * @version 7-28-2026
  */
 class MyAdapter(
     val context: Context,
@@ -32,12 +33,17 @@ class MyAdapter(
 
     private val handler = Handler(Looper.getMainLooper())
 
+    private var shortenTitles: Boolean = false
+
     /**
      * Runs on creation.
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // Ensure R.layout.recycler_item actually exists in your res/layout folder
         val view = LayoutInflater.from(context).inflate(R.layout.recycler_item, parent, false)
+
+        shortenTitles = SettingsChange.getShortMode(context)
+
         return ViewHolder(view)
     }
 
@@ -61,7 +67,11 @@ class MyAdapter(
 
             holder.itemView.background = color
 
-            holder.textView.text = NameUtil.removeDescriptors(selectedFile.name)
+            if (shortenTitles) {
+                holder.textView.text = NameUtil.removeDescriptors(selectedFile.name)
+            } else {
+                holder.textView.text = selectedFile.name
+            }
             holder.textView.setTextColor(oppositeColor)
 
             holder.imageView.setImageResource(R.drawable.baseline_audio_file_24)

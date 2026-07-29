@@ -27,7 +27,7 @@ import java.util.TreeMap
  * Files menu to select the audio file wanted. Only shows audio files.
  *
  * @author Emmett Grebe
- * @version 7-10-2026
+ * @version 7-28-2026
  */
 class FilesMenuAdapter(val context: Context,
                        var backOption: File?,
@@ -61,9 +61,9 @@ class FilesMenuAdapter(val context: Context,
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currItem = items[position] ?: return
-        holder.textView.text = currItem.name
 
         if (currItem.isDirectory) { // Folders.
+            holder.textView.text = currItem.name
             if (currItem == backOption) { // Parent parent folder.
                 holder.imageView.setImageResource(R.drawable.menu_files_back)
                 holder.textView.setTypeface(holder.textView.typeface, Typeface.ITALIC)
