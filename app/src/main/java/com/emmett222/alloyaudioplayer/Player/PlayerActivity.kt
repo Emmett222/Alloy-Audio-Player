@@ -22,6 +22,7 @@ import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -45,13 +46,14 @@ import java.io.File
 import kotlin.math.abs
 import androidx.core.graphics.toColorInt
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
+import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 
 /**
  * Player screen for Alloy Audio Player.
  *
  * @author Emmett Grebe
- * @version 7-28-2026
+ * @version 7-31-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
@@ -98,6 +100,10 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var menuVisRecycler: RecyclerView
     private lateinit var menuQueueRecycler: RecyclerView
     private lateinit var menuFilesRecycler: RecyclerView
+    private var color1: Int = -1
+    private var color2: Int = -1
+    private var color3: Int = -1
+
 
     /**
      * Runs on opening the view.
@@ -133,11 +139,6 @@ class PlayerActivity : AppCompatActivity() {
         menuQueueRecycler = menuGraphic.findViewById(R.id.menuQueue)
         menuFilesRecycler = menuGraphic.findViewById(R.id.menuFiles)
 
-        visType = SettingsChange.getVisType(this)
-        repeatPlaylistOn = SettingsChange.getRepeatMode(this)
-        shuffleOn = SettingsChange.getShufMode(this)
-        shortenTitles = SettingsChange.getShortMode(this)
-
         // This token is needed to connect to the service.
         val sessionToken = SessionToken(this, ComponentName(this, MediaEngine::class.java))
         // Why use a future? Because we need to wait for it to build.
@@ -151,6 +152,7 @@ class PlayerActivity : AppCompatActivity() {
             // THIS CODE RUNS ONLY WHEN CONNECTED
             controller = controllerFuture.get()
 
+            readSettings()
             setupGestures()
             setupControllerFile(audioFile)
             setupFastBtns()
@@ -201,6 +203,24 @@ class PlayerActivity : AppCompatActivity() {
         vis?.release()
         vis = null
         super.onDestroy()
+    }
+
+    /**
+     * Reads the settings from the preferences and makes changes depending on their output.
+     */
+    private fun readSettings() {
+        visType = SettingsChange.getVisType(this)
+        repeatPlaylistOn = SettingsChange.getRepeatMode(this)
+        shuffleOn = SettingsChange.getShufMode(this)
+        shortenTitles = SettingsChange.getShortMode(this)
+        color1 = SettingsChange.getColor1(this)
+        color2 = SettingsChange.getColor2(this)
+        color3 = SettingsChange.getColor3(this)
+
+        if (shuffleOn) {
+            findViewById<ImageButton>(R.id.shuffleBtn).setImageResource(R.drawable.btn_shuffleon)
+            shuffle()
+        }
     }
 
     /**
@@ -370,6 +390,8 @@ class PlayerActivity : AppCompatActivity() {
                         )
                         newVis.enabled = true
                         vis = newVis
+                    } else if (sessionId > 0) {
+                        vis?.enabled = true
                     }
                 } else {
                     vis?.enabled = false
@@ -382,6 +404,7 @@ class PlayerActivity : AppCompatActivity() {
      * Helper method to set up the time views on load.
      */
     private fun setupTime() {
+        val currentText: TextView = findViewById(R.id.currentNum)
         val endText: TextView = findViewById(R.id.endNum)
         val seekBar: SeekBar = findViewById(R.id.timeSeekBar)
 
@@ -443,6 +466,11 @@ class PlayerActivity : AppCompatActivity() {
 
         if (isOld) {
             controller.seekTo(MediaEngine.getCurrentPosition())
+        }
+
+        arrayOf(currentText, endText).forEach {
+            it.setTextColor(color1)
+            it.setBackgroundColor(color2)
         }
     }
 
@@ -538,20 +566,7 @@ class PlayerActivity : AppCompatActivity() {
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleoff)
                 shuffleOn = false;
             } else {
-                val mutablePlaylist = unShuffledAllFiles.toMutableList()
-
-                mutablePlaylist.remove(audioFile) // Pull out the active song
-                mutablePlaylist.shuffle()         // Shuffle the rest of the files
-                mutablePlaylist.add(
-                    0,
-                    audioFile
-                ) // Drop the active song right at the front (Index 0)
-
-                this.allFiles = mutablePlaylist
-                this.currentPosition = 0
-
-                shuffleBtn.setImageResource(R.drawable.btn_shuffleon)
-                shuffleOn = true;
+                shuffle()
             }
             this.currentPosition = allFiles.indexOf(audioFile)
             makeQueueMenu(audioQueue)
@@ -565,11 +580,14 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupMenuBtn() {
         val menuBtn: ImageButton = findViewById(R.id.menuBtn)
         val visGraphic: BaseGraphic = findViewById(R.id.visScreen)
+        visGraphic.background = color2.toDrawable()
 
-        menuRecycler.layoutManager = LinearLayoutManager(applicationContext)
-        menuVisRecycler.layoutManager = LinearLayoutManager(applicationContext)
-        menuQueueRecycler.layoutManager = LinearLayoutManager(applicationContext)
-        menuFilesRecycler.layoutManager = LinearLayoutManager(applicationContext)
+        arrayOf(menuRecycler, menuVisRecycler, menuQueueRecycler, menuFilesRecycler).forEach {
+            it.layoutManager = LinearLayoutManager(applicationContext)
+            ColorUtil.updateAllTextColors(it, color1)
+            it.setBackgroundColor(color2)
+            ColorUtil.updateAllAccentColors(it, color3)
+        }
 
         makeVisMenu()
         makeFilesMenu(audioFile.parentFile?.parentFile, audioFile.parentFile)
@@ -625,45 +643,45 @@ class PlayerActivity : AppCompatActivity() {
             when (clickedItem) {
                 VisualizerMenuAdapter.NOVIS -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_NONE)
-                    SettingsChange.saveVisType(this, 0)
+                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_NONE)
                 }
                 VisualizerMenuAdapter.LINEWAVE -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_WAVE)
-                    SettingsChange.saveVisType(this, 1)
+                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_WAVE)
                 }
                 VisualizerMenuAdapter.MIRLINEWAVE -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_MIRROR_WAVE)
-                    SettingsChange.saveVisType(this, 2)
+                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_MIRROR_WAVE)
                 }
                 VisualizerMenuAdapter.LINEBARS -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BARS)
-                    SettingsChange.saveVisType(this, 3)
+                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_BARS)
                 }
                 VisualizerMenuAdapter.BOTLINEBARS -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BOTTOM_BARS)
-                    SettingsChange.saveVisType(this, 4)
+                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_BOTTOM_BARS)
                 }
                 VisualizerMenuAdapter.CIRCLEWAVE -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_WAVE)
-                    SettingsChange.saveVisType(this, 5)
+                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_CIRCLE_WAVE)
                 }
                 VisualizerMenuAdapter.CIRCLEBAR -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_BARS)
-                    SettingsChange.saveVisType(this, 6)
+                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_CIRCLE_BARS)
                 }
                 VisualizerMenuAdapter.CIRCLEGROW -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_GROW)
-                    SettingsChange.saveVisType(this, 7)
+                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_CIRCLE_GROW)
                 }
                 VisualizerMenuAdapter.TALKINGSMILEY -> {
                     visualizerView.changeScreen(BaseGraphic.VIS_TYPE_SMILEY)
-                    SettingsChange.saveVisType(this, 8)
+                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_SMILEY)
                 }
             }
             if (clickedItem == VisualizerMenuAdapter.NOVIS) {
-                visualizerView.setBackgroundColor("#082107".toColorInt())
+                visualizerView.setBackgroundColor(ColorUtil.darkenColor(color2.toDrawable(), 128))
             } else {
-                visualizerView.setBackgroundColor("#0d380c".toColorInt())
+                visualizerView.setBackgroundColor(color2)
             }
             backToVis(visualizerView, menuGraphic)
         }
@@ -804,10 +822,28 @@ class PlayerActivity : AppCompatActivity() {
             titleString.text = title
         }
 
-
         titleString.postDelayed({ // Only fires when the title is loaded.
             titleString.isSelected = true // So the marquee starts on load,
         }, 2000) // But waits two seconds before moving.
+
+        titleString.setTextColor(color1)
+        titleString.setBackgroundColor(color2)
+    }
+
+    private fun shuffle() {
+        val mutablePlaylist = unShuffledAllFiles.toMutableList()
+
+        mutablePlaylist.remove(audioFile) // Pull out the active song
+        mutablePlaylist.shuffle()         // Shuffle the rest of the files
+        mutablePlaylist.add(
+            0,
+            audioFile
+        ) // Drop the active song right at the front (Index 0)
+
+        this.allFiles = mutablePlaylist
+        this.currentPosition = 0
+
+        shuffleOn = true;
     }
 
     /**

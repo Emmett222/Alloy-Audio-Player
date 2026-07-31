@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
@@ -18,7 +19,7 @@ import kotlin.math.sin
  * Made mostly with Gemini.
  *
  * @author Emmett Grebe
- * @version 5-26-2026
+ * @version 7-31-2026
  */
 class BaseGraphic @JvmOverloads constructor(
     context: Context,
@@ -43,7 +44,7 @@ class BaseGraphic @JvmOverloads constructor(
         strokeWidth = 6f
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND
-        color = Color.parseColor("#00FF00")
+        color = SettingsChange.getColor1(context)
     }
 
     private val wavePath = Path()
@@ -63,6 +64,7 @@ class BaseGraphic @JvmOverloads constructor(
         currentType = screenType
 
         updatePaintConfiguration()
+        setBackgroundColor(SettingsChange.getColor2(context))
 
         val newPointsCount = when (currentType) {
             VIS_TYPE_BARS, VIS_TYPE_BOTTOM_BARS -> 32
@@ -82,6 +84,7 @@ class BaseGraphic @JvmOverloads constructor(
 
     init {
         setLayerType(LAYER_TYPE_SOFTWARE, null)
+        setBackgroundColor(SettingsChange.getColor2(context))
         updatePaintConfiguration()
     }
 

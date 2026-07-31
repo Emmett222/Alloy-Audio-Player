@@ -7,11 +7,12 @@
     android:background="@drawable/background_title">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ImageButton
-            android:id="@+id/button"
+            android:id="@+id/titleButton"
             android:layout_width="0dp"
             android:layout_height="180dp"
             android:layout_marginStart="32dp"
@@ -26,13 +27,13 @@
             app:tint="#00FF00" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/dividerBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/button"
+            app:layout_constraintTop_toBottomOf="@+id/titleButton"
             app:srcCompat="@drawable/background_line" />
 
         <ImageView
@@ -42,14 +43,14 @@
             android:layout_marginStart="32dp"
             android:background="#0d380c"
             android:padding="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textView"
+            app:layout_constraintBottom_toBottomOf="@+id/plText"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView"
+            app:layout_constraintTop_toTopOf="@+id/plText"
             app:tint="#00FF00"
             app:srcCompat="@drawable/menu_queue" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/plText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="48dp"
@@ -61,7 +62,7 @@
             android:textSize="20dp"
             app:layout_constraintEnd_toStartOf="@+id/playlistBtn"
             app:layout_constraintStart_toEndOf="@+id/iconPlaylist"
-            app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+            app:layout_constraintTop_toBottomOf="@+id/dividerBar" />
 
         <ImageButton
             android:id="@+id/playlistBtn"
@@ -70,9 +71,9 @@
             android:layout_marginEnd="32dp"
             android:background="@android:color/transparent"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="@+id/textView"
+            app:layout_constraintBottom_toBottomOf="@+id/plText"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView"
+            app:layout_constraintTop_toTopOf="@+id/plText"
             app:srcCompat="@drawable/btn_menu" />
 
         <ImageView
@@ -82,14 +83,14 @@
             android:layout_marginStart="32dp"
             android:background="#0d380c"
             android:padding="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textView2"
+            app:layout_constraintBottom_toBottomOf="@+id/fText"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView2"
+            app:layout_constraintTop_toTopOf="@+id/fText"
             app:tint="#00FF00"
             app:srcCompat="@drawable/menu_files" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/fText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -101,7 +102,7 @@
             android:textSize="20dp"
             app:layout_constraintEnd_toStartOf="@+id/filesBtn"
             app:layout_constraintStart_toEndOf="@+id/iconFiles"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
+            app:layout_constraintTop_toBottomOf="@+id/plText" />
 
         <ImageButton
             android:id="@+id/filesBtn"
@@ -110,9 +111,9 @@
             android:layout_marginEnd="32dp"
             android:background="@android:color/transparent"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="@+id/textView2"
+            app:layout_constraintBottom_toBottomOf="@+id/fText"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView2"
+            app:layout_constraintTop_toTopOf="@+id/fText"
             app:srcCompat="@drawable/btn_menu" />
 
         <ImageView
@@ -122,14 +123,14 @@
             android:layout_marginStart="32dp"
             android:background="#0d380c"
             android:padding="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textView3"
+            app:layout_constraintBottom_toBottomOf="@+id/wnText"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView3"
+            app:layout_constraintTop_toTopOf="@+id/wnText"
             app:tint="#00FF00"
             app:srcCompat="@drawable/menu_wn" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/wnText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -141,7 +142,7 @@
             android:textSize="20dp"
             app:layout_constraintEnd_toStartOf="@+id/wnBtn"
             app:layout_constraintStart_toEndOf="@+id/iconWn"
-            app:layout_constraintTop_toBottomOf="@+id/textView2" />
+            app:layout_constraintTop_toBottomOf="@+id/fText" />
 
         <ImageButton
             android:id="@+id/wnBtn"
@@ -150,9 +151,9 @@
             android:layout_marginEnd="32dp"
             android:background="@android:color/transparent"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="@+id/textView3"
+            app:layout_constraintBottom_toBottomOf="@+id/wnText"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView3"
+            app:layout_constraintTop_toTopOf="@+id/wnText"
             app:srcCompat="@drawable/btn_menu" />
 
         <ImageView
@@ -162,14 +163,14 @@
             android:layout_marginStart="32dp"
             android:background="#0d380c"
             android:padding="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/textView4"
+            app:layout_constraintBottom_toBottomOf="@+id/sText"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView4"
+            app:layout_constraintTop_toTopOf="@+id/sText"
             app:tint="#00FF00"
             app:srcCompat="@drawable/menu_settings" />
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/sText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -181,7 +182,7 @@
             android:textSize="20dp"
             app:layout_constraintEnd_toStartOf="@+id/settingsBtn"
             app:layout_constraintStart_toEndOf="@+id/iconSettings"
-            app:layout_constraintTop_toBottomOf="@+id/textView3" />
+            app:layout_constraintTop_toBottomOf="@+id/wnText" />
 
         <ImageButton
             android:id="@+id/settingsBtn"
@@ -190,9 +191,9 @@
             android:layout_marginEnd="32dp"
             android:background="@android:color/transparent"
             android:scaleType="centerCrop"
-            app:layout_constraintBottom_toBottomOf="@+id/textView4"
+            app:layout_constraintBottom_toBottomOf="@+id/sText"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/textView4"
+            app:layout_constraintTop_toTopOf="@+id/sText"
             app:srcCompat="@drawable/btn_menu" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

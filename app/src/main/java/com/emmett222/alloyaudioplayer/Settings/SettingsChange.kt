@@ -9,7 +9,7 @@ import androidx.core.content.edit
  * Object that can set and get settings.
  *
  * @author Emmett Grebe
- * @version 7-29-2026
+ * @version 7-31-2026
  */
 object SettingsChange {
     private const val PREFS_NAME = "AlloyPlayerPrefs"
@@ -53,7 +53,7 @@ object SettingsChange {
     }
     fun getColor3(context: Context): Int {
         // The second parameter (#0d380c) is the default fallback if the ledger is empty
-        return getPrefs(context).getInt(KEY_COLOR_TYPE_3, Color.parseColor("#0d380c"))
+        return getPrefs(context).getInt(KEY_COLOR_TYPE_3, Color.parseColor("#00FF00"))
     }
 
     // --- ANIMATION SETTINGS ---

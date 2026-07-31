@@ -27,7 +27,7 @@ import java.util.TreeMap
  * Files menu to select the audio file wanted. Only shows audio files.
  *
  * @author Emmett Grebe
- * @version 7-28-2026
+ * @version 7-31-2026
  */
 class FilesMenuAdapter(val context: Context,
                        var backOption: File?,
@@ -44,6 +44,10 @@ class FilesMenuAdapter(val context: Context,
 
     private var shortenTitles: Boolean = false
 
+    private var color1: Int = -1
+    private var color2: Int = -1
+    private var color3: Int = -1
+
     /**
      * Runs on creation.
      */
@@ -52,6 +56,9 @@ class FilesMenuAdapter(val context: Context,
         val view = LayoutInflater.from(context).inflate(R.layout.graphic_menu_files_item, parent, false)
 
         shortenTitles = SettingsChange.getShortMode(context)
+        color1 = SettingsChange.getColor1(context)
+        color2 = SettingsChange.getColor2(context)
+        color3 = SettingsChange.getColor3(context)
 
         return ViewHolder(view)
     }
@@ -71,7 +78,7 @@ class FilesMenuAdapter(val context: Context,
                 holder.imageView.setImageResource(R.drawable.baseline_folder_24)
             }
             holder.queueBtn.visibility = View.GONE
-            holder.imageView.setColorFilter(Color.GREEN)
+            holder.imageView.setColorFilter(color3)
             holder.timeText.visibility = View.GONE
 
         } else { // Audio files.
@@ -119,6 +126,9 @@ class FilesMenuAdapter(val context: Context,
                 onItemClick(currItem, true) // Forward the click event back to the Activity
             }
         }
+
+        holder.textView.setTextColor(color1)
+        holder.all.setBackgroundColor(color2)
 
         // Strangely, if user scrolls down then back up, the adapter sees the back option as an
         // audio file. It still acts as a directory, but the icon gets the background of an audio

@@ -10,13 +10,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.R
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 
 /**
  * Menu that shows when menu button is pressed on the Player Activity.
  * Shows buttons for visualizers, queue, settings
  *
  * @author Emmett Grebe
- * @version 5-25-2026
+ * @version 7-31-2026
  */
 class StartMenuAdapter(
     val context: Context,
@@ -34,12 +35,21 @@ class StartMenuAdapter(
 
     private var items: Array<String> = arrayOf(VISUALIZERS, QUEUE, TIMESTAMPS, FILES, SETTINGS, OFF)
 
+    private var color1: Int = -1
+    private var color2: Int = -1
+    private var color3: Int = -1
+
     /**
      * Runs on creation.
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StartMenuAdapter.ViewHolder {
         // Initiates the XML layout into the view object.
         val view = LayoutInflater.from(context).inflate(R.layout.graphic_menu_item, parent, false)
+
+        color1 = SettingsChange.getColor1(context)
+        color2 = SettingsChange.getColor2(context)
+        color3 = SettingsChange.getColor3(context)
+
         return ViewHolder(view)
     }
 
@@ -81,7 +91,8 @@ class StartMenuAdapter(
             onItemClick(currItem) // Forward the click event back to the Activity
         }
 
-        holder.imageView.setColorFilter(Color.GREEN)
+        holder.textView.setTextColor(color1)
+        holder.imageView.setColorFilter(color3)
     }
 
     /**

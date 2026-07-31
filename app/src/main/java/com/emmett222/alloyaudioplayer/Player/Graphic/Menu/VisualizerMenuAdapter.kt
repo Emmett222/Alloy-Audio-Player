@@ -10,12 +10,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.R
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 
 /**
  * Visualizer menu to select the visualizer wanted.
  *
  * @author Emmett Grebe
- * @version 5-25-2026
+ * @version 7-31-2026
  */
 class VisualizerMenuAdapter(val context: Context,
                             private val onItemClick: (String) -> Unit
@@ -35,12 +36,21 @@ class VisualizerMenuAdapter(val context: Context,
         var items: Array<String> = arrayOf(NOVIS, LINEWAVE, MIRLINEWAVE, LINEBARS, BOTLINEBARS, CIRCLEWAVE, CIRCLEBAR, CIRCLEGROW, TALKINGSMILEY)
     }
 
+    private var color1: Int = -1
+    private var color2: Int = -1
+    private var color3: Int = -1
+
     /**
      * Runs on creation.
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VisualizerMenuAdapter.ViewHolder {
         // Initiates the XML layout into the view object.
         val view = LayoutInflater.from(context).inflate(R.layout.graphic_menu_item, parent, false)
+
+        color1 = SettingsChange.getColor1(context)
+        color2 = SettingsChange.getColor2(context)
+        color3 = SettingsChange.getColor3(context)
+
         return ViewHolder(view)
     }
 
@@ -86,7 +96,8 @@ class VisualizerMenuAdapter(val context: Context,
             onItemClick(currItem) // Forward the click event back to the Activity
         }
 
-        holder.imageView.setColorFilter(Color.GREEN)
+        holder.textView.setTextColor(color1)
+        holder.imageView.setColorFilter(color3)
     }
 
     /**

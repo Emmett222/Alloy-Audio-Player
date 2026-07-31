@@ -19,7 +19,7 @@ import androidx.core.view.children
  * A utilities class for commonly used functions that deal with colors.
  *
  * @author Emmett Grebe
- * @version 7-29-2026
+ * @version 7-31-2026
  */
 object ColorUtil {
     /**
@@ -128,6 +128,30 @@ object ColorUtil {
         else if (view is ViewGroup) {
             for (child in view.children) {
                 updateAllAccentColors(child, newColor)
+            }
+        }
+    }
+
+    /**
+     * Updates all accent colors in a container. Recursively looks through a view and it's children
+     * for Images to change the color.
+     * If an element is in the exclude group, it is not changed with the rest of the elements.
+     *
+     * @param view The View to search through
+     * @param newColor The color to change all the accent colors to.
+     * @param exclude An array of elements to not recolor.
+     */
+    fun updateAccentColors(view: View, newColor: Int, exclude: Array<View>) {
+        if (view is ImageView && !exclude.contains(view)) {
+            if (view.drawable != null) {
+                view.setColorFilter(newColor)
+            } else {
+                view.background = newColor.toDrawable()
+            }
+        }
+        else if (view is ViewGroup && !exclude.contains(view)) {
+            for (child in view.children) {
+                updateAccentColors(child, newColor, exclude)
             }
         }
     }

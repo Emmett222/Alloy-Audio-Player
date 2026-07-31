@@ -6,20 +6,27 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
 import android.view.HapticFeedbackConstants
+import android.view.View
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import com.emmett222.alloyaudioplayer.Settings.SettingsActivity
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
+import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import kotlin.arrayOf
 
 /**
  * Opening screen for Alloy. Asks for permissions if needed and takes user to file screen.
  *
  * @author Emmett Grebe
- * @version 7-28-2026
+ * @version 7-31-2026
  */
 class MainActivity : AppCompatActivity() {
 
@@ -87,6 +94,26 @@ class MainActivity : AppCompatActivity() {
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
+
+        changeColors()
+    }
+
+    /**
+     * Runs when the activity is resumed. After settings is closed and the user is taken back to
+     * the main menu, this changes the colors based on if the user altered them.
+     */
+    override fun onResume() {
+        super.onResume()
+
+        val color1 = SettingsChange.getColor1(this)
+        val color2 = SettingsChange.getColor2(this)
+        val color3 = SettingsChange.getColor3(this)
+
+        val mainLayout = findViewById<View>(R.id.main)
+        mainLayout.setBackgroundColor(color2)
+
+        ColorUtil.updateAllTextColors(mainLayout, color1)
+        ColorUtil.updateAllAccentColors(mainLayout, color3)
     }
 
     /**
@@ -128,5 +155,35 @@ class MainActivity : AppCompatActivity() {
         var path: String = Environment.getExternalStorageDirectory().path
         intent.putExtra("path", path)
         startActivity(intent)
+    }
+
+    /**
+     * Changes the colors based on user's settings. Applies default colors if not.
+     */
+    private fun changeColors() {
+        val color1 = SettingsChange.getColor1(this)
+        val color2 = SettingsChange.getColor2(this)
+        val color3 = SettingsChange.getColor3(this)
+
+        ColorUtil.updateAllTextColors(findViewById<ScrollView>(R.id.main), color1)
+
+        val exclude = arrayOf<View>(findViewById(R.id.dividerBar), findViewById(R.id.playlistBtn),
+            findViewById(R.id.filesBtn), findViewById(R.id.wnBtn),
+            findViewById(R.id.settingsBtn))
+        ColorUtil.updateAccentColors(
+            findViewById<ScrollView>(R.id.main), color3, exclude)
+
+        arrayOf<ImageView>(findViewById(R.id.iconPlaylist), findViewById(R.id.iconFiles),
+                findViewById(R.id.iconWn), findViewById(R.id.iconSettings)).forEach {
+            it.setBackgroundColor(color2)
+            it.setColorFilter(color3) }
+
+        arrayOf<TextView>(findViewById(R.id.plText), findViewById(R.id.fText),
+                findViewById(R.id.wnText), findViewById(R.id.sText)).forEach {
+            it.setBackgroundColor(color2)
+        }
+
+        findViewById<ImageButton>(R.id.titleButton).setColorFilter(color1)
+        findViewById<ImageButton>(R.id.titleButton).background = color2.toDrawable()
     }
 }

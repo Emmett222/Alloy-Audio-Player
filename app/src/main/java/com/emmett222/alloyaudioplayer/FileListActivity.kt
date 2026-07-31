@@ -30,7 +30,7 @@ import kotlin.math.abs
  * Lists the files. Only shows audio files.
  *
  * @author Emmett Grebe
- * @version 6-30-2026
+ * @version 7-31-2026
  */
 class FileListActivity : AppCompatActivity() {
 
@@ -86,6 +86,7 @@ class FileListActivity : AppCompatActivity() {
         setupBtns()
 
         loadDirectory(currentFolder)
+        changeColors()
     }
 
     private fun loadDirectory(folder: File) {
@@ -220,4 +221,18 @@ class FileListActivity : AppCompatActivity() {
             loadDirectory(currentFolder)
         }
     }
+
+    /**
+     * Changes the colors based on user's settings. Applies default colors if not.
+     */
+    private fun changeColors() {
+        val color1 = SettingsChange.getColor1(this)
+        val color2 = SettingsChange.getColor2(this)
+
+        arrayOf<TextView>(findViewById(R.id.folderName), findViewById(R.id.currSongTitle)).forEach {
+            it.setTextColor(color1)
+            it.setBackgroundColor(color2)
+        }
+    }
+
 }

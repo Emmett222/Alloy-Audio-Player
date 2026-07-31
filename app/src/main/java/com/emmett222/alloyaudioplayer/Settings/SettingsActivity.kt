@@ -31,7 +31,7 @@ import org.w3c.dom.Text
  * Screen for changing settings.
  *
  * @author Emmett Grebe
- * @version 7-29-2026
+ * @version 7-31-2026
  */
 class SettingsActivity : AppCompatActivity() {
     var generalOpen: Boolean = false
@@ -117,7 +117,22 @@ class SettingsActivity : AppCompatActivity() {
         if (SettingsChange.getShufMode(this)) shuffleValue.text = optYes
         else optNo
 
-        visualizerValue.text = VisualizerMenuAdapter.items[SettingsChange.getVisType(this)]
+        visualizerValue.text = VisualizerMenuAdapter.items[SettingsChange.getVisType(this) - 2]
+
+        val color1 = SettingsChange.getColor1(this)
+        val color2 = SettingsChange.getColor2(this)
+        val color3 = SettingsChange.getColor3(this)
+
+        colorValue1.text = "#" + color1.toHexString()
+        colorValue2.text = "#" + color2.toHexString()
+        colorValue3.text = "#" + color3.toHexString()
+
+        ColorUtil.updateAllTextColors(findViewById<ScrollView>(R.id.Scrollcontainer), color1)
+
+        findViewById<ScrollView>(R.id.Scrollcontainer).background = color2.toDrawable()
+
+        ColorUtil.updateAllAccentColors(findViewById<ScrollView>(R.id.Scrollcontainer), color3)
+
     }
 
     /**
@@ -342,7 +357,8 @@ class SettingsActivity : AppCompatActivity() {
         // Make the pop-up builder.
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Set Custom Color")
-        builder.setMessage("Enter a hex code (e.g., #00FF00 for green)")
+        builder.setMessage("Enter a hex code (e.g., #00FF00 for green). Supports Alpha values in " +
+                "the front (e.g., #7F00FF00 for half opacity green)")
 
         // User input.
         val input = EditText(this)
