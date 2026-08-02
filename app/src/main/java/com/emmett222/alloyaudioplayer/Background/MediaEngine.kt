@@ -74,6 +74,7 @@ class MediaEngine : MediaSessionService() {
 
         val basePlayer = ExoPlayer.Builder(this)
             .setAudioAttributes(audioAttributes, true)
+            .setHandleAudioBecomingNoisy(true)
             .build()
 
         // Wrap the player to force the Skip Next and Skip Previous buttons to stay visible.

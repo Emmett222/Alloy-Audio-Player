@@ -234,6 +234,9 @@ class PlayerActivity : AppCompatActivity() {
         color2 = SettingsChange.getColor2(this)
         color3 = SettingsChange.getColor3(this)
 
+        if (PlaylistManager.repeatPlaylistOn) {
+            findViewById<ImageButton>(R.id.repeatBtn).setImageResource(R.drawable.btn_repeatplayliston)
+        }
         if (PlaylistManager.shuffleOn) {
             findViewById<ImageButton>(R.id.shuffleBtn).setImageResource(R.drawable.btn_shuffleon)
             PlaylistManager.shuffle()
@@ -485,12 +488,8 @@ class PlayerActivity : AppCompatActivity() {
         playBtn.setOnClickListener {
             if (controller.isPlaying) {
                 controller.pause()
-                playBtn.setImageResource(R.drawable.btn_play)
-                handler.removeCallbacks(updater)
             } else {
                 controller.play()
-                playBtn.setImageResource(R.drawable.btn_pause)
-                handler.post(updater)
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
@@ -500,6 +499,20 @@ class PlayerActivity : AppCompatActivity() {
             playBtn.setImageResource(R.drawable.btn_play)
             handler.removeCallbacks(updater)
         }
+
+        val playerListener = object : Player.Listener {
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                super.onIsPlayingChanged(isPlaying)
+                if (!isPlaying) {
+                    playBtn.setImageResource(R.drawable.btn_pause)
+                    handler.removeCallbacks(updater)
+                } else {
+                    playBtn.setImageResource(R.drawable.btn_play)
+                    handler.post(updater)
+                }
+            }
+        }
+        controller.addListener(playerListener)
     }
 
     /**
@@ -569,6 +582,7 @@ class PlayerActivity : AppCompatActivity() {
                 PlaylistManager.unshuffle()
                 PlaylistManager.shuffleOn = false;
             } else {
+                shuffleBtn.setImageResource(R.drawable.btn_shuffleon)
                 PlaylistManager.shuffle()
                 PlaylistManager.shuffleOn = true;
             }
