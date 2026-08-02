@@ -94,6 +94,10 @@ class PlayerActivity : AppCompatActivity() {
      */
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var updater: Runnable
+    private lateinit var titleString: TextView
+    private lateinit var currentTime: TextView
+    private lateinit var endTime: TextView
+    private lateinit var seekBar: SeekBar
     private lateinit var visualizerView: BaseGraphic
     private lateinit var menuGraphic: ConstraintLayout
     private lateinit var menuRecycler: RecyclerView
@@ -132,6 +136,10 @@ class PlayerActivity : AppCompatActivity() {
             setupFiles(File(intent.getStringExtra("path")!!))
         }
 
+        titleString = findViewById(R.id.titleString)
+        currentTime = findViewById(R.id.currentNum)
+        endTime = findViewById(R.id.endNum)
+        seekBar = findViewById(R.id.timeSeekBar)
         visualizerView = findViewById(R.id.visScreen)
         menuGraphic = findViewById(R.id.menuContainer)
         menuRecycler = menuGraphic.findViewById(R.id.menuRecycler)
@@ -413,10 +421,6 @@ class PlayerActivity : AppCompatActivity() {
      * Helper method to set up the time views on load.
      */
     private fun setupTime() {
-        val currentText: TextView = findViewById(R.id.currentNum)
-        val endText: TextView = findViewById(R.id.endNum)
-        val seekBar: SeekBar = findViewById(R.id.timeSeekBar)
-
         // Watches if the player changes.
         // Listen if the playback state changes.
         val playerListener = object : Player.Listener {
@@ -428,7 +432,7 @@ class PlayerActivity : AppCompatActivity() {
 
                         // Now it is safe to set these
                         seekBar.max = duration
-                        endText.text = formatMinutesAndSeconds(duration)
+                        endTime.text = formatMinutesAndSeconds(duration)
 
                         // Start the UI updater loop now that we have a max
                         handler.post(updater)
@@ -477,7 +481,7 @@ class PlayerActivity : AppCompatActivity() {
             controller.seekTo(MediaEngine.getCurrentPosition())
         }
 
-        arrayOf(currentText, endText).forEach {
+        arrayOf(currentTime, endTime).forEach {
             it.setTextColor(color1)
             it.setBackgroundColor(color2)
         }
@@ -827,7 +831,6 @@ class PlayerActivity : AppCompatActivity() {
      * Helper method to set up scrolling title on load.
      */
     private fun setupTitle(title: String) {
-        val titleString: TextView = findViewById(R.id.titleString)
         if (shortenTitles) {
             titleString.text = NameUtil.removeDescriptors(title)
         } else {
@@ -931,7 +934,6 @@ class PlayerActivity : AppCompatActivity() {
      * @param m Milliseconds.
      */
     fun changeTime(m: Int) {
-        val currentTime: TextView = findViewById(R.id.currentNum)
         currentTime.text = formatMinutesAndSeconds(m)
     }
 
