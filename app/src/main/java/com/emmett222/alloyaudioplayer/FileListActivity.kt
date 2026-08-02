@@ -114,8 +114,16 @@ class FileListActivity : AppCompatActivity() {
         }
         noFilesText.visibility = View.INVISIBLE
 
-        val animationController = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_left)
-        recyclerView.layoutAnimation = animationController
+        when (SettingsChange.getAnimType(this)) {
+            0 -> {
+                val animationController = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_left)
+                recyclerView.layoutAnimation = animationController
+            }
+            1 -> {
+                val animationController = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_right)
+                recyclerView.layoutAnimation = animationController
+            }
+        }
 
         // Instantiate a fresh adapter binding instance with the explicit callback logic block
         recyclerView.adapter = MyAdapter(this, filteredFiles) { clickedFile ->
