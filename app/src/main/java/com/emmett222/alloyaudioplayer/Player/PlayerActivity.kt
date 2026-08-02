@@ -165,17 +165,16 @@ class PlayerActivity : AppCompatActivity() {
 
             readSettings()
             setupGestures()
-            setupControllerFile(audioFile)
             setupFastBtns()
             setupMenuBtn()
             setupShuffleBtn()
             setupSkipBtns()
-            setupTime()
-            setupTitle(audioFile.name)
             setupPauseBtn()
             setupRepeatOneBtn()
             setupRepeatPlaylistBtn()
             setupVisualizer()
+
+            playNewSong(audioFile)
 
         }, ContextCompat.getMainExecutor(this))
 
@@ -208,9 +207,7 @@ class PlayerActivity : AppCompatActivity() {
 
             // Only interrupt playback if it's actually a new song
             if (!::audioFile.isInitialized || audioFile.absolutePath != newFile.absolutePath) {
-                setupFiles(newFile) // Reset playlist arrays
-                setupControllerFile(audioFile) // Tell Media3 to play the new song
-                setupTitle(audioFile.name)
+                playNewSong(newFile)
             }
         }
     }
@@ -241,6 +238,17 @@ class PlayerActivity : AppCompatActivity() {
             findViewById<ImageButton>(R.id.shuffleBtn).setImageResource(R.drawable.btn_shuffleon)
             shuffle()
         }
+    }
+
+    /**
+     * Updates the player to play a new song.
+     */
+    private fun playNewSong(file: File) {
+        this.audioFile = file
+        setupControllerFile(file)
+        setupFiles(file)
+        setupTitle(file.name)
+        setupTime()
     }
 
     /**
@@ -721,10 +729,7 @@ class PlayerActivity : AppCompatActivity() {
                 makeFilesMenu(clickedItem.parentFile, clickedItem)
             } else {
                 if (isGoTo) {
-                    setupControllerFile(clickedItem)
-                    setupFiles(clickedItem)
-                    setupTitle(clickedItem.name)
-                    setupTime()
+                    playNewSong(clickedItem)
                 } else {
                     audioQueue.addLast(clickedItem)
                 }
@@ -768,9 +773,7 @@ class PlayerActivity : AppCompatActivity() {
                         currentPosition = playlistIndex
                     }
 
-                    this.audioFile = clickedItem
-                    setupControllerFile(clickedItem)
-                    setupTitle(clickedItem.name)
+                    playNewSong(clickedItem)
                     makeQueueMenu(queueItems)
                 },
             onQueueClick = { clickedItem ->
@@ -871,11 +874,8 @@ class PlayerActivity : AppCompatActivity() {
     fun skipForward() {
         // Skip through queue
         if (audioQueue.isNotEmpty()) {
-            this.audioFile = audioQueue.removeFirst()
-
+            playNewSong(audioQueue.removeFirst())
             makeQueueMenu(audioQueue)
-            setupControllerFile(this.audioFile)
-            setupTitle(this.audioFile.name)
             return
         }
 
@@ -888,10 +888,8 @@ class PlayerActivity : AppCompatActivity() {
         } else {
             currentPosition++
         }
-        this.audioFile = allFiles[currentPosition]
+        playNewSong(allFiles[currentPosition])
         makeQueueMenu(audioQueue)
-        setupControllerFile(this.audioFile)
-        setupTitle(this.audioFile.name)
     }
 
     /**
@@ -916,11 +914,8 @@ class PlayerActivity : AppCompatActivity() {
         } else {
             currentPosition--
         }
-        // Set everything back up.
-        this.audioFile = allFiles[currentPosition]
+        playNewSong(allFiles[currentPosition])
         makeQueueMenu(audioQueue)
-        setupControllerFile(this.audioFile)
-        setupTitle(this.audioFile.name)
     }
 
     /**
