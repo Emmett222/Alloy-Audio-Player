@@ -49,6 +49,7 @@ import com.emmett222.alloyaudioplayer.FileListActivity
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import com.emmett222.alloyaudioplayer.Util.FileUtil
+import com.emmett222.alloyaudioplayer.Util.StringUtil
 
 /**
  * Player screen for Alloy Audio Player.
@@ -443,7 +444,7 @@ class PlayerActivity : AppCompatActivity() {
 
                         // Now it is safe to set these
                         seekBar.max = duration
-                        endTime.text = formatMinutesAndSeconds(duration)
+                        endTime.text = StringUtil.formatMinutesAndSeconds(duration)
 
                         // Start the UI updater loop now that we have a max
                         handler.post(updater)
@@ -932,19 +933,6 @@ class PlayerActivity : AppCompatActivity() {
      * @param m Milliseconds.
      */
     fun changeTime(m: Int) {
-        currentTime.text = formatMinutesAndSeconds(m)
-    }
-
-    /**
-     * Format milliseconds to minutes and seconds.
-     * @param m Time in milliseconds.
-     * @return String of the time in the format of x:xx.
-     */
-    fun formatMinutesAndSeconds(m: Int): String {
-        val minutes = (m / 1000) / 60
-        val seconds = (m / 1000) % 60
-
-        // Formats to x:xx.
-        return String.format("%d:%02d", minutes, seconds)
+        currentTime.text = StringUtil.formatMinutesAndSeconds(m)
     }
 }
