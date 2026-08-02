@@ -705,7 +705,10 @@ class PlayerActivity : AppCompatActivity() {
                 makeFilesMenu(clickedItem.parentFile, clickedItem)
             } else {
                 if (isGoTo) {
+                    setupControllerFile(clickedItem)
                     setupFiles(clickedItem)
+                    setupTitle(clickedItem.name)
+                    setupTime()
                 } else {
                     audioQueue.addLast(clickedItem)
                 }
