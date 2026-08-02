@@ -172,6 +172,15 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
+     * Runs when the player is not visible. If music is playing, this will stop the updater from
+     * trying to keep updating the time.
+     */
+    override fun onStop() {
+        super.onStop()
+        handler.removeCallbacks(updater)
+    }
+
+    /**
      * This runs when a new intent is made for this activity. This is set up in a way to do nothing
      * if the "path" extra is null. This is so this activity can be reopened with all of it's data
      * inside.
