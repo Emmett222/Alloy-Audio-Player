@@ -46,16 +46,17 @@ import java.io.File
 import kotlin.math.abs
 import androidx.core.graphics.toColorInt
 import com.emmett222.alloyaudioplayer.FileListActivity
+import com.emmett222.alloyaudioplayer.Player.PlaylistManager.audioQueue
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.StringUtil
 
 /**
- * Player screen for Alloy Audio Player.
+ * Player screen for Alloy Audio Player. Must be called with
  *
  * @author Emmett Grebe
- * @version 7-31-2026
+ * @version 8-2-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
@@ -67,29 +68,18 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * vvvvv ---------- Files ---------- vvvvv
-     */
-    lateinit var audioFile: File
-    lateinit var allFiles: MutableList<File>
-    lateinit var unShuffledAllFiles: MutableList<File>
-    var currentPosition = -1
-    var audioQueue: ArrayDeque<File> = ArrayDeque()
-
-    /**
      * vvvvv ---------- Player ---------- vvvvv
      */
     lateinit var controller: MediaController
     var vis: Visualizer? = null // Nullable for later safety check.
     var visType = 5
+    lateinit var intentFile: File
 
     /**
      * vvvvv ---------- Status ---------- vvvvv
      */
     var isOld: Boolean = false
     var isStart: Boolean = true
-    var repeatOneOn: Boolean = false
-    var shuffleOn: Boolean = false
-    var repeatPlaylistOn: Boolean = false
     var shortenTitles: Boolean = false
     var inMenu: Boolean = false
 
@@ -131,13 +121,20 @@ class PlayerActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
         this.isOld = intent.getStringExtra(FileListActivity.ISOLD_DATA) == "true"
+
         if (isOld) {
-            setupFiles(MediaEngine.getCurrentFile())
+            intentFile = MediaEngine.getCurrentFile()
+            PlaylistManager.setupFiles(intentFile)
         } else {
-            // !! is fine here because it will always have a path given to it if it is not old.
-            setupFiles(File(intent.getStringExtra(FileListActivity.PATH_DATA)!!))
+            val pathString = intent.getStringExtra(FileListActivity.PATH_DATA)
+            if (pathString != null) {
+                intentFile = File(pathString)
+                PlaylistManager.setupFiles(intentFile)
+            } else {
+                finish()
+                return
+            }
         }
 
         titleString = findViewById(R.id.titleString)
@@ -175,7 +172,8 @@ class PlayerActivity : AppCompatActivity() {
             setupRepeatPlaylistBtn()
             setupVisualizer()
 
-            playNewSong(audioFile)
+            updateUI(intentFile)
+            PlaylistManager.playNewSong(intentFile)
 
         }, ContextCompat.getMainExecutor(this))
 
@@ -207,8 +205,9 @@ class PlayerActivity : AppCompatActivity() {
             val newFile = File(newPath)
 
             // Only interrupt playback if it's actually a new song
-            if (!::audioFile.isInitialized || audioFile.absolutePath != newFile.absolutePath) {
-                playNewSong(newFile)
+            if (PlaylistManager.audioFile.absolutePath != newFile.absolutePath) {
+                PlaylistManager.playNewSong(newFile)
+                updateUI(newFile)
             }
         }
     }
@@ -228,26 +227,24 @@ class PlayerActivity : AppCompatActivity() {
      */
     private fun readSettings() {
         visType = SettingsChange.getVisType(this)
-        repeatPlaylistOn = SettingsChange.getRepeatMode(this)
-        shuffleOn = SettingsChange.getShufMode(this)
+        PlaylistManager.repeatPlaylistOn = SettingsChange.getRepeatMode(this)
+        PlaylistManager.shuffleOn = SettingsChange.getShufMode(this)
         shortenTitles = SettingsChange.getShortMode(this)
         color1 = SettingsChange.getColor1(this)
         color2 = SettingsChange.getColor2(this)
         color3 = SettingsChange.getColor3(this)
 
-        if (shuffleOn) {
+        if (PlaylistManager.shuffleOn) {
             findViewById<ImageButton>(R.id.shuffleBtn).setImageResource(R.drawable.btn_shuffleon)
-            shuffle()
+            PlaylistManager.shuffle()
         }
     }
 
     /**
      * Updates the player to play a new song.
      */
-    private fun playNewSong(file: File) {
-        this.audioFile = file
+    private fun updateUI(file: File) {
         setupControllerFile(file)
-        setupFiles(file)
         setupTitle(file.name)
         setupTime()
     }
@@ -302,23 +299,6 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     /**
-     * Helper method to set up the files and playlist of files.
-     *
-     * @param file The audio file to be played.
-     */
-    @OptIn(UnstableApi::class)
-    private fun setupFiles(file: File) {
-        this.audioFile = file
-        onFileChangeListener?.invoke(this.audioFile)
-
-        // !! is fine here because files are checked to be not null.
-        this.allFiles = this.audioFile.parentFile?.listFiles { file -> (!file.isDirectory) && (file != null) }!!.toMutableList()
-        this.unShuffledAllFiles = this.audioFile.parentFile?.listFiles { file -> (!file.isDirectory) && (file != null) }!!.toMutableList()
-
-        this.currentPosition = allFiles.indexOf(audioFile)
-    }
-
-    /**
      * Helper method to set up the controller.
      */
     private fun setupControllerFile(newFile: File) {
@@ -354,10 +334,6 @@ class PlayerActivity : AppCompatActivity() {
         controller.prepare()
         controller.play()
     }
-
-    /**
-     * vvvvv -------------------- Setups -------------------- vvvvv
-     */
 
     /**
      * Sets up the audio visualizer.
@@ -451,7 +427,9 @@ class PlayerActivity : AppCompatActivity() {
                     }
                     Player.STATE_ENDED -> {
                         handler.removeCallbacks(updater)
-                        skipForward()
+                        val next = PlaylistManager.skipForward()
+                        if (next != null) updateUI(next)
+                        makeQueueMenu(audioQueue)
                     }
                     Player.STATE_BUFFERING -> {
                         // Unused for now.
@@ -549,7 +527,9 @@ class PlayerActivity : AppCompatActivity() {
         val skipBBtn: ImageButton = findViewById(R.id.skipBackBtn)
 
         skipFBtn.setOnClickListener {
-            skipForward()
+            val next = PlaylistManager.skipForward()
+            if (next != null) updateUI(next)
+            makeQueueMenu(audioQueue)
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
         skipBBtn.setOnClickListener {
@@ -568,11 +548,11 @@ class PlayerActivity : AppCompatActivity() {
             if (controller.repeatMode == Player.REPEAT_MODE_ONE) {
                 controller.repeatMode = Player.REPEAT_MODE_OFF;
                 repeatOneBtn.setImageResource(R.drawable.btn_repeat1off)
-                repeatOneOn = false;
+                PlaylistManager.repeatOneOn = false;
             } else {
                 controller.repeatMode = Player.REPEAT_MODE_ONE;
                 repeatOneBtn.setImageResource(R.drawable.btn_repeat1on)
-                repeatOneOn = true;
+                PlaylistManager.repeatOneOn = true;
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
@@ -584,16 +564,14 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupShuffleBtn() {
         val shuffleBtn: ImageButton = findViewById(R.id.shuffleBtn)
         shuffleBtn.setOnClickListener {
-            if (shuffleOn) {
-                this.allFiles.clear()
-                this.allFiles.addAll(unShuffledAllFiles)
-                this.currentPosition = allFiles.indexOf(audioFile)
+            if (PlaylistManager.shuffleOn) {
                 shuffleBtn.setImageResource(R.drawable.btn_shuffleoff)
-                shuffleOn = false;
+                PlaylistManager.unshuffle()
+                PlaylistManager.shuffleOn = false;
             } else {
-                shuffle()
+                PlaylistManager.shuffle()
+                PlaylistManager.shuffleOn = true;
             }
-            this.currentPosition = allFiles.indexOf(audioFile)
             makeQueueMenu(audioQueue)
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
@@ -615,7 +593,7 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         makeVisMenu()
-        makeFilesMenu(audioFile.parentFile?.parentFile, audioFile.parentFile)
+        makeFilesMenu(PlaylistManager.audioFile.parentFile?.parentFile, PlaylistManager.audioFile.parentFile)
 
         // Whenever an item is clicked on the start menu, the start menu callback send the info
         // back to here. Uses the static global variables in the companion to determine which was
@@ -730,7 +708,8 @@ class PlayerActivity : AppCompatActivity() {
                 makeFilesMenu(clickedItem.parentFile, clickedItem)
             } else {
                 if (isGoTo) {
-                    playNewSong(clickedItem)
+                    PlaylistManager.playNewSong(clickedItem)
+                    updateUI(clickedItem)
                 } else {
                     audioQueue.addLast(clickedItem)
                 }
@@ -746,7 +725,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun makeQueueMenu(queueItems: ArrayDeque<File>) {
         val masterList = mutableListOf<QueueRowItem>()
         // Add the active song
-        masterList.add(QueueRowItem(this.audioFile, true, false))
+        masterList.add(QueueRowItem(PlaylistManager.audioFile, true, false))
 
         // Add the queue tracks
         queueItems.forEach { file ->
@@ -754,10 +733,10 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         // Add the rest of the playlist tracks
-        val nextIndex = currentPosition + 1
-        if (nextIndex < allFiles.size) {
-            for (i in nextIndex until allFiles.size) {
-                masterList.add(QueueRowItem(allFiles[i],
+        val nextIndex = PlaylistManager.currentPosition + 1
+        if (nextIndex < PlaylistManager.allFiles.size) {
+            for (i in nextIndex until PlaylistManager.allFiles.size) {
+                masterList.add(QueueRowItem(PlaylistManager.allFiles[i],
                     isCurrentPlaying = false,
                     isInQueue = false
                 ))
@@ -767,14 +746,8 @@ class PlayerActivity : AppCompatActivity() {
         menuQueueRecycler.adapter = QueueAdapter(
             this, masterList,
             onItemClick = { clickedItem ->
-                    // User manually clicked a row item to force play it
-                    val playlistIndex = allFiles.indexOf(clickedItem)
-                    if (playlistIndex != -1) {
-                        // Only move the pointer if they clicked a standard track from the playlist
-                        currentPosition = playlistIndex
-                    }
-
-                    playNewSong(clickedItem)
+                    PlaylistManager.playNewSong(clickedItem)
+                    updateUI(clickedItem)
                     makeQueueMenu(queueItems)
                 },
             onQueueClick = { clickedItem ->
@@ -782,30 +755,9 @@ class PlayerActivity : AppCompatActivity() {
                 makeQueueMenu(queueItems)
             },
             onRemoveClick = { clickedItem, isInQueue ->
-                if (isInQueue) {
-                    audioQueue.remove(clickedItem)
-                    allFiles.remove(clickedItem)
-                } else {
-                    allFiles.remove(clickedItem)
-                    unShuffledAllFiles.remove(clickedItem)
-                }
-                this.currentPosition = allFiles.indexOf(audioFile)
-            },
+                PlaylistManager.remove(clickedItem, isInQueue) },
             onItemMove = { finalModelList ->
-                // Build a clean queue stream by filtering for items flagged as queue entries
-                val newQueue = ArrayDeque<File>()
-                finalModelList.filter { it.isInQueue }.forEach { newQueue.add(it.file) }
-                this.audioQueue = newQueue
-
-                // Build the unplayed playlist tracks by filtering for standard tracks
-                val remainingPlaylistTracks = finalModelList
-                    .filter { !it.isCurrentPlaying && !it.isInQueue }
-                    .map { it.file }
-
-                val historyTracks = allFiles.subList(0, currentPosition + 1)
-                this.allFiles = (historyTracks + remainingPlaylistTracks).toMutableList()
-
-                this.currentPosition = allFiles.indexOf(audioFile)
+                PlaylistManager.changeList(finalModelList)
 
                 // Update the adapter with the ALREADY sorted final model list
                 val adapter = menuQueueRecycler.adapter as QueueAdapter
@@ -815,7 +767,6 @@ class PlayerActivity : AppCompatActivity() {
 
     }
 
-
     /**
      * Helper method to set up the repeat playlist button on load.
      * Right now, repeat playlist does nothing until the playlists are made.
@@ -823,12 +774,12 @@ class PlayerActivity : AppCompatActivity() {
     private fun setupRepeatPlaylistBtn() {
         val repeatPlaylistBtn: ImageButton = findViewById(R.id.repeatBtn)
         repeatPlaylistBtn.setOnClickListener {
-            if (repeatPlaylistOn) {
+            if (PlaylistManager.repeatPlaylistOn) {
                 repeatPlaylistBtn.setImageResource(R.drawable.btn_repeatplaylistoff)
-                repeatPlaylistOn = false;
+                PlaylistManager.repeatPlaylistOn = false;
             } else {
                 repeatPlaylistBtn.setImageResource(R.drawable.btn_repeatplayliston)
-                repeatPlaylistOn = true;
+                PlaylistManager.repeatPlaylistOn = true;
             }
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
@@ -852,47 +803,6 @@ class PlayerActivity : AppCompatActivity() {
         titleString.setBackgroundColor(color2)
     }
 
-    private fun shuffle() {
-        val mutablePlaylist = unShuffledAllFiles.toMutableList()
-
-        mutablePlaylist.remove(audioFile) // Pull out the active song
-        mutablePlaylist.shuffle()         // Shuffle the rest of the files
-        mutablePlaylist.add(
-            0,
-            audioFile
-        ) // Drop the active song right at the front (Index 0)
-
-        this.allFiles = mutablePlaylist
-        this.currentPosition = 0
-
-        shuffleOn = true;
-    }
-
-    /**
-     * Skips forward one song. If repeat playlist is on and the player is on the last song, it goes
-     * back to the beginning of the playlist. If not, does not skip.
-     */
-    fun skipForward() {
-        // Skip through queue
-        if (audioQueue.isNotEmpty()) {
-            playNewSong(audioQueue.removeFirst())
-            makeQueueMenu(audioQueue)
-            return
-        }
-
-        if ((currentPosition + 1 >= allFiles.size) && !repeatPlaylistOn) {
-            return
-        }
-
-        if (currentPosition + 1 >= allFiles.size) {
-            currentPosition = 0
-        } else {
-            currentPosition++
-        }
-        playNewSong(allFiles[currentPosition])
-        makeQueueMenu(audioQueue)
-    }
-
     /**
      * Skips backwards one song.
      * If song is more than 10 seconds in, start current song over. If not:
@@ -900,22 +810,12 @@ class PlayerActivity : AppCompatActivity() {
      * to last song. If not, it does not do this.
      */
     fun skipBackward() {
-        // If the song is the first in the list and repeat playlist is not toggled, do nothing.
-        if ((currentPosition == 0) && !repeatPlaylistOn) {
-            return
-        }
         if (controller.currentPosition > 10000) { // 10 Seconds
             controller.seekTo(0) // Go back to beginning.
             return
         }
-        // Skip back around if repeat playlist is toggled.
-        if (currentPosition == 0) {
-            currentPosition = (allFiles.size - 1)
-        // Just go back one.
-        } else {
-            currentPosition--
-        }
-        playNewSong(allFiles[currentPosition])
+        val next = PlaylistManager.skipBackward()
+        if (next != null) updateUI(next)
         makeQueueMenu(audioQueue)
     }
 
