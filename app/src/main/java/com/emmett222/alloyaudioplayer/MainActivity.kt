@@ -104,16 +104,7 @@ class MainActivity : AppCompatActivity() {
      */
     override fun onResume() {
         super.onResume()
-
-        val color1 = SettingsChange.getColor1(this)
-        val color2 = SettingsChange.getColor2(this)
-        val color3 = SettingsChange.getColor3(this)
-
-        val mainLayout = findViewById<View>(R.id.main)
-        mainLayout.setBackgroundColor(color2)
-
-        ColorUtil.updateAllTextColors(mainLayout, color1)
-        ColorUtil.updateAllAccentColors(mainLayout, color3)
+        changeColors()
     }
 
     /**
