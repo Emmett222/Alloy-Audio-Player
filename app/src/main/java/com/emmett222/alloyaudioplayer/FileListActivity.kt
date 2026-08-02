@@ -33,6 +33,10 @@ import kotlin.math.abs
  * @version 7-31-2026
  */
 class FileListActivity : AppCompatActivity() {
+    companion object {
+        const val PATH_DATA = "path"
+        const val ISOLD_DATA = "isOld"
+    }
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var noFilesText: TextView
@@ -141,8 +145,8 @@ class FileListActivity : AppCompatActivity() {
 
                 // If it's a song asset, execute standard audio media engine boot playback routines
                 val intent = Intent(this, PlayerActivity::class.java).apply {
-                    putExtra("path", clickedFile.absolutePath)
-                    putExtra("isOld", "false")
+                    putExtra(PATH_DATA, clickedFile.absolutePath)
+                    putExtra(ISOLD_DATA, "false")
                 }
                 startActivity(intent)
             }
@@ -208,7 +212,7 @@ class FileListActivity : AppCompatActivity() {
         songTitleText.setOnClickListener {
             if (!songTitleText.text.equals("")) {
                 val intent = Intent(this, PlayerActivity::class.java).apply {
-                    putExtra("isOld", "true")
+                    putExtra(ISOLD_DATA, "true")
                 }
                 startActivity(intent)
             }

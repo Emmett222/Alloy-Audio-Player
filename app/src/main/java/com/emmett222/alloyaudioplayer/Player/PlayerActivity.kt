@@ -45,6 +45,7 @@ import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 import kotlin.math.abs
 import androidx.core.graphics.toColorInt
+import com.emmett222.alloyaudioplayer.FileListActivity
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import com.emmett222.alloyaudioplayer.Util.FileUtil
@@ -60,6 +61,8 @@ class PlayerActivity : AppCompatActivity() {
     companion object {
         // These are companion callbacks.
         var onFileChangeListener: ((File) -> Unit)? = null
+
+        const val FAST_DURATION_MS = 60000
     }
 
     /**
@@ -128,12 +131,12 @@ class PlayerActivity : AppCompatActivity() {
             insets
         }
 
-        this.isOld = intent.getStringExtra("isOld") == "true"
+        this.isOld = intent.getStringExtra(FileListActivity.ISOLD_DATA) == "true"
         if (isOld) {
             setupFiles(MediaEngine.getCurrentFile())
         } else {
             // !! is fine here because it will always have a path given to it if it is not old.
-            setupFiles(File(intent.getStringExtra("path")!!))
+            setupFiles(File(intent.getStringExtra(FileListActivity.PATH_DATA)!!))
         }
 
         titleString = findViewById(R.id.titleString)
@@ -199,7 +202,7 @@ class PlayerActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
 
-        val newPath = intent.getStringExtra("path")
+        val newPath = intent.getStringExtra(FileListActivity.PATH_DATA)
         if (newPath != null) {
             val newFile = File(newPath)
 
@@ -521,13 +524,13 @@ class PlayerActivity : AppCompatActivity() {
 
         ffBtn.setOnClickListener {
             // Go forward 1 minute.
-            controller.seekTo(controller.currentPosition + 60000)
+            controller.seekTo(controller.currentPosition + FAST_DURATION_MS)
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
 
         frBtn.setOnClickListener {
             // Rewind 1 minute.
-            controller.seekTo(controller.currentPosition - 60000)
+            controller.seekTo(controller.currentPosition - FAST_DURATION_MS )
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
     }
