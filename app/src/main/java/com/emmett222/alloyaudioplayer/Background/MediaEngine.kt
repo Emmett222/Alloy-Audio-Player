@@ -1,10 +1,13 @@
 package com.emmett222.alloyaudioplayer.Background
 
 import android.content.Intent
+import android.media.MediaMetadataRetriever
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import androidx.annotation.OptIn
 import androidx.core.net.toFile
+import androidx.core.net.toUri
 import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -15,6 +18,8 @@ import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaController
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
+import com.emmett222.alloyaudioplayer.Player.PlayerActivity
+import com.emmett222.alloyaudioplayer.Player.PlaylistManager
 import com.emmett222.alloyaudioplayer.R
 import java.io.File
 
@@ -89,6 +94,38 @@ class MediaEngine : MediaSessionService() {
             override fun isCommandAvailable(command: Int): Boolean {
                 return getAvailableCommands().contains(command)
             }
+
+            /**
+             * Fires when car's seek backwards is held down.
+             */
+            override fun seekBack() {
+                super.seekBack()
+            }
+
+            /**
+             * Fires when car's seek forwards is held down.
+             */
+            override fun seekForward() {
+                super.seekForward()
+            }
+
+            /**
+             * Fires when car's seek backwards is pressed.
+             */
+            override fun seekToPrevious() {
+                super.seekToPrevious()
+                val nextFile = PlaylistManager.skipBackward() ?: return
+                setupEngineFile(nextFile)
+            }
+
+            /**
+             * Fires when car's seek backwards is pressed.
+             */
+            override fun seekToNext() {
+                super.seekToNext()
+                val nextFile = PlaylistManager.skipForward() ?: return
+                setupEngineFile(nextFile)
+            }
         }
 
         mediaSession = MediaSession.Builder(this, mediaPlayer)
@@ -124,6 +161,43 @@ class MediaEngine : MediaSessionService() {
         }
         instance = null
         super.onTaskRemoved(rootIntent)
+    }
+
+    /**
+     * Sets up the file for the MediaEngine.
+     */
+    private fun setupEngineFile(newFile: File) {
+        val retriever = MediaMetadataRetriever()
+        var artistName = "Unknown Artist"
+
+        try {
+            retriever.setDataSource(newFile.absolutePath)
+            artistName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
+                ?: "Unknown Artist"
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            retriever.release()
+        }
+
+        val mediaItemWithMetadata =
+            MediaItem.Builder().setUri(Uri.fromFile(newFile))
+                .setRequestMetadata(
+                    MediaItem.RequestMetadata.Builder()
+                        .setMediaUri(Uri.fromFile(newFile))
+                        .build()
+                )
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(newFile.name)
+                        .setArtist(artistName)
+                        .setArtworkUri("android.resource://com.emmett222.alloyaudioplayer/drawable/background".toUri())
+                        .build()
+                ).build()
+
+        mediaPlayer.setMediaItem(mediaItemWithMetadata)
+        mediaPlayer.prepare()
+        mediaPlayer.play()
     }
 
     private inner class MediaSessionCallback : MediaSession.Callback {

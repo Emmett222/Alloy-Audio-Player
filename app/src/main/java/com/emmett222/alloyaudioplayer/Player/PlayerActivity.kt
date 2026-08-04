@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.MediaStore
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -172,7 +173,6 @@ class PlayerActivity : AppCompatActivity() {
             setupRepeatPlaylistBtn()
             setupVisualizer()
 
-            updateUI(intentFile)
             PlaylistManager.playNewSong(intentFile)
 
         }, ContextCompat.getMainExecutor(this))
@@ -207,7 +207,6 @@ class PlayerActivity : AppCompatActivity() {
             // Only interrupt playback if it's actually a new song
             if (PlaylistManager.audioFile.absolutePath != newFile.absolutePath) {
                 PlaylistManager.playNewSong(newFile)
-                updateUI(newFile)
             }
         }
     }
@@ -241,15 +240,6 @@ class PlayerActivity : AppCompatActivity() {
             findViewById<ImageButton>(R.id.shuffleBtn).setImageResource(R.drawable.btn_shuffleon)
             PlaylistManager.shuffle()
         }
-    }
-
-    /**
-     * Updates the player to play a new song.
-     */
-    private fun updateUI(file: File) {
-        setupControllerFile(file)
-        setupTitle(file.name)
-        setupTime()
     }
 
     /**
@@ -299,43 +289,6 @@ class PlayerActivity : AppCompatActivity() {
         // This adds the custom call back to the dispatcher. The dispatcher is responsible for
         // handling the back click.
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
-    }
-
-    /**
-     * Helper method to set up the controller.
-     */
-    private fun setupControllerFile(newFile: File) {
-        val retriever = MediaMetadataRetriever()
-        var artistName = "Unknown Artist"
-
-        try {
-            retriever.setDataSource(newFile.absolutePath)
-            artistName = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-                ?: "Unknown Artist"
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            retriever.release()
-        }
-
-        val mediaItemWithMetadata =
-            MediaItem.Builder().setUri(Uri.fromFile(newFile))
-                .setRequestMetadata(
-                    MediaItem.RequestMetadata.Builder()
-                        .setMediaUri(Uri.fromFile(newFile))
-                        .build()
-                )
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(newFile.name)
-                        .setArtist(artistName)
-                        .setArtworkUri("android.resource://com.emmett222.alloyaudioplayer/drawable/background".toUri())
-                        .build()
-            ).build()
-
-        controller.setMediaItem(mediaItemWithMetadata)
-        controller.prepare()
-        controller.play()
     }
 
     /**
@@ -430,8 +383,7 @@ class PlayerActivity : AppCompatActivity() {
                     }
                     Player.STATE_ENDED -> {
                         handler.removeCallbacks(updater)
-                        val next = PlaylistManager.skipForward()
-                        if (next != null) updateUI(next)
+                        controller.seekToNext()
                         makeQueueMenu(audioQueue)
                     }
                     Player.STATE_BUFFERING -> {
@@ -511,6 +463,14 @@ class PlayerActivity : AppCompatActivity() {
                     handler.post(updater)
                 }
             }
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                super.onMediaItemTransition(mediaItem, reason)
+                if (mediaItem != null) {
+                    val newTitle = mediaItem.mediaMetadata.title.toString()
+                    setupTitle(newTitle)
+                    makeQueueMenu(PlaylistManager.audioQueue)
+                }
+            }
         }
         controller.addListener(playerListener)
     }
@@ -524,15 +484,33 @@ class PlayerActivity : AppCompatActivity() {
 
         ffBtn.setOnClickListener {
             // Go forward 1 minute.
-            controller.seekTo(controller.currentPosition + FAST_DURATION_MS)
+            fastForward(FAST_DURATION_MS)
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
 
         frBtn.setOnClickListener {
             // Rewind 1 minute.
-            controller.seekTo(controller.currentPosition - FAST_DURATION_MS )
+            fastRewind(FAST_DURATION_MS)
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
+    }
+
+    /**
+     * Skips ahead in the song.
+     *
+     * @param duration The time to skip in ms
+     */
+    fun fastForward(duration: Int) {
+        controller.seekTo(controller.currentPosition + FAST_DURATION_MS)
+    }
+
+    /**
+     * Skips backwards in the song.
+     *
+     * @param duration The time to skip in ms
+     */
+    fun fastRewind(duration: Int) {
+        controller.seekTo(controller.currentPosition - FAST_DURATION_MS )
     }
 
     private fun setupSkipBtns() {
@@ -540,8 +518,7 @@ class PlayerActivity : AppCompatActivity() {
         val skipBBtn: ImageButton = findViewById(R.id.skipBackBtn)
 
         skipFBtn.setOnClickListener {
-            val next = PlaylistManager.skipForward()
-            if (next != null) updateUI(next)
+            controller.seekToNext()
             makeQueueMenu(audioQueue)
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
@@ -723,7 +700,6 @@ class PlayerActivity : AppCompatActivity() {
             } else {
                 if (isGoTo) {
                     PlaylistManager.playNewSong(clickedItem)
-                    updateUI(clickedItem)
                 } else {
                     audioQueue.addLast(clickedItem)
                 }
@@ -761,7 +737,6 @@ class PlayerActivity : AppCompatActivity() {
             this, masterList,
             onItemClick = { clickedItem ->
                     PlaylistManager.playNewSong(clickedItem)
-                    updateUI(clickedItem)
                     makeQueueMenu(queueItems)
                 },
             onQueueClick = { clickedItem ->
@@ -828,8 +803,7 @@ class PlayerActivity : AppCompatActivity() {
             controller.seekTo(0) // Go back to beginning.
             return
         }
-        val next = PlaylistManager.skipBackward()
-        if (next != null) updateUI(next)
+        controller.seekToPrevious()
         makeQueueMenu(audioQueue)
     }
 
