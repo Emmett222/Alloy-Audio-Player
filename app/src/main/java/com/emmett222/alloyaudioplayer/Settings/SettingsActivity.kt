@@ -9,6 +9,7 @@ import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -46,6 +47,15 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var repeatValue: TextView
     private lateinit var shuffleValue: TextView
     private lateinit var visualizerValue: TextView
+
+    private lateinit var color1Info: ImageButton
+    private lateinit var color2Info: ImageButton
+    private lateinit var color3Info: ImageButton
+    private lateinit var animInfo: ImageButton
+    private lateinit var shortInfo: ImageButton
+    private lateinit var repeatInfo: ImageButton
+    private lateinit var shuffInfo: ImageButton
+    private lateinit var visInfo: ImageButton
 
     private val optLeft = "Left"
     private val optRight = "Right"
@@ -90,6 +100,10 @@ class SettingsActivity : AppCompatActivity() {
         repeatValue = findViewById(R.id.settingRValue)
         shuffleValue = findViewById(R.id.settingASValue)
         visualizerValue = findViewById(R.id.settingVisualizerValue)
+
+        color1Info = findViewById(R.id.color1Info)
+        color2Info = findViewById(R.id.color2Info)
+        color3Info = findViewById(R.id.color3Info)
 
         setupValues()
         setupDropdowns()
