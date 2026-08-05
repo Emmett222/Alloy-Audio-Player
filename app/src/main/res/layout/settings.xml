@@ -114,6 +114,15 @@
                     android:textColor="#00ff00"
                     android:textSize="16sp"
                     android:textStyle="italic" />
+                <ImageButton
+                    android:id="@+id/color1Info"
+                    android:tint="#00FF00"
+                    android:src="@drawable/info_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="5dp"
+                    android:scaleType="centerInside"
+                    android:background=""/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/settingColorBtns1"
@@ -170,6 +179,15 @@
                     android:textColor="#00ff00"
                     android:textSize="16sp"
                     android:textStyle="italic" />
+                <ImageButton
+                    android:id="@+id/color2Info"
+                    android:tint="#00FF00"
+                    android:src="@drawable/info_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="5dp"
+                    android:scaleType="centerInside"
+                    android:background=""/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/settingColorBtns2"
@@ -226,6 +244,15 @@
                     android:textColor="#00ff00"
                     android:textSize="16sp"
                     android:textStyle="italic" />
+                <ImageButton
+                    android:id="@+id/color3Info"
+                    android:tint="#00FF00"
+                    android:src="@drawable/info_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginLeft="5dp"
+                    android:scaleType="centerInside"
+                    android:background=""/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/settingColorBtns3"
@@ -329,6 +356,15 @@
                         android:textColor="#00ff00"
                         android:textSize="16sp"
                         android:textStyle="italic" />
+                    <ImageButton
+                        android:id="@+id/animInfo"
+                        android:tint="#00FF00"
+                        android:src="@drawable/info_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginLeft="5dp"
+                        android:scaleType="centerInside"
+                        android:background=""/>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/settingAnimBtns"
@@ -404,6 +440,15 @@
                         android:textColor="#00ff00"
                         android:textSize="16sp"
                         android:textStyle="italic" />
+                    <ImageButton
+                        android:id="@+id/shortInfo"
+                        android:tint="#00FF00"
+                        android:src="@drawable/info_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginLeft="5dp"
+                        android:scaleType="centerInside"
+                        android:background=""/>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/settingShortBtns"
@@ -521,6 +566,15 @@
                         android:textColor="#00ff00"
                         android:textSize="16sp"
                         android:textStyle="italic" />
+                    <ImageButton
+                        android:id="@+id/repeatInfo"
+                        android:tint="#00FF00"
+                        android:src="@drawable/info_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginLeft="5dp"
+                        android:scaleType="centerInside"
+                        android:background=""/>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/settingRepeatRowBtns"
@@ -586,6 +640,15 @@
                         android:textColor="#00ff00"
                         android:textSize="16sp"
                         android:textStyle="italic" />
+                    <ImageButton
+                        android:id="@+id/shuffInfo"
+                        android:tint="#00FF00"
+                        android:src="@drawable/info_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginLeft="5dp"
+                        android:scaleType="centerInside"
+                        android:background=""/>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/settingShuffleRowBtns"
@@ -651,6 +714,15 @@
                         android:textColor="#00ff00"
                         android:textSize="16sp"
                         android:textStyle="italic" />
+                    <ImageButton
+                        android:id="@+id/visInfo"
+                        android:tint="#00FF00"
+                        android:src="@drawable/info_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginLeft="5dp"
+                        android:scaleType="centerInside"
+                        android:background=""/>
                 </LinearLayout>
                     <LinearLayout
                         android:layout_width="match_parent"
