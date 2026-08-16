@@ -19,7 +19,7 @@ import kotlin.math.sin
  * Made mostly with Gemini.
  *
  * @author Emmett Grebe
- * @version 7-31-2026
+ * @version 8-16-2026
  */
 class BaseGraphic @JvmOverloads constructor(
     context: Context,
@@ -28,15 +28,15 @@ class BaseGraphic @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     companion object {
-        const val VIS_TYPE_NONE = 2
-        const val VIS_TYPE_WAVE = 3
-        const val VIS_TYPE_BARS = 4
-        const val VIS_TYPE_CIRCLE_WAVE = 5
-        const val VIS_TYPE_CIRCLE_BARS = 6
-        const val VIS_TYPE_BOTTOM_BARS = 7
-        const val VIS_TYPE_CIRCLE_GROW = 8
-        const val VIS_TYPE_MIRROR_WAVE = 9
-        const val VIS_TYPE_SMILEY = 10
+        const val VIS_TYPE_NONE = 1
+        const val VIS_TYPE_WAVE = 2
+        const val VIS_TYPE_BARS = 3
+        const val VIS_TYPE_CIRCLE_WAVE = 4
+        const val VIS_TYPE_CIRCLE_BARS = 5
+        const val VIS_TYPE_BOTTOM_BARS = 6
+        const val VIS_TYPE_CIRCLE_GROW = 7
+        const val VIS_TYPE_MIRROR_WAVE = 8
+        const val VIS_TYPE_SMILEY = 9
     }
 
     private val wavePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {

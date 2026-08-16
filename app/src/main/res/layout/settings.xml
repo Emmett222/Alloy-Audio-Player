@@ -320,7 +320,7 @@
                 android:paddingRight="20dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="12dp"
-                android:visibility="gone">
+                android:visibility="visible">
 <!--Line above animation settings-->
                 <View
                     android:layout_width="match_parent"
@@ -479,6 +479,202 @@
                         android:textSize="16sp"
                         android:gravity="center"/>
                 </LinearLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="#6600ff00" />
+                <!--Shorten file name setting-->
+                <LinearLayout
+                    android:id="@+id/settingShortenRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingSortLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Sort files by:"
+                        android:textColor="#00ff00"
+                        android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/settingSortValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Default"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+                    <ImageButton
+                        android:id="@+id/sortInfo"
+                        android:tint="#00FF00"
+                        android:src="@drawable/info_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginLeft="5dp"
+                        android:scaleType="centerInside"
+                        android:background=""/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/settingSortBtns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/settingSortDefault"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Default"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                    <TextView
+                        android:id="@+id/settingSortAlph"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Alphabetical"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/settingSortBtns2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/settingSortAuth"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Author"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                    <TextView
+                        android:id="@+id/settingSortLength"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Length"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/settingSortBtns3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/settingSortRand"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Random"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="#6600ff00" />
+                <!--Sort direction setting-->
+                <LinearLayout
+                    android:id="@+id/settingSortDirRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingSortDirLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Sort files direction:"
+                        android:textColor="#00ff00"
+                        android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/settingSortDirValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ascending"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+                    <ImageButton
+                        android:id="@+id/sortDirInfo"
+                        android:tint="#00FF00"
+                        android:src="@drawable/info_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginLeft="5dp"
+                        android:scaleType="centerInside"
+                        android:background=""/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/settingSortBtns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/settingSortDirAsc"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Ascending"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                    <TextView
+                        android:id="@+id/settingSortDirDes"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Descending"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+
             </LinearLayout>
 <!--Line above player settings-->
             <ImageView

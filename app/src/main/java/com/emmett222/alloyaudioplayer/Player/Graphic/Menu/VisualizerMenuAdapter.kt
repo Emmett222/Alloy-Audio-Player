@@ -11,29 +11,20 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
+import com.emmett222.alloyaudioplayer.Settings.VisualizerType
 
 /**
  * Visualizer menu to select the visualizer wanted.
  *
  * @author Emmett Grebe
- * @version 7-31-2026
+ * @version 8-16-2026
  */
 class VisualizerMenuAdapter(val context: Context,
                             private val onItemClick: (String) -> Unit
 ) : RecyclerView.Adapter<VisualizerMenuAdapter.ViewHolder>() {
 
     companion object {
-        const val NOVIS = "No Visualizer"
-        const val LINEWAVE = "Waves"
-        const val MIRLINEWAVE = "Mirrored Waves"
-        const val LINEBARS = "Middle Bars"
-        const val BOTLINEBARS = "Bottom Bars"
-        const val CIRCLEWAVE = "Circle Waves"
-        const val CIRCLEBAR = "Circle Bars"
-        const val CIRCLEGROW = "Growing Circle"
-        const val TALKINGSMILEY = "Smiley face"
-
-        var items: Array<String> = arrayOf(NOVIS, LINEWAVE, MIRLINEWAVE, LINEBARS, BOTLINEBARS, CIRCLEWAVE, CIRCLEBAR, CIRCLEGROW, TALKINGSMILEY)
+        var items: Array<String> = VisualizerType.entries.map{ it.label}.toTypedArray()
     }
 
     private var color1: Int = -1
@@ -61,35 +52,7 @@ class VisualizerMenuAdapter(val context: Context,
         val currItem = items[position]
         holder.textView.text = currItem
 
-        when (currItem) {
-            NOVIS -> {
-                holder.imageView.setImageResource(R.drawable.menu_vis_novis)
-            }
-            LINEWAVE -> {
-                holder.imageView.setImageResource(R.drawable.menu_vis_linewave)
-            }
-            MIRLINEWAVE -> {
-                holder.imageView.setImageResource(R.drawable.menu_vis_mirlinewave)
-            }
-            LINEBARS -> {
-                holder.imageView.setImageResource(R.drawable.menu_vis_linebars)
-            }
-            BOTLINEBARS -> {
-                holder.imageView.setImageResource(R.drawable.menu_vis_botlinebars)
-            }
-            CIRCLEWAVE -> {
-                holder.imageView.setImageResource(R.drawable.menu_vis_circlewave)
-            }
-            CIRCLEBAR -> {
-                holder.imageView.setImageResource(R.drawable.menu_vis_circlebar)
-            }
-            CIRCLEGROW -> {
-                holder.imageView.setImageResource(R.drawable.menu_vis_circlegrow)
-            }
-            TALKINGSMILEY -> {
-                holder.imageView.setImageResource(R.drawable.menu_vis_talkingsmiley)
-            }
-        }
+        holder.imageView.setImageResource(VisualizerType.entries.find{ it.label == currItem }?.icon ?: R.drawable.menu_vis_novis)
 
         holder.itemView.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)

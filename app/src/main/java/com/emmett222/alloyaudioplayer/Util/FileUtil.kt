@@ -3,13 +3,14 @@ package com.emmett222.alloyaudioplayer.Util
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import java.io.File
 
 /**
  * Utility object for help with files.
  *
  * @author Emmett Grebe
- * @version 7-17-2026
+ * @version 8-16-2026
  */
 object FileUtil {
     /**
@@ -62,6 +63,19 @@ object FileUtil {
         val extensions =
             arrayOf("mp3", "m4a", "opus", "aac", "aif", "aiff", "cda", "flac", "ogg", "wav")
         return extensions.contains(file.extension)
+    }
+
+    /**
+     * Filters files based on user settings.
+     */
+    fun filterFiles(files: Array<File>, context: Context) : Array<File>{
+        // First remove all non audio files.
+        val filteredFiles = files.filter { file -> isAudioFile(file) }
+
+        // Then sort based on user sort settings.
+        when (SettingsChange.getSortDir(context)) {
+
+        }
     }
 
     /**

@@ -49,6 +49,7 @@ import androidx.core.graphics.toColorInt
 import com.emmett222.alloyaudioplayer.FileListActivity
 import com.emmett222.alloyaudioplayer.Player.PlaylistManager.audioQueue
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
+import com.emmett222.alloyaudioplayer.Settings.VisualizerType
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.StringUtil
@@ -57,7 +58,7 @@ import com.emmett222.alloyaudioplayer.Util.StringUtil
  * Player screen for Alloy Audio Player. Must be called with
  *
  * @author Emmett Grebe
- * @version 8-2-2026
+ * @version 8-16-2026
  */
 class PlayerActivity : AppCompatActivity() {
 
@@ -634,45 +635,12 @@ class PlayerActivity : AppCompatActivity() {
         // back to here. Uses the static global variables in the companion to determine which was
         // clicked.
         menuVisRecycler.adapter = VisualizerMenuAdapter(applicationContext) { clickedItem ->
-            when (clickedItem) {
-                VisualizerMenuAdapter.NOVIS -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_NONE)
-                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_NONE)
-                }
-                VisualizerMenuAdapter.LINEWAVE -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_WAVE)
-                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_WAVE)
-                }
-                VisualizerMenuAdapter.MIRLINEWAVE -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_MIRROR_WAVE)
-                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_MIRROR_WAVE)
-                }
-                VisualizerMenuAdapter.LINEBARS -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BARS)
-                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_BARS)
-                }
-                VisualizerMenuAdapter.BOTLINEBARS -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_BOTTOM_BARS)
-                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_BOTTOM_BARS)
-                }
-                VisualizerMenuAdapter.CIRCLEWAVE -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_WAVE)
-                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_CIRCLE_WAVE)
-                }
-                VisualizerMenuAdapter.CIRCLEBAR -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_BARS)
-                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_CIRCLE_BARS)
-                }
-                VisualizerMenuAdapter.CIRCLEGROW -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_CIRCLE_GROW)
-                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_CIRCLE_GROW)
-                }
-                VisualizerMenuAdapter.TALKINGSMILEY -> {
-                    visualizerView.changeScreen(BaseGraphic.VIS_TYPE_SMILEY)
-                    SettingsChange.saveVisType(this, BaseGraphic.VIS_TYPE_SMILEY)
-                }
-            }
-            if (clickedItem == VisualizerMenuAdapter.NOVIS) {
+            val foundType = VisualizerType.entries.find { it.label == clickedItem }?.id ?: 1
+            visualizerView.changeScreen(foundType)
+
+            SettingsChange.saveVisType(this, foundType)
+
+            if (clickedItem == VisualizerType.NOVIS.label) {
                 visualizerView.setBackgroundColor(ColorUtil.darkenColor(color2.toDrawable(), 128))
             } else {
                 visualizerView.setBackgroundColor(color2)

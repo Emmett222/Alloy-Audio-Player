@@ -9,7 +9,7 @@ import androidx.core.content.edit
  * Object that can set and get settings.
  *
  * @author Emmett Grebe
- * @version 7-31-2026
+ * @version 8-16-2026
  */
 object SettingsChange {
     private const val PREFS_NAME = "AlloyPlayerPrefs"
@@ -19,6 +19,8 @@ object SettingsChange {
     const val KEY_COLOR_TYPE_3 = "color_type_3"
     const val KEY_ANIM_TYPE = "animation_type"
     const val KEY_SHORT_MODE = "shorten_type"
+    const val KEY_SORT_TYPE = "sort_type"
+    const val KEY_SORT_DIR = "sort_dir"
     const val KEY_VIS_TYPE = "visualizer_type"
     const val KEY_REPEAT_MODE = "repeat_mode"
     const val KEY_SHUFFLE_MODE = "shuffle_mode"
@@ -71,6 +73,21 @@ object SettingsChange {
     }
     fun getShortMode(context: Context): Boolean {
         return getPrefs(context).getBoolean(KEY_SHORT_MODE, false)
+    }
+
+    // --- SORT BY SETTINGS ---
+    fun saveSortType(context: Context, type: Int) {
+        getPrefs(context).edit { putInt(KEY_SORT_TYPE, 0) }
+    }
+    fun getSortType(context: Context): Int {
+        return getPrefs(context).getInt(KEY_SORT_TYPE, 0)
+    }
+    // --- SORT DIRECTION SETTINGS ---
+    fun saveSortDir(context: Context, type: Int) {
+        getPrefs(context).edit { putInt(KEY_SORT_DIR, 0) }
+    }
+    fun getSortDir(context: Context): Int {
+        return getPrefs(context).getInt(KEY_SORT_DIR, 0)
     }
 
     // --- REPEAT SETTINGS ---
