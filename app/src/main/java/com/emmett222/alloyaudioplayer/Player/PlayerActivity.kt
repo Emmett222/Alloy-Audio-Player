@@ -655,9 +655,7 @@ class PlayerActivity : AppCompatActivity() {
     private fun makeFilesMenu(backOption: File?, folder: File?) {
         if (backOption == null || folder == null) return
         val rawFiles = folder.listFiles() ?: return
-        val filteredFiles: Array<File> = rawFiles.filter { file ->
-            file.isDirectory || FileUtil.isAudioFile(file)
-        }.toTypedArray()
+        val filteredFiles: Array<File> = FileUtil.filterFiles(rawFiles, this)
         // Whenever an item is clicked on the files menu, the start menu callback send the info
         // back to here. Uses the static global variables in the companion to determine which was
         // clicked.

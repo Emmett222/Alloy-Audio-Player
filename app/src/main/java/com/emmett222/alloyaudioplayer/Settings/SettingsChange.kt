@@ -77,17 +77,17 @@ object SettingsChange {
 
     // --- SORT BY SETTINGS ---
     fun saveSortType(context: Context, type: Int) {
-        getPrefs(context).edit { putInt(KEY_SORT_TYPE, 0) }
+        getPrefs(context).edit { putInt(KEY_SORT_TYPE, type) }
     }
     fun getSortType(context: Context): Int {
         return getPrefs(context).getInt(KEY_SORT_TYPE, 0)
     }
     // --- SORT DIRECTION SETTINGS ---
     fun saveSortDir(context: Context, type: Int) {
-        getPrefs(context).edit { putInt(KEY_SORT_DIR, 0) }
+        getPrefs(context).edit { putInt(KEY_SORT_DIR, type) }
     }
     fun getSortDir(context: Context): Int {
-        return getPrefs(context).getInt(KEY_SORT_DIR, 0)
+        return getPrefs(context).getInt(KEY_SORT_DIR, 1)
     }
 
     // --- REPEAT SETTINGS ---

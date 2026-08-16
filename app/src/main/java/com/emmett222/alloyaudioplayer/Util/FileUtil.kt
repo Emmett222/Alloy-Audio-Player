@@ -4,6 +4,8 @@ import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.provider.MediaStore
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
+import com.emmett222.alloyaudioplayer.Settings.SortDirection
+import com.emmett222.alloyaudioplayer.Settings.SortType
 import java.io.File
 
 /**
@@ -40,15 +42,17 @@ object FileUtil {
         // Query is a filter to find given parameters.
         // .use is a Kotlin safety valve. If anything happens, like returning or crashing, the
         // database cursor is automatically closed. This prevents memory leaks.
-        context.contentResolver.query(uri, projection, selection, selectionArgs, null)?.use { cursor ->
-            // Move the cursor to the first matching row. If nothing there, return false and skip.
-            if (cursor.moveToFirst()) {
-                // Get the column index for the duration of the audio file.
-                val durationIndex = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-                // Get the duration of the audio file from the previously obtained index.
-                return cursor.getLong(durationIndex)
+        context.contentResolver.query(uri, projection, selection, selectionArgs, null)
+            ?.use { cursor ->
+                // Move the cursor to the first matching row. If nothing there, return false and skip.
+                if (cursor.moveToFirst()) {
+                    // Get the column index for the duration of the audio file.
+                    val durationIndex =
+                        cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+                    // Get the duration of the audio file from the previously obtained index.
+                    return cursor.getLong(durationIndex)
+                }
             }
-        }
         return 0L // Return 0 if there was an issue along the way.
     }
 
@@ -59,7 +63,7 @@ object FileUtil {
      * @param file The file to check.
      * @return True if audio file, false if not.
      */
-    fun isAudioFile(file: File) : Boolean {
+    fun isAudioFile(file: File): Boolean {
         val extensions =
             arrayOf("mp3", "m4a", "opus", "aac", "aif", "aiff", "cda", "flac", "ogg", "wav")
         return extensions.contains(file.extension)
@@ -67,15 +71,71 @@ object FileUtil {
 
     /**
      * Filters files based on user settings.
+     *
+     * @param files An array of audio files.
+     * @param context The context of the application.
      */
-    fun filterFiles(files: Array<File>, context: Context) : Array<File>{
+    fun filterFiles(files: Array<File>?, context: Context): Array<File> {
         // First remove all non audio files.
-        val filteredFiles = files.filter { file -> isAudioFile(file) }
+        val filteredFiles = files?.filter { file -> isAudioFile(file) }
+        val folders = files?.filter { file -> file.isDirectory }
+
+        val sortType = SettingsChange.getSortType(context)
+
+        var sortedFolders: Array<File> = folders?.toTypedArray() ?: emptyArray()
+        var sortedFiles: Array<File> = filteredFiles?.toTypedArray() ?: emptyArray()
 
         // Then sort based on user sort settings.
         when (SettingsChange.getSortDir(context)) {
+            SortDirection.ASCENDING.id -> {
+                when (sortType) {
+                    SortType.ALPHABETICAL.id -> {
+                        sortedFolders =
+                            folders?.sortedBy { it.name }?.toTypedArray() ?: emptyArray()
+                        sortedFiles =
+                            filteredFiles?.sortedBy { it.name }?.toTypedArray() ?: emptyArray()
+                    }
 
+                    SortType.AUTHOR.id ->
+                        sortedFiles =
+                            filteredFiles?.sortedBy { getArtistFromFile(it) }?.toTypedArray()
+                                ?: emptyArray()
+
+                    SortType.LENGTH.id ->
+                        sortedFiles =
+                            filteredFiles?.sortedBy { getDurationFromFile(context, it.path) }
+                                ?.toTypedArray() ?: emptyArray()
+
+                }
+            }
+
+            SortDirection.DESCENDING.id -> {
+                when (sortType) {
+                    SortType.ALPHABETICAL.id -> {
+                        sortedFolders =
+                            folders?.sortedBy { it.name }?.toTypedArray() ?: emptyArray()
+                        sortedFiles = filteredFiles?.sortedByDescending { it.name }
+                            ?.toTypedArray() ?: emptyArray()
+                    }
+
+                    SortType.AUTHOR.id -> sortedFiles =
+                        filteredFiles?.sortedByDescending { getArtistFromFile(it) }?.toTypedArray()
+                            ?: emptyArray()
+
+                    SortType.LENGTH.id -> sortedFiles =
+                        filteredFiles?.sortedByDescending { getDurationFromFile(context, it.path) }
+                            ?.toTypedArray() ?: emptyArray()
+                }
+            }
         }
+
+        if (sortType == SortType.RANDOM.id) {
+            sortedFolders = folders?.shuffled()?.toTypedArray() ?: emptyArray()
+            sortedFiles = filteredFiles?.shuffled()?.toTypedArray() ?: emptyArray()
+        }
+
+        return sortedFolders.plus(sortedFiles)
+
     }
 
     /**
@@ -84,7 +144,7 @@ object FileUtil {
      * @param file The audio file to get the author from.
      * @return A string containing the author of the given audio file.
      */
-    fun getArtistFromFile(file: File) : String {
+    fun getArtistFromFile(file: File): String {
         val retriever = MediaMetadataRetriever()
 
         return try {

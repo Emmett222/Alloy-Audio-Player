@@ -134,15 +134,17 @@ class SettingsActivity : AppCompatActivity() {
                 ?: malformedData
 
         if (SettingsChange.getShortMode(this)) shortenValue.text = optYes
-        else optNo
+        else shortenValue.text = optNo
 
         if (SettingsChange.getRepeatMode(this)) repeatValue.text = optYes
-        else optNo
+        else repeatValue.text = optNo
 
         if (SettingsChange.getShufMode(this)) shuffleValue.text = optYes
-        else optNo
+        else shuffleValue.text = optNo
 
-        visualizerValue.text = VisualizerMenuAdapter.items[SettingsChange.getVisType(this) - 1]
+        visualizerValue.text =
+            VisualizerType.entries.find { it.id == SettingsChange.getVisType(this) }?.label
+                ?: malformedData
 
         color1 = SettingsChange.getColor1(this)
         color2 = SettingsChange.getColor2(this)
@@ -159,6 +161,10 @@ class SettingsActivity : AppCompatActivity() {
 
         sortByValue.text =
             SortType.entries.find { it.id == SettingsChange.getSortType(this) }?.label
+                ?: malformedData
+
+        sortDirValue.text =
+            SortDirection.entries.find { it.id == SettingsChange.getSortDir(this) }?.label
                 ?: malformedData
     }
 
@@ -271,7 +277,7 @@ class SettingsActivity : AppCompatActivity() {
         for (key in allButtons.keys) {
             for (button in allButtons[key]!!) { // This will never be null.
                 button.setOnClickListener {
-                    changeSetting(key, button.text as String)
+                    changeSetting(key, button.text.toString().trim())
                     button.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                 }
             }
@@ -290,7 +296,8 @@ class SettingsActivity : AppCompatActivity() {
             animValue -> {
                 SettingsChange.saveAnimType(
                     this,
-                    AnimationType.entries.find { it.label == newValue }?.id ?: 0
+                    AnimationType.entries.find { it.label.equals(newValue, ignoreCase = true) }?.id
+                        ?: 0
                 )
             }
 
@@ -312,21 +319,23 @@ class SettingsActivity : AppCompatActivity() {
             visualizerValue -> {
                 SettingsChange.saveVisType(
                     this,
-                    VisualizerType.entries.find { it.label == newValue }?.id ?: 0
+                    VisualizerType.entries.find { it.label.equals(newValue, ignoreCase = true) }?.id
+                        ?: 0
                 )
             }
 
             sortByValue -> {
                 SettingsChange.saveSortType(
                     this,
-                    SortType.entries.find { it.label == newValue }?.id ?: 0
+                    SortType.entries.find { it.label.equals(newValue, ignoreCase = true) }?.id ?: 0
                 )
             }
 
             sortDirValue -> {
                 SettingsChange.saveSortDir(
                     this,
-                    SortDirection.entries.find { it.label == newValue }?.id ?: 0
+                    SortDirection.entries.find { it.label.equals(newValue, ignoreCase = true) }?.id
+                        ?: 0
                 )
             }
         }
@@ -459,7 +468,7 @@ class SettingsActivity : AppCompatActivity() {
             InfoSettingsData.BAT_NONE
         )
         infoText[visInfo] = arrayOf(
-            InfoSettingsData.TITLE_VIS ,
+            InfoSettingsData.TITLE_VIS,
             InfoSettingsData.BODY_VIS,
             InfoSettingsData.BAT_VIS
         )

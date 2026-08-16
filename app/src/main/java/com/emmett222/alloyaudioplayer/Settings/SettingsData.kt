@@ -30,12 +30,12 @@ enum class SortDirection(val id: Int, val label: String) {
 
 enum class VisualizerType(val id: Int, val label: String, val icon: Int) {
     NOVIS(0, "No Visualizer", R.drawable.menu_vis_novis),
-    LINEWAVE(0, "Waves", R.drawable.menu_vis_linewave),
-    MIRLINEWAVE(0, "Mirrored Waves", R.drawable.menu_vis_mirlinewave),
-    LINEBARS(0, "Middle Bars", R.drawable.menu_vis_linebars),
-    BOTLINEBARS(0, "Bottom Bars", R.drawable.menu_vis_botlinebars),
-    CIRCLEWAVE(0, "Circle Waves", R.drawable.menu_vis_circlewave),
-    CIRCLEBAR(0, "Circle Bars", R.drawable.menu_vis_circlebar),
-    CIRCLEGROW(0, "Growing Circle", R.drawable.menu_vis_circlegrow),
-    TALKINGSMILEY(0, "Smiley face", R.drawable.menu_vis_talkingsmiley)
+    LINEWAVE(1, "Waves", R.drawable.menu_vis_linewave),
+    MIRLINEWAVE(2, "Mirrored Waves", R.drawable.menu_vis_mirlinewave),
+    LINEBARS(3, "Middle Bars", R.drawable.menu_vis_linebars),
+    BOTLINEBARS(4, "Bottom Bars", R.drawable.menu_vis_botlinebars),
+    CIRCLEWAVE(5, "Circle Waves", R.drawable.menu_vis_circlewave),
+    CIRCLEBAR(6, "Circle Bars", R.drawable.menu_vis_circlebar),
+    CIRCLEGROW(7, "Growing Circle", R.drawable.menu_vis_circlegrow),
+    TALKINGSMILEY(8, "Smiley face", R.drawable.menu_vis_talkingsmiley)
 }

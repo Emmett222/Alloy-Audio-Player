@@ -20,7 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Background.MediaEngine
 import com.emmett222.alloyaudioplayer.Player.PlayerActivity
+import com.emmett222.alloyaudioplayer.Settings.AnimationType
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
+import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 import java.util.jar.Attributes
@@ -30,7 +32,7 @@ import kotlin.math.abs
  * Lists the files. Only shows audio files.
  *
  * @author Emmett Grebe
- * @version 7-31-2026
+ * @version 8-16-2026
  */
 class FileListActivity : AppCompatActivity() {
     companion object {
@@ -97,21 +99,9 @@ class FileListActivity : AppCompatActivity() {
         folderNameText.text = if (folder.name.isEmpty()) "Root" else folder.name
 
         val rawFiles: Array<File>? = folder.listFiles()
-        val filteredFiles: Array<File>? = rawFiles?.filter { file ->
-            file.isDirectory ||
-                    file.extension.equals("mp3", true) ||
-                    file.extension.equals("m4a", true) ||
-                    file.extension.equals("opus", true) ||
-                    file.extension.equals("aac", true) ||
-                    file.extension.equals("aif", true) ||
-                    file.extension.equals("aiff", true) ||
-                    file.extension.equals("cda", true) ||
-                    file.extension.equals("flac", true) ||
-                    file.extension.equals("ogg", true) ||
-                    file.extension.equals("wav", true)
-        }?.toTypedArray()
+        val filteredFiles: Array<File> = FileUtil.filterFiles(rawFiles, this)
 
-        if (filteredFiles == null || filteredFiles.isEmpty()) {
+        if (filteredFiles.isEmpty()) {
             noFilesText.visibility = View.VISIBLE
             recyclerView.adapter = null // Clear old visible elements from the list frame
             return
@@ -119,11 +109,11 @@ class FileListActivity : AppCompatActivity() {
         noFilesText.visibility = View.INVISIBLE
 
         when (SettingsChange.getAnimType(this)) {
-            0 -> {
+            AnimationType.LEFT.id -> {
                 val animationController = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_left)
                 recyclerView.layoutAnimation = animationController
             }
-            1 -> {
+            AnimationType.RIGHT.id -> {
                 val animationController = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_right)
                 recyclerView.layoutAnimation = animationController
             }
