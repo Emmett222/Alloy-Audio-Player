@@ -122,7 +122,7 @@
                     android:layout_height="24dp"
                     android:layout_marginLeft="5dp"
                     android:scaleType="centerInside"
-                    android:background=""/>
+                    android:background="@android:color/transparent"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/settingColorBtns1"
@@ -187,7 +187,7 @@
                     android:layout_height="24dp"
                     android:layout_marginLeft="5dp"
                     android:scaleType="centerInside"
-                    android:background=""/>
+                    android:background="@android:color/transparent"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/settingColorBtns2"
@@ -252,7 +252,7 @@
                     android:layout_height="24dp"
                     android:layout_marginLeft="5dp"
                     android:scaleType="centerInside"
-                    android:background=""/>
+                    android:background="@android:color/transparent"/>
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/settingColorBtns3"
@@ -320,7 +320,7 @@
                 android:paddingRight="20dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="12dp"
-                android:visibility="visible">
+                android:visibility="gone">
 <!--Line above animation settings-->
                 <View
                     android:layout_width="match_parent"
@@ -364,7 +364,7 @@
                         android:layout_height="24dp"
                         android:layout_marginLeft="5dp"
                         android:scaleType="centerInside"
-                        android:background=""/>
+                        android:background="@android:color/transparent"/>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/settingAnimBtns"
@@ -448,7 +448,7 @@
                         android:layout_height="24dp"
                         android:layout_marginLeft="5dp"
                         android:scaleType="centerInside"
-                        android:background=""/>
+                        android:background="@android:color/transparent"/>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/settingShortBtns"
@@ -487,7 +487,7 @@
                     android:background="#6600ff00" />
                 <!--Shorten file name setting-->
                 <LinearLayout
-                    android:id="@+id/settingShortenRow"
+                    android:id="@+id/settingSortRow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -521,7 +521,7 @@
                         android:layout_height="24dp"
                         android:layout_marginLeft="5dp"
                         android:scaleType="centerInside"
-                        android:background=""/>
+                        android:background="@android:color/transparent"/>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/settingSortBtns"
@@ -643,10 +643,10 @@
                         android:layout_height="24dp"
                         android:layout_marginLeft="5dp"
                         android:scaleType="centerInside"
-                        android:background=""/>
+                        android:background="@android:color/transparent"/>
                 </LinearLayout>
                 <LinearLayout
-                    android:id="@+id/settingSortBtns"
+                    android:id="@+id/settingSortDirBtns"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -770,7 +770,7 @@
                         android:layout_height="24dp"
                         android:layout_marginLeft="5dp"
                         android:scaleType="centerInside"
-                        android:background=""/>
+                        android:background="@android:color/transparent"/>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/settingRepeatRowBtns"
@@ -844,7 +844,7 @@
                         android:layout_height="24dp"
                         android:layout_marginLeft="5dp"
                         android:scaleType="centerInside"
-                        android:background=""/>
+                        android:background="@android:color/transparent"/>
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/settingShuffleRowBtns"
@@ -918,7 +918,7 @@
                         android:layout_height="24dp"
                         android:layout_marginLeft="5dp"
                         android:scaleType="centerInside"
-                        android:background=""/>
+                        android:background="@android:color/transparent"/>
                 </LinearLayout>
                     <LinearLayout
                         android:layout_width="match_parent"

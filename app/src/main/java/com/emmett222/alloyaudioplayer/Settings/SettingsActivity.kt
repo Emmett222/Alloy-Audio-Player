@@ -1,21 +1,25 @@
 package com.emmett222.alloyaudioplayer.Settings
 
 import android.app.AlertDialog
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
 import android.view.HapticFeedbackConstants
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.PopupWindow
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.toColor
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.emmett222.alloyaudioplayer.Info.InfoSettingsData
@@ -33,7 +37,9 @@ class SettingsActivity : AppCompatActivity() {
     var generalOpen: Boolean = false
     var filesOpen: Boolean = false
     var playerOpen: Boolean = false
-
+    private var color1: Int = -1
+    private var color2: Int = -1
+    private var color3: Int = -1
     private lateinit var colorValue1: TextView
     private lateinit var colorValue2: TextView
     private lateinit var colorValue3: TextView
@@ -58,6 +64,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private val optYes = "Yes"
     private val optNo = "No"
+    private val malformedData = "Unknown"
 
     /**
      * Runs on creation.
@@ -114,6 +121,7 @@ class SettingsActivity : AppCompatActivity() {
         setupDropdowns()
         setupButtons()
         setupColorButtons()
+        setupInfo()
     }
 
     /**
@@ -123,6 +131,7 @@ class SettingsActivity : AppCompatActivity() {
     private fun setupValues() {
         animValue.text =
             AnimationType.entries.find { it.id == SettingsChange.getAnimType(this) }?.label
+                ?: malformedData
 
         if (SettingsChange.getShortMode(this)) shortenValue.text = optYes
         else optNo
@@ -133,11 +142,11 @@ class SettingsActivity : AppCompatActivity() {
         if (SettingsChange.getShufMode(this)) shuffleValue.text = optYes
         else optNo
 
-        visualizerValue.text = VisualizerMenuAdapter.items[SettingsChange.getVisType(this)]
+        visualizerValue.text = VisualizerMenuAdapter.items[SettingsChange.getVisType(this) - 1]
 
-        val color1 = SettingsChange.getColor1(this)
-        val color2 = SettingsChange.getColor2(this)
-        val color3 = SettingsChange.getColor3(this)
+        color1 = SettingsChange.getColor1(this)
+        color2 = SettingsChange.getColor2(this)
+        color3 = SettingsChange.getColor3(this)
         colorValue1.text = "#" + color1.toHexString()
         colorValue2.text = "#" + color2.toHexString()
         colorValue3.text = "#" + color3.toHexString()
@@ -150,6 +159,7 @@ class SettingsActivity : AppCompatActivity() {
 
         sortByValue.text =
             SortType.entries.find { it.id == SettingsChange.getSortType(this) }?.label
+                ?: malformedData
     }
 
     /**
@@ -424,34 +434,34 @@ class SettingsActivity : AppCompatActivity() {
         )
         infoText[color2Info] = arrayOf(
             InfoSettingsData.TITLE_BG_COLOR,
-            InfoSettingsData.BODY_TEXT_COLOR,
+            InfoSettingsData.BODY_BG_COLOR,
             InfoSettingsData.BAT_NONE
         )
         infoText[color3Info] = arrayOf(
             InfoSettingsData.TITLE_ACC_COLOR,
-            InfoSettingsData.BODY_TEXT_COLOR,
+            InfoSettingsData.BODY_ACC_COLOR,
             InfoSettingsData.BAT_NONE
         )
         infoText[animInfo] = arrayOf(
-            InfoSettingsData.TITLE_ANIM, InfoSettingsData.BODY_TEXT_COLOR, InfoSettingsData.BAT_NONE
+            InfoSettingsData.TITLE_ANIM, InfoSettingsData.BODY_ANIM, InfoSettingsData.BAT_ANIM
         )
         infoText[shortInfo] = arrayOf(
-            InfoSettingsData.TITLE_SORT, InfoSettingsData.BODY_TEXT_COLOR, InfoSettingsData.BAT_NONE
+            InfoSettingsData.TITLE_SHORT, InfoSettingsData.BODY_SHORT, InfoSettingsData.BAT_SLIGHT
         )
         infoText[repeatInfo] = arrayOf(
-            InfoSettingsData.TITLE_SORT_BY,
-            InfoSettingsData.BODY_TEXT_COLOR,
+            InfoSettingsData.TITLE_REPEAT,
+            InfoSettingsData.BODY_REPEAT,
             InfoSettingsData.BAT_NONE
         )
         infoText[shuffInfo] = arrayOf(
-            InfoSettingsData.TITLE_SHORT,
-            InfoSettingsData.BODY_TEXT_COLOR,
+            InfoSettingsData.TITLE_SHUFF,
+            InfoSettingsData.BODY_SHUFF,
             InfoSettingsData.BAT_NONE
         )
         infoText[visInfo] = arrayOf(
-            InfoSettingsData.TITLE_TEXT_COLOR,
-            InfoSettingsData.BODY_TEXT_COLOR,
-            InfoSettingsData.BAT_NONE
+            InfoSettingsData.TITLE_VIS ,
+            InfoSettingsData.BODY_VIS,
+            InfoSettingsData.BAT_VIS
         )
 
         arrayOf(
@@ -468,7 +478,41 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Shows a pop-up to the user based on the information given.
+     *
+     * @param anchorView Where the pop-up is anchored to.
+     * @param title The title of the info.
+     * @param body The body text of the info.
+     * @param battery The effect of the battery on the user's device.
+     */
     private fun showPopUp(anchorView: View, title: String, body: String, battery: String) {
+        val popupView = layoutInflater.inflate(R.layout.settings_info_popup, null)
+        popupView.findViewById<TextView>(R.id.popup_title).text = title
+        popupView.findViewById<TextView>(R.id.popup_body).text = body
+        popupView.findViewById<TextView>(R.id.popup_battery).text = battery
 
+        val allComponents = popupView.findViewById<LinearLayout>(R.id.all)
+        ColorUtil.updateAllTextColors(allComponents, color1)
+        allComponents.background = color2.toDrawable()
+
+        // The pop-up view.
+        // Wraps both ways so it grows and shrinks.
+        // True makes it so if the user taps anywhere else, it will close the pop-up.
+        val popupWindow = PopupWindow(
+            popupView,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true
+        )
+
+        val button = popupView.findViewById<Button>(R.id.close_button)
+        button.setTextColor(color1)
+        button.backgroundTintList = ColorStateList.valueOf(color3)
+        button.setOnClickListener {
+            popupWindow.dismiss()
+        }
+
+        popupWindow.showAsDropDown(anchorView, 0, 0)
     }
 }

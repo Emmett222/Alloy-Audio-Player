@@ -29,7 +29,7 @@ object InfoSettingsData {
     const val BODY_SHUFF = "This option makes shuffle always start in the on position in the player when selecting a song. It can be turned off in the player, but will always turn itself back on when a new song is selected in the file select screen."
     const val BODY_VIS = "Visualizers move to the audio being played."
 
-    const val BAT_NONE = "Visualizers move to the audio being played."
+    const val BAT_NONE = "This does not effect battery usage."
     const val BAT_SLIGHT = "This effects battery usage slightly."
     const val BAT_ANIM = "Animations slightly effect battery usage. Turn them off to save battery."
     const val BAT_VIS = "Visualizers effect battery a lot. Turn them off to save battery. Visualizers that have less moving parts than others use less battery."
