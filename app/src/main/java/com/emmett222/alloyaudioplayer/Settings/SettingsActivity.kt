@@ -1,6 +1,8 @@
 package com.emmett222.alloyaudioplayer.Settings
 
+import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -17,13 +19,12 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.drawable.toDrawable
-import androidx.core.graphics.toColor
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.emmett222.alloyaudioplayer.Info.InfoSettingsData
-import com.emmett222.alloyaudioplayer.Player.Graphic.Menu.VisualizerMenuAdapter
 import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
 
@@ -37,13 +38,14 @@ class SettingsActivity : AppCompatActivity() {
     var generalOpen: Boolean = false
     var filesOpen: Boolean = false
     var playerOpen: Boolean = false
-    private var color1: Int = -1
-    private var color2: Int = -1
-    private var color3: Int = -1
+    private var color1: Int = 0
+    private var color2: Int = 0
+    private var color3: Int = 0
     private lateinit var colorValue1: TextView
     private lateinit var colorValue2: TextView
     private lateinit var colorValue3: TextView
     private lateinit var animValue: TextView
+    private lateinit var dFolderValue: TextView
     private lateinit var shortenValue: TextView
     private lateinit var sortByValue: TextView
     private lateinit var sortDirValue: TextView
@@ -55,6 +57,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var color2Info: ImageButton
     private lateinit var color3Info: ImageButton
     private lateinit var animInfo: ImageButton
+    private lateinit var dFolderInfo: ImageButton
     private lateinit var shortInfo: ImageButton
     private lateinit var sortInfo: ImageButton
     private lateinit var sortByInfo: ImageButton
@@ -65,6 +68,20 @@ class SettingsActivity : AppCompatActivity() {
     private val optYes = "Yes"
     private val optNo = "No"
     private val malformedData = "Unknown"
+    val folderLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                var folderReturn = result.data?.data?.path ?: ""
+                if (folderReturn.startsWith("/tree/primary:")) {
+                    val cleanFolder = folderReturn.replace("/tree/primary:", "/storage/emulated/0/")
+                    SettingsChange.saveDefaultFolder(this, cleanFolder)
+                    dFolderValue.text = cleanFolder
+                } else {
+                    SettingsChange.saveDefaultFolder(this, result.data?.data?.path ?: "")
+                    dFolderValue.text = result.data?.data?.path ?: "root"
+                }
+            }
+        }
 
     /**
      * Runs on creation.
@@ -99,6 +116,7 @@ class SettingsActivity : AppCompatActivity() {
         colorValue2 = findViewById(R.id.settingColorValue2)
         colorValue3 = findViewById(R.id.settingColorValue3)
         animValue = findViewById(R.id.settingAnimValue)
+        dFolderValue = findViewById(R.id.settingDefaultFolderValue)
         shortenValue = findViewById(R.id.settingShortenValue)
         repeatValue = findViewById(R.id.settingRValue)
         shuffleValue = findViewById(R.id.settingASValue)
@@ -110,6 +128,7 @@ class SettingsActivity : AppCompatActivity() {
         color2Info = findViewById(R.id.color2Info)
         color3Info = findViewById(R.id.color3Info)
         animInfo = findViewById(R.id.animInfo)
+        dFolderInfo = findViewById(R.id.defaultFolderInfo)
         shortInfo = findViewById(R.id.shortInfo)
         sortInfo = findViewById(R.id.sortInfo)
         sortByInfo = findViewById(R.id.sortDirInfo)
@@ -122,6 +141,7 @@ class SettingsActivity : AppCompatActivity() {
         setupButtons()
         setupColorButtons()
         setupInfo()
+        setupDefaultFolderButton()
     }
 
     /**
@@ -132,6 +152,8 @@ class SettingsActivity : AppCompatActivity() {
         animValue.text =
             AnimationType.entries.find { it.id == SettingsChange.getAnimType(this) }?.label
                 ?: malformedData
+
+        dFolderValue.text = SettingsChange.getDefaultFolder(this)
 
         if (SettingsChange.getShortMode(this)) shortenValue.text = optYes
         else shortenValue.text = optNo
@@ -431,6 +453,19 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     /**
+     * Makes the default folder button bring up a file chooser. The returned folder is used for the
+     * default folder setting.
+     */
+    private fun setupDefaultFolderButton() {
+        val dFolderButton = findViewById<TextView>(R.id.settingDefaultFolder)
+        dFolderButton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+            folderLauncher.launch(intent)
+        }
+
+    }
+
+    /**
      * Sets up the info buttons for each setting. Makes them pop-up a small window that tells the
      * user what the setting effects and how much the setting effects battery life.
      */
@@ -454,6 +489,11 @@ class SettingsActivity : AppCompatActivity() {
         infoText[animInfo] = arrayOf(
             InfoSettingsData.TITLE_ANIM, InfoSettingsData.BODY_ANIM, InfoSettingsData.BAT_ANIM
         )
+        infoText[dFolderInfo] = arrayOf(
+            InfoSettingsData.TITLE_DFOLDER,
+            InfoSettingsData.BODY_DFOLDER,
+            InfoSettingsData.BAT_NONE
+        )
         infoText[shortInfo] = arrayOf(
             InfoSettingsData.TITLE_SHORT, InfoSettingsData.BODY_SHORT, InfoSettingsData.BAT_SLIGHT
         )
@@ -474,7 +514,7 @@ class SettingsActivity : AppCompatActivity() {
         )
 
         arrayOf(
-            color1Info, color2Info, color3Info, animInfo, shortInfo, repeatInfo, shuffInfo, visInfo
+            color1Info, color2Info, color3Info, animInfo, dFolderInfo, shortInfo, repeatInfo, shuffInfo, visInfo
         ).forEach { it ->
             it.setOnClickListener {
                 showPopUp(

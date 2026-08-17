@@ -18,6 +18,7 @@ object SettingsChange {
     const val KEY_COLOR_TYPE_2 = "color_type_2"
     const val KEY_COLOR_TYPE_3 = "color_type_3"
     const val KEY_ANIM_TYPE = "animation_type"
+    const val KEY_DFOLDER_TYPE = "default_folder_type"
     const val KEY_SHORT_MODE = "shorten_type"
     const val KEY_SORT_TYPE = "sort_type"
     const val KEY_SORT_DIR = "sort_dir"
@@ -65,6 +66,15 @@ object SettingsChange {
     fun getAnimType(context: Context): Int {
         // The second parameter (0) is the default fallback if the ledger is empty
         return getPrefs(context).getInt(KEY_ANIM_TYPE, 0)
+    }
+
+    // --- DEFAULT FOLDER SETTINGS ---
+    fun saveDefaultFolder(context: Context, pathString: String) {
+        getPrefs(context).edit { putString(KEY_DFOLDER_TYPE, pathString) }
+    }
+    fun getDefaultFolder(context: Context): String {
+        // The second parameter (0) is the default fallback if the ledger is empty
+        return getPrefs(context).getString(KEY_DFOLDER_TYPE, "") ?: ""
     }
 
     // --- SHORTEN SETTINGS ---

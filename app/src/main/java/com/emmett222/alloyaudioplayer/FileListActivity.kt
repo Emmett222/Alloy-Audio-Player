@@ -84,7 +84,7 @@ class FileListActivity : AppCompatActivity() {
 
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        val path: String = intent.getStringExtra("path") ?: ""
+        val path: String = SettingsChange.getDefaultFolder(this)
         currentFolder = File(path)
         initialRootFolder = File(path)
 

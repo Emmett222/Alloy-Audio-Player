@@ -412,6 +412,72 @@
                     android:layout_marginTop="3dp"
                     android:layout_marginBottom="3dp"
                     android:background="#6600ff00" />
+                <LinearLayout
+                    android:id="@+id/settingDefaultFolderRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingDefaultFolderLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Default folder:"
+                        android:textColor="#00ff00"
+                        android:textSize="20sp" />
+                    <ImageButton
+                        android:id="@+id/defaultFolderInfo"
+                        android:tint="#00FF00"
+                        android:src="@drawable/info_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginLeft="5dp"
+                        android:scaleType="centerInside"
+                        android:background="@android:color/transparent"/>
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/settingDefaultFolderValue"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Root"
+                    android:textAlignment="textEnd"
+                    android:textColor="#00ff00"
+                    android:textSize="16sp"
+                    android:textStyle="italic" />
+                <LinearLayout
+                    android:id="@+id/settingDefaultFolderBtns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingDefaultFolder"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Select folder"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+                <!--Line above shorten file names-->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="#6600ff00" />
 <!--Shorten file name setting-->
                 <LinearLayout
                     android:id="@+id/settingShortenRow"
