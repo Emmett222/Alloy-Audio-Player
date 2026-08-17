@@ -21,13 +21,14 @@ import androidx.media3.session.MediaSessionService
 import com.emmett222.alloyaudioplayer.Player.PlayerActivity
 import com.emmett222.alloyaudioplayer.Player.PlaylistManager
 import com.emmett222.alloyaudioplayer.R
+import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import java.io.File
 
 /**
  * Background service for audio playing.
  *
  * @author Emmett Grebe
- * @version 6-26-2026
+ * @version 8-16-2026
  */
 class MediaEngine : MediaSessionService() {
     private var mediaSession: MediaSession? = null
@@ -74,21 +75,16 @@ class MediaEngine : MediaSessionService() {
         // Set the audio attributes to allocate a visualizer aux.
         val audioAttributes = androidx.media3.common.AudioAttributes.Builder()
             .setUsage(androidx.media3.common.C.USAGE_MEDIA)
-            .setContentType(androidx.media3.common.C.AUDIO_CONTENT_TYPE_MUSIC)
-            .build()
+            .setContentType(androidx.media3.common.C.AUDIO_CONTENT_TYPE_MUSIC).build()
 
-        val basePlayer = ExoPlayer.Builder(this)
-            .setAudioAttributes(audioAttributes, true)
-            .setHandleAudioBecomingNoisy(true)
-            .build()
+        val basePlayer = ExoPlayer.Builder(this).setAudioAttributes(audioAttributes, true)
+            .setHandleAudioBecomingNoisy(SettingsChange.getDisconnectMode(this)).build()
 
         // Wrap the player to force the Skip Next and Skip Previous buttons to stay visible.
         mediaPlayer = object : ForwardingPlayer(basePlayer) {
             override fun getAvailableCommands(): Player.Commands {
-                return super.getAvailableCommands().buildUpon()
-                    .add(Player.COMMAND_SEEK_TO_PREVIOUS)
-                    .add(Player.COMMAND_SEEK_TO_NEXT)
-                    .build()
+                return super.getAvailableCommands().buildUpon().add(Player.COMMAND_SEEK_TO_PREVIOUS)
+                    .add(Player.COMMAND_SEEK_TO_NEXT).build()
             }
 
             override fun isCommandAvailable(command: Int): Boolean {
@@ -128,9 +124,8 @@ class MediaEngine : MediaSessionService() {
             }
         }
 
-        mediaSession = MediaSession.Builder(this, mediaPlayer)
-            .setCallback(MediaSessionCallback())
-            .build()
+        mediaSession =
+            MediaSession.Builder(this, mediaPlayer).setCallback(MediaSessionCallback()).build()
         mediaPlayer
         val extras = Bundle().apply {
             putInt("AUDIO_SESSION_ID", basePlayer.audioSessionId)
@@ -181,16 +176,10 @@ class MediaEngine : MediaSessionService() {
         }
 
         val mediaItemWithMetadata =
-            MediaItem.Builder().setUri(Uri.fromFile(newFile))
-                .setRequestMetadata(
-                    MediaItem.RequestMetadata.Builder()
-                        .setMediaUri(Uri.fromFile(newFile))
-                        .build()
-                )
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(newFile.name)
-                        .setArtist(artistName)
+            MediaItem.Builder().setUri(Uri.fromFile(newFile)).setRequestMetadata(
+                    MediaItem.RequestMetadata.Builder().setMediaUri(Uri.fromFile(newFile)).build()
+                ).setMediaMetadata(
+                    MediaMetadata.Builder().setTitle(newFile.name).setArtist(artistName)
                         .setArtworkUri("android.resource://com.emmett222.alloyaudioplayer/drawable/background".toUri())
                         .build()
                 ).build()
@@ -203,8 +192,7 @@ class MediaEngine : MediaSessionService() {
     private inner class MediaSessionCallback : MediaSession.Callback {
         @OptIn(UnstableApi::class)
         override fun onConnect(
-            session: MediaSession,
-            controller: MediaSession.ControllerInfo
+            session: MediaSession, controller: MediaSession.ControllerInfo
         ): MediaSession.ConnectionResult {
 
             if (controller.connectionHints.getBoolean("IS_GUI", false)) {
@@ -217,8 +205,7 @@ class MediaEngine : MediaSessionService() {
                 playerCommandsBuilder.add(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
 
                 return MediaSession.ConnectionResult.AcceptedResultBuilder(session)
-                    .setAvailablePlayerCommands(playerCommandsBuilder.build())
-                    .build()
+                    .setAvailablePlayerCommands(playerCommandsBuilder.build()).build()
             }
         }
     }

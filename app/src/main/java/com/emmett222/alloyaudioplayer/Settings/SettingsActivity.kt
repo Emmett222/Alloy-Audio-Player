@@ -51,6 +51,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var sortDirValue: TextView
     private lateinit var repeatValue: TextView
     private lateinit var shuffleValue: TextView
+    private lateinit var disconnectValue: TextView
     private lateinit var visualizerValue: TextView
 
     private lateinit var color1Info: ImageButton
@@ -63,6 +64,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var sortByInfo: ImageButton
     private lateinit var repeatInfo: ImageButton
     private lateinit var shuffInfo: ImageButton
+    private lateinit var disconnectInfo: ImageButton
     private lateinit var visInfo: ImageButton
 
     private val optYes = "Yes"
@@ -120,6 +122,7 @@ class SettingsActivity : AppCompatActivity() {
         shortenValue = findViewById(R.id.settingShortenValue)
         repeatValue = findViewById(R.id.settingRValue)
         shuffleValue = findViewById(R.id.settingASValue)
+        disconnectValue = findViewById(R.id.settingDisValue)
         sortByValue = findViewById(R.id.settingSortValue)
         sortDirValue = findViewById(R.id.settingSortDirValue)
         visualizerValue = findViewById(R.id.settingVisualizerValue)
@@ -134,6 +137,7 @@ class SettingsActivity : AppCompatActivity() {
         sortByInfo = findViewById(R.id.sortDirInfo)
         repeatInfo = findViewById(R.id.repeatInfo)
         shuffInfo = findViewById(R.id.shuffInfo)
+        disconnectInfo = findViewById(R.id.disInfo)
         visInfo = findViewById(R.id.visInfo)
 
         setupValues()
@@ -163,6 +167,9 @@ class SettingsActivity : AppCompatActivity() {
 
         if (SettingsChange.getShufMode(this)) shuffleValue.text = optYes
         else shuffleValue.text = optNo
+
+        if (SettingsChange.getDisconnectMode(this)) disconnectValue.text = optYes
+        else disconnectValue.text = optNo
 
         visualizerValue.text =
             VisualizerType.entries.find { it.id == SettingsChange.getVisType(this) }?.label
@@ -258,6 +265,8 @@ class SettingsActivity : AppCompatActivity() {
         val repeatNo: TextView = findViewById(R.id.settingRNo)
         val shuffleYes: TextView = findViewById(R.id.settingShufYes)
         val shuffleNo: TextView = findViewById(R.id.settingShufNo)
+        val auxDisYes: TextView = findViewById(R.id.settingDisYes)
+        val auxDisNo: TextView = findViewById(R.id.settingDisNo)
         val sortByDef: TextView = findViewById(R.id.settingSortDefault)
         val sortByAlph: TextView = findViewById(R.id.settingSortAlph)
         val sortByAuth: TextView = findViewById(R.id.settingSortAuth)
@@ -294,6 +303,7 @@ class SettingsActivity : AppCompatActivity() {
         )
         allButtons[sortByValue] = arrayOf(sortByDef, sortByAlph, sortByAuth, sortByLen, sortByRand)
         allButtons[sortDirValue] = arrayOf(sortDirAsc, sortDirDes)
+        allButtons[disconnectValue] = arrayOf(auxDisYes, auxDisNo)
 
         // Doing this so I don't have to repeat this for every button.
         for (key in allButtons.keys) {
@@ -336,6 +346,11 @@ class SettingsActivity : AppCompatActivity() {
             shuffleValue -> {
                 if (newValue == "Yes") SettingsChange.saveShufMode(this, true)
                 else SettingsChange.saveShufMode(this, false)
+            }
+
+            disconnectValue -> {
+                if (newValue == "Yes") SettingsChange.saveDisconnectMode(this, true)
+                else SettingsChange.saveDisconnectMode(this, false)
             }
 
             visualizerValue -> {
@@ -507,6 +522,11 @@ class SettingsActivity : AppCompatActivity() {
             InfoSettingsData.BODY_SHUFF,
             InfoSettingsData.BAT_NONE
         )
+        infoText[disconnectInfo] = arrayOf(
+            InfoSettingsData.TITLE_DIS,
+            InfoSettingsData.BODY_DIS,
+            InfoSettingsData.BAT_NONE
+        )
         infoText[visInfo] = arrayOf(
             InfoSettingsData.TITLE_VIS,
             InfoSettingsData.BODY_VIS,
@@ -514,7 +534,16 @@ class SettingsActivity : AppCompatActivity() {
         )
 
         arrayOf(
-            color1Info, color2Info, color3Info, animInfo, dFolderInfo, shortInfo, repeatInfo, shuffInfo, visInfo
+            color1Info,
+            color2Info,
+            color3Info,
+            animInfo,
+            dFolderInfo,
+            shortInfo,
+            repeatInfo,
+            shuffInfo,
+            disconnectInfo,
+            visInfo
         ).forEach { it ->
             it.setOnClickListener {
                 showPopUp(

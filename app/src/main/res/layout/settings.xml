@@ -942,7 +942,81 @@
                         android:textSize="16sp"
                         android:gravity="center"/>
                 </LinearLayout>
-<!--Visualizer settings-->
+<!--Line above aux disconnect settings-->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="#6600ff00" />
+                <LinearLayout
+                    android:id="@+id/settingDisRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:id="@+id/settingDisLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Pause music on speaker/headphone disconnect:"
+                        android:textColor="#00ff00"
+                        android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/settingDisValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Yes"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+                    <ImageButton
+                        android:id="@+id/disInfo"
+                        android:tint="#00FF00"
+                        android:src="@drawable/info_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginLeft="5dp"
+                        android:scaleType="centerInside"
+                        android:background="@android:color/transparent"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/settingDisBtns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:id="@+id/settingDisYes"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Yes"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                    <TextView
+                        android:id="@+id/settingDisNo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="No"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+
+                <!--Line above visualizer settings-->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="2dp"

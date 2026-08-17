@@ -25,6 +25,7 @@ object SettingsChange {
     const val KEY_VIS_TYPE = "visualizer_type"
     const val KEY_REPEAT_MODE = "repeat_mode"
     const val KEY_SHUFFLE_MODE = "shuffle_mode"
+    const val KEY_DISCONNECT_MODE = "disconnect_mode"
 
     /**
      * Gets the preferences. Gets them in MODE_PRIVATE so only Alloy can read and write to them.
@@ -114,6 +115,14 @@ object SettingsChange {
     }
     fun getShufMode(context: Context): Boolean {
         return getPrefs(context).getBoolean(KEY_SHUFFLE_MODE, false)
+    }
+
+    // --- DISCONNECT SETTINGS ---
+    fun saveDisconnectMode(context: Context, isRepeat: Boolean) {
+        getPrefs(context).edit { putBoolean(KEY_DISCONNECT_MODE, isRepeat) }
+    }
+    fun getDisconnectMode(context: Context): Boolean {
+        return getPrefs(context).getBoolean(KEY_DISCONNECT_MODE, true)
     }
 
     // --- VISUALIZER SETTINGS ---
