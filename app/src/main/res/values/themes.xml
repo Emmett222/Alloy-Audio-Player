@@ -12,6 +12,8 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/gray</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@color/gray</item>
     </style>
   <!-- Base application theme. -->
     <style name="CircleShapeAppearance" parent="">
@@ -22,8 +24,8 @@
     </style>
 
     <style name="Theme.AlloyAudioPlayer.PlayerLaunch" parent="Base.Theme.AlloyAudioPlayer">
-        <item name="android:windowBackground">@color/dark_green</item>
-
+        <item name="android:windowBackground">@color/gray</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">@color/gray</item>
         <item name="android:windowDisablePreview">false</item>
     </style>
 </resources>
