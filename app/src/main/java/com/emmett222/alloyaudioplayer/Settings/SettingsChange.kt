@@ -9,10 +9,10 @@ import androidx.core.content.edit
  * Object that can set and get settings.
  *
  * @author Emmett Grebe
- * @version 8-16-2026
+ * @version 8-17-2026
  */
 object SettingsChange {
-    private const val PREFS_NAME = "AlloyPlayerPrefs"
+    const val PREFS_NAME = "AlloyPlayerPrefs"
 
     const val KEY_COLOR_TYPE_1 = "color_type_1"
     const val KEY_COLOR_TYPE_2 = "color_type_2"
