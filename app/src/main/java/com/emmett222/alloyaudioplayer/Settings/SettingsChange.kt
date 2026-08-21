@@ -19,6 +19,7 @@ object SettingsChange {
     const val KEY_COLOR_TYPE_3 = "color_type_3"
     const val KEY_ANIM_TYPE = "animation_type"
     const val KEY_DFOLDER_TYPE = "default_folder_type"
+    const val KEY_PGNTE_NUM = "paginate_number"
     const val KEY_SHORT_MODE = "shorten_type"
     const val KEY_SORT_TYPE = "sort_type"
     const val KEY_SORT_DIR = "sort_dir"
@@ -77,6 +78,26 @@ object SettingsChange {
         // The second parameter (0) is the default fallback if the ledger is empty
         return getPrefs(context).getString(KEY_DFOLDER_TYPE, "/storage/emulated/0/")
             ?: "/storage/emulated/0/"
+    }
+
+    // --- PAGINATION SETTINGS ---
+    /**
+     * Sets the amount of files per page.
+     *
+     * @param context The context needed.
+     * @param num The amount of files per page. Put 0 for infinite scroll.
+     */
+    fun savePaginateNum(context: Context, num: Int) {
+        getPrefs(context).edit { putInt(KEY_PGNTE_NUM, num) }
+    }
+
+    /**
+     * Gets the amount of files per page.
+     *
+     * @return The amount of files per file page If the number is zero, then it is infinite scroll.
+     */
+    fun getPaginateNum(context: Context): Int {
+        return getPrefs(context).getInt(KEY_PGNTE_NUM, 0)
     }
 
     // --- SHORTEN SETTINGS ---

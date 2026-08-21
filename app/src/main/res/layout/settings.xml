@@ -356,7 +356,7 @@
                 android:paddingRight="20dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="12dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:animateLayoutChanges="true">
                 <!--Line above animation settings-->
                 <View
@@ -602,6 +602,88 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="No"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                </LinearLayout>
+<!--                line above paginate-->
+                <View
+                    android:animateLayoutChanges="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginBottom="3dp"
+                    android:background="#6600ff00" />
+                <!--paginate file name setting-->
+                <LinearLayout
+                    android:animateLayoutChanges="true"
+                    android:id="@+id/settingPgnteRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:animateLayoutChanges="true"
+                        android:id="@+id/settingPgntetLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Files per page:"
+                        android:textColor="#00ff00"
+                        android:textSize="20sp" />
+                    <TextView
+                        android:animateLayoutChanges="true"
+                        android:id="@+id/settingPgnteValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Infinite"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+                    <ImageButton
+                        android:animateLayoutChanges="true"
+                        android:id="@+id/pgnteInfo"
+                        android:tint="#00FF00"
+                        android:src="@drawable/info_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginLeft="5dp"
+                        android:scaleType="centerInside"
+                        android:background="@android:color/transparent"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:animateLayoutChanges="true"
+                    android:id="@+id/settingPgnteBtns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <TextView
+                        android:animateLayoutChanges="true"
+                        android:id="@+id/settingPgnteEnter"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Enter a number"
+                        android:textColor="#00ff00"
+                        android:textSize="16sp"
+                        android:gravity="center"/>
+                    <TextView
+                        android:animateLayoutChanges="true"
+                        android:id="@+id/settingPgnteInf"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Infinite"
                         android:textColor="#00ff00"
                         android:textSize="16sp"
                         android:gravity="center"/>

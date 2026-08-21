@@ -32,7 +32,7 @@ import com.emmett222.alloyaudioplayer.Util.ColorUtil
  * Screen for changing settings.
  *
  * @author Emmett Grebe
- * @version 8-16-2026
+ * @version 8-21-2026
  */
 class SettingsActivity : AppCompatActivity() {
     var generalOpen: Boolean = false
@@ -46,6 +46,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var colorValue3: TextView
     private lateinit var animValue: TextView
     private lateinit var dFolderValue: TextView
+    private lateinit var pgnteValue: TextView
     private lateinit var shortenValue: TextView
     private lateinit var sortByValue: TextView
     private lateinit var sortDirValue: TextView
@@ -59,6 +60,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var color3Info: ImageButton
     private lateinit var animInfo: ImageButton
     private lateinit var dFolderInfo: ImageButton
+    private lateinit var pgnteInfo: ImageButton
     private lateinit var shortInfo: ImageButton
     private lateinit var sortInfo: ImageButton
     private lateinit var sortByInfo: ImageButton
@@ -119,6 +121,7 @@ class SettingsActivity : AppCompatActivity() {
         colorValue3 = findViewById(R.id.settingColorValue3)
         animValue = findViewById(R.id.settingAnimValue)
         dFolderValue = findViewById(R.id.settingDefaultFolderValue)
+        pgnteValue = findViewById(R.id.settingPgnteValue)
         shortenValue = findViewById(R.id.settingShortenValue)
         repeatValue = findViewById(R.id.settingRValue)
         shuffleValue = findViewById(R.id.settingASValue)
@@ -132,6 +135,7 @@ class SettingsActivity : AppCompatActivity() {
         color3Info = findViewById(R.id.color3Info)
         animInfo = findViewById(R.id.animInfo)
         dFolderInfo = findViewById(R.id.defaultFolderInfo)
+        pgnteInfo = findViewById(R.id.pgnteInfo)
         shortInfo = findViewById(R.id.shortInfo)
         sortInfo = findViewById(R.id.sortInfo)
         sortByInfo = findViewById(R.id.sortDirInfo)
@@ -146,6 +150,7 @@ class SettingsActivity : AppCompatActivity() {
         setupColorButtons()
         setupInfo()
         setupDefaultFolderButton()
+        setupPgnteEnterButton()
     }
 
     /**
@@ -187,6 +192,10 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<ScrollView>(R.id.Scrollcontainer).background = color2.toDrawable()
 
         ColorUtil.updateAllAccentColors(findViewById<ScrollView>(R.id.Scrollcontainer), color3)
+
+        pgnteValue.text =
+            PaginateType.entries.find { it.id == SettingsChange.getPaginateNum(this) }?.label
+                ?: SettingsChange.getPaginateNum(this).toString()
 
         sortByValue.text =
             SortType.entries.find { it.id == SettingsChange.getSortType(this) }?.label
@@ -267,6 +276,8 @@ class SettingsActivity : AppCompatActivity() {
         val shuffleNo: TextView = findViewById(R.id.settingShufNo)
         val auxDisYes: TextView = findViewById(R.id.settingDisYes)
         val auxDisNo: TextView = findViewById(R.id.settingDisNo)
+        val pgnteEnter: TextView = findViewById(R.id.settingPgnteEnter)
+        val pgnteInf: TextView = findViewById(R.id.settingPgnteInf)
         val sortByDef: TextView = findViewById(R.id.settingSortDefault)
         val sortByAlph: TextView = findViewById(R.id.settingSortAlph)
         val sortByAuth: TextView = findViewById(R.id.settingSortAuth)
@@ -287,7 +298,11 @@ class SettingsActivity : AppCompatActivity() {
         // Put it all in a hashmap:
         val allButtons: HashMap<TextView, Array<TextView>> = HashMap()
         allButtons[animValue] = arrayOf(animLeft, animRight, animNone)
+        allButtons[disconnectValue] = arrayOf(auxDisYes, auxDisNo)
+        allButtons[pgnteValue] = arrayOf(pgnteEnter, pgnteInf)
         allButtons[shortenValue] = arrayOf(shortenYes, shortenNo)
+        allButtons[sortByValue] = arrayOf(sortByDef, sortByAlph, sortByAuth, sortByLen, sortByRand)
+        allButtons[sortDirValue] = arrayOf(sortDirAsc, sortDirDes)
         allButtons[repeatValue] = arrayOf(repeatYes, repeatNo)
         allButtons[shuffleValue] = arrayOf(shuffleYes, shuffleNo)
         allButtons[visualizerValue] = arrayOf(
@@ -301,9 +316,6 @@ class SettingsActivity : AppCompatActivity() {
             visGrowCir,
             visSmile
         )
-        allButtons[sortByValue] = arrayOf(sortByDef, sortByAlph, sortByAuth, sortByLen, sortByRand)
-        allButtons[sortDirValue] = arrayOf(sortDirAsc, sortDirDes)
-        allButtons[disconnectValue] = arrayOf(auxDisYes, auxDisNo)
 
         // Doing this so I don't have to repeat this for every button.
         for (key in allButtons.keys) {
@@ -358,6 +370,14 @@ class SettingsActivity : AppCompatActivity() {
                     this,
                     VisualizerType.entries.find { it.label.equals(newValue, ignoreCase = true) }?.id
                         ?: 0
+                )
+            }
+
+            pgnteValue -> {
+                SettingsChange.savePaginateNum(
+                    this,
+                    PaginateType.entries.find { it.label.equals(newValue, ignoreCase = true) }?.id
+                        ?: Integer.parseInt(newValue)
                 )
             }
 
@@ -477,7 +497,67 @@ class SettingsActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
             folderLauncher.launch(intent)
         }
+    }
 
+
+    /**
+     * Sets up the pagination option button. Shows a number input, then saves it to the pagination
+     * setting. If the number has a decimal or is not a number, will show a pop-up saying to try
+     * again.
+     */
+    private fun setupPgnteEnterButton() {
+        val pgnteButton = findViewById<TextView>(R.id.settingPgnteEnter)
+        pgnteButton.setOnClickListener {
+            // Make the pop-up builder.
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Set files per page")
+            builder.setMessage(
+                "Enter a number with no decimals."
+            )
+
+            // User input.
+            val input = EditText(this)
+            input.inputType = InputType.TYPE_CLASS_NUMBER
+
+            // Some style.
+            input.setPadding(50, 40, 50, 40)
+            builder.setView(input)
+
+            // Save button.
+            builder.setPositiveButton("Save") { dialog, _ ->
+                val inputString = input.text.toString()
+                try {
+                    val num = Integer.parseInt(inputString)
+                    SettingsChange.savePaginateNum(
+                        this,
+                        PaginateType.entries.find {
+                            it.label.equals(
+                                inputString,
+                                ignoreCase = true
+                            )
+                        }?.id
+                            ?: num
+                    )
+                    Toast.makeText(
+                        this,
+                        "Files per page number saved!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } catch (e: NumberFormatException) {
+                    Toast.makeText(
+                        this,
+                        "Invalid number! Must be a number that has no decimals.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            // Cancel Button
+            builder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+            builder.show()
+        }
     }
 
     /**
@@ -505,32 +585,27 @@ class SettingsActivity : AppCompatActivity() {
             InfoSettingsData.TITLE_ANIM, InfoSettingsData.BODY_ANIM, InfoSettingsData.BAT_ANIM
         )
         infoText[dFolderInfo] = arrayOf(
-            InfoSettingsData.TITLE_DFOLDER,
-            InfoSettingsData.BODY_DFOLDER,
-            InfoSettingsData.BAT_NONE
+            InfoSettingsData.TITLE_DFOLDER, InfoSettingsData.BODY_DFOLDER, InfoSettingsData.BAT_NONE
+        )
+        infoText[pgnteInfo] = arrayOf(
+            InfoSettingsData.TITLE_PGNTE,
+            InfoSettingsData.BODY_PGNTE,
+            InfoSettingsData.BAT_PGNTE,
         )
         infoText[shortInfo] = arrayOf(
             InfoSettingsData.TITLE_SHORT, InfoSettingsData.BODY_SHORT, InfoSettingsData.BAT_SLIGHT
         )
         infoText[repeatInfo] = arrayOf(
-            InfoSettingsData.TITLE_REPEAT,
-            InfoSettingsData.BODY_REPEAT,
-            InfoSettingsData.BAT_NONE
+            InfoSettingsData.TITLE_REPEAT, InfoSettingsData.BODY_REPEAT, InfoSettingsData.BAT_NONE
         )
         infoText[shuffInfo] = arrayOf(
-            InfoSettingsData.TITLE_SHUFF,
-            InfoSettingsData.BODY_SHUFF,
-            InfoSettingsData.BAT_NONE
+            InfoSettingsData.TITLE_SHUFF, InfoSettingsData.BODY_SHUFF, InfoSettingsData.BAT_NONE
         )
         infoText[disconnectInfo] = arrayOf(
-            InfoSettingsData.TITLE_DIS,
-            InfoSettingsData.BODY_DIS,
-            InfoSettingsData.BAT_NONE
+            InfoSettingsData.TITLE_DIS, InfoSettingsData.BODY_DIS, InfoSettingsData.BAT_NONE
         )
         infoText[visInfo] = arrayOf(
-            InfoSettingsData.TITLE_VIS,
-            InfoSettingsData.BODY_VIS,
-            InfoSettingsData.BAT_VIS
+            InfoSettingsData.TITLE_VIS, InfoSettingsData.BODY_VIS, InfoSettingsData.BAT_VIS
         )
 
         arrayOf(

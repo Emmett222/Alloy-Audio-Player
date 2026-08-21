@@ -7,12 +7,16 @@ import com.emmett222.alloyaudioplayer.R
  * Stores the constant variables for settings.
  *
  * @author Emmett Grebe
- * @version 8-16-2026
+ * @version 8-21-2026
  */
 enum class AnimationType(val id: Int, val label: String) {
     LEFT(0, "Left"),
     RIGHT(1, "Right"),
     NONE(2, "None")
+}
+
+enum class PaginateType(val id: Int, val label: String) {
+    INFINITE(0, "Infinite")
 }
 
 enum class SortType(val id: Int, val label: String) {
