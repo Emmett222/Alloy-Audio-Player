@@ -96,7 +96,7 @@ class FileListActivity : AppCompatActivity() {
     }
 
     private fun loadDirectory(folder: File) {
-        folderNameText.text = if (folder.name.isEmpty()) "Root" else folder.name
+        folderNameText.text = if (folder.name.isEmpty()) "" else folder.name
 
         val rawFiles: Array<File>? = folder.listFiles()
         val filteredFiles: Array<File> = FileUtil.filterFiles(rawFiles, this)

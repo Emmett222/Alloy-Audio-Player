@@ -9,7 +9,7 @@ import androidx.core.content.edit
  * Object that can set and get settings.
  *
  * @author Emmett Grebe
- * @version 8-17-2026
+ * @version 8-21-2026
  */
 object SettingsChange {
     const val PREFS_NAME = "AlloyPlayerPrefs"
@@ -75,7 +75,8 @@ object SettingsChange {
     }
     fun getDefaultFolder(context: Context): String {
         // The second parameter (0) is the default fallback if the ledger is empty
-        return getPrefs(context).getString(KEY_DFOLDER_TYPE, "") ?: ""
+        return getPrefs(context).getString(KEY_DFOLDER_TYPE, "/storage/emulated/0/")
+            ?: "/storage/emulated/0/"
     }
 
     // --- SHORTEN SETTINGS ---
