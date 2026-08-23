@@ -23,7 +23,7 @@
             android:exported="true"
             android:theme="@style/Theme.AlloyAudioPlayer.PlayerLaunch" />
         <activity
-            android:name=".FileListActivity"
+            android:name=".FileList.FileListActivity"
             android:exported="false" />
         <activity
             android:name=".WhiteNoiseActivity"

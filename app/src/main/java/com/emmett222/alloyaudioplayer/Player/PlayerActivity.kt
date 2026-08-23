@@ -46,7 +46,7 @@ import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
 import kotlin.math.abs
 import androidx.core.graphics.toColorInt
-import com.emmett222.alloyaudioplayer.FileListActivity
+import com.emmett222.alloyaudioplayer.FileList.FileListActivity
 import com.emmett222.alloyaudioplayer.Player.PlaylistManager.audioQueue
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Settings.VisualizerType

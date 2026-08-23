@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_title"
-    tools:context=".FileListActivity">
+    tools:context=".FileList.FileListActivity">
 
     <TextView
         android:id="@+id/nofiles_textview"
@@ -26,8 +26,10 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lineTop"
-        app:layout_constraintBottom_toTopOf="@id/currSongContainer"
+        app:layout_constraintBottom_toTopOf="@id/pgnteContainer"
         app:layout_constraintVertical_bias="0.0" />
+
+
 
     <LinearLayout
         android:id="@+id/topBtnContainer"
@@ -96,7 +98,7 @@
         android:layout_width="0dp"
         android:scaleType="fitXY"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/currSongContainer"
+        app:layout_constraintBottom_toTopOf="@+id/pgnteContainer"
         app:layout_constraintEnd_toEndOf="@+id/nofiles_textview"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/recycler_view"
@@ -104,12 +106,62 @@
         app:srcCompat="@drawable/background_line" />
 
     <LinearLayout
-        android:id="@+id/currSongContainer"
+        android:visibility="gone"
+        android:id="@+id/pgnteContainer"
         android:layout_width="match_parent"
         android:paddingTop="5dp"
         android:layout_height="42dp"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@+id/recycler_view"
+        app:layout_constraintBottom_toTopOf="@+id/currSongContainer"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="715dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/pgntePrev"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/files_back" />
+
+        <TextView
+            android:id="@+id/pgnteNumber"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="#00ff00"
+            android:background="#0d380c"
+            android:textSize="14dp"
+            tools:text="1/10" />
+
+        <ImageButton
+            android:rotation="180"
+            android:id="@+id/pgnteNext"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/files_back" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/currSongContainer"
+        android:layout_width="match_parent"
+        android:paddingTop="5dp"
+        android:layout_height="42dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/pgnteContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="99dp"
         tools:layout_editor_absoluteY="715dp">

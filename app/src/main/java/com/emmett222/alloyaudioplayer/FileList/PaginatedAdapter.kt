@@ -1,4 +1,4 @@
-package com.emmett222.alloyaudioplayer
+package com.emmett222.alloyaudioplayer.FileList
 
 import android.content.Context
 import android.graphics.Color
@@ -10,30 +10,31 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import com.emmett222.alloyaudioplayer.Util.StringUtil
 import java.io.File
-import java.util.TreeMap
 
 /**
  * Shows all the audio files and directories in a neat list. Shows audio files with a unique color
  * on them.
  *
  * @author Emmett Grebe
- * @version 8-16-2026
+ * @version 8-23-2026
  */
-class MyAdapter(
+class PaginatedAdapter(
     val context: Context,
-    var files: Array<File>,
+    var files: Array<Array<File>>,
     private val onItemClick: (File) -> Unit
-) : RecyclerView.Adapter<MyAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<PaginatedAdapter.ViewHolder>() {
 
     private val handler = Handler(Looper.getMainLooper())
 
     private var shortenTitles: Boolean = false
+    private var currPosition: Int = 0
 
     /**
      * Runs on creation.
@@ -48,11 +49,37 @@ class MyAdapter(
     }
 
     /**
+     * Goes forward a page.
+     */
+    fun nextPage() {
+        if (currPosition == files.size - 1) return
+        else currPosition++
+        notifyDataSetChanged()
+    }
+
+    /**
+     * Goes backwards a page.
+     */
+    fun previousPage() {
+        if (currPosition == 0) return
+        else currPosition--
+        notifyDataSetChanged()
+    }
+
+    /**
+     * Gets the current page with the page count as a string.
+     *
+     * @return The current page with the page count as a string. Example: "1/3" (first page of 3)
+     */
+    fun getCurrPage(): String {
+        return (currPosition + 1).toString() + "/" + files.size
+    }
+
+    /**
      * Runs on each element bound.
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val selectedFile = files[position]
-
+        val selectedFile = files[currPosition][position]
 
         if (selectedFile.isDirectory) {
             holder.imageView.setImageResource(R.drawable.baseline_folder_24)
@@ -99,7 +126,7 @@ class MyAdapter(
         }
     }
 
-    override fun getItemCount(): Int = files.size
+    override fun getItemCount(): Int = files[currPosition].size
 
     // ViewHolder definition
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

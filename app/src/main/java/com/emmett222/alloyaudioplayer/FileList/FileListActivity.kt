@@ -1,15 +1,15 @@
-package com.emmett222.alloyaudioplayer
+package com.emmett222.alloyaudioplayer.FileList
 
 import android.content.Intent
-import com.emmett222.alloyaudioplayer.MyAdapter
+import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.GestureDetector
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ImageButton
-import android.widget.MediaController
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -18,21 +18,20 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.emmett222.alloyaudioplayer.Background.MediaEngine
 import com.emmett222.alloyaudioplayer.Player.PlayerActivity
+import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Settings.AnimationType
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
 import java.io.File
-import java.util.jar.Attributes
 import kotlin.math.abs
 
 /**
  * Lists the files. Only shows audio files.
  *
  * @author Emmett Grebe
- * @version 8-16-2026
+ * @version 8-21-2026
  */
 class FileListActivity : AppCompatActivity() {
     companion object {
@@ -41,20 +40,24 @@ class FileListActivity : AppCompatActivity() {
     }
 
     private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: PaginatedAdapter
     private lateinit var noFilesText: TextView
     private lateinit var folderNameText: TextView
+    private lateinit var pgnteText: TextView
     private lateinit var songTitleText: TextView
     private lateinit var currentFolder: File
     private lateinit var initialRootFolder: File
 
     private var shortenTitles: Boolean = false
+    private var doPgnte: Boolean = false
+    private var pgnteAmount: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // This makes Android's navigation bar become transparent.
         enableEdgeToEdge()
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
 
@@ -78,6 +81,7 @@ class FileListActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recycler_view)
         noFilesText = findViewById(R.id.nofiles_textview)
         folderNameText = findViewById(R.id.folderName)
+        pgnteText = findViewById(R.id.pgnteNumber)
         songTitleText = findViewById(R.id.currSongTitle)
 
         shortenTitles = SettingsChange.getShortMode(this)
@@ -88,10 +92,14 @@ class FileListActivity : AppCompatActivity() {
         currentFolder = File(path)
         initialRootFolder = File(path)
 
-        setupGestures()
-        setupBtns()
+        pgnteAmount = SettingsChange.getPaginateNum(this)
+        if (pgnteAmount > 0) {
+            doPgnte = true
+        }
 
+        setupGestures()
         loadDirectory(currentFolder)
+        setupBtns()
         changeColors()
     }
 
@@ -99,7 +107,8 @@ class FileListActivity : AppCompatActivity() {
         folderNameText.text = if (folder.name.isEmpty()) "" else folder.name
 
         val rawFiles: Array<File>? = folder.listFiles()
-        val filteredFiles: Array<File> = FileUtil.filterFiles(rawFiles, this)
+        val filteredFiles: Array<Array<File>> =
+            FileUtil.paginate(FileUtil.filterFiles(rawFiles, this), pgnteAmount)
 
         if (filteredFiles.isEmpty()) {
             noFilesText.visibility = View.VISIBLE
@@ -110,22 +119,25 @@ class FileListActivity : AppCompatActivity() {
 
         when (SettingsChange.getAnimType(this)) {
             AnimationType.LEFT.id -> {
-                val animationController = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_left)
+                val animationController =
+                    AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_left)
                 recyclerView.layoutAnimation = animationController
             }
+
             AnimationType.RIGHT.id -> {
-                val animationController = AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_right)
+                val animationController =
+                    AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_right)
                 recyclerView.layoutAnimation = animationController
             }
         }
 
         // Instantiate a fresh adapter binding instance with the explicit callback logic block
-        recyclerView.adapter = MyAdapter(this, filteredFiles) { clickedFile ->
+        adapter = PaginatedAdapter(this, filteredFiles) { clickedFile ->
             if (clickedFile.isDirectory) {
                 currentFolder = clickedFile
                 loadDirectory(currentFolder)
             } else {
-                PlayerActivity.onFileChangeListener = { activeTrack ->
+                PlayerActivity.Companion.onFileChangeListener = { activeTrack ->
                     if (shortenTitles) {
                         songTitleText.text = NameUtil.removeDescriptors(activeTrack.name)
                     } else {
@@ -141,38 +153,49 @@ class FileListActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
+        recyclerView.adapter = adapter
+        pgnteText.text = adapter.getCurrPage()
     }
 
     /**
-     * Sets up custom gestures for going out of the player.
+     * Sets up custom gestures for navigating the pages.
      */
     private fun setupGestures() {
         // The 'object : ' syntax is used to create an anonymous class. It is a one time object that
         // implements an interface or extends a class, without needing to create a new .kt file.
         // Think of it as "Create an (object) that acts like (:) this class/interface (____) and
         // let me customize it.
-        val gestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onFling(
-                e1: MotionEvent?, // Start
-                e2: MotionEvent,  // End
-                velocityX: Float,
-                velocityY: Float
-            ): Boolean {
-                if (e1 == null) return false
-                val diffY = e2.y - e1.y
-                val diffX = e2.x - e1.x
+        val gestureDetector =
+            GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onFling(
+                    e1: MotionEvent?, // Start
+                    e2: MotionEvent,  // End
+                    velocityX: Float,
+                    velocityY: Float
+                ): Boolean {
+                    if (e1 == null) return false
+                    val diffY = e2.y - e1.y
+                    val diffX = e2.x - e1.x
 
-                // Motion determining.
-                // Swipe from left to right quickly.
-                if ((e1.x < 300) && abs(diffX) > abs(diffY)) { // Left of screen right
-                    if ((diffX > 150) && (abs(velocityX) > 150)) { // Far enough and fast enough.
-                        goBack() // Go back one folder.
+                    // Motion determining.
+                    // Swipe from left to right quickly.
+                    if ((e1.x < 300) && abs(diffX) > abs(diffY)) { // Left of screen right
+                        if ((diffX > 150) && (abs(velocityX) > 150)) { // Far enough and fast enough.
+                            pgntePrev()
+                        }
                     }
-                }
 
-                return false
-            }
-        })
+                    // Motion determining.
+                    // Swipe from right to left quickly.
+                    if ((e1.x > 300) && abs(diffX) < abs(diffY)) { // Right of screen left
+                        if ((diffX > 150) && (abs(velocityX) > 150)) { // Far enough and fast enough.
+                            pgnteNext()
+                        }
+                    }
+
+                    return false
+                }
+            })
 
         // Intercept touches on the root view
         // '_' represents the View parameter. Underscore is used to safely ignore it, since it is
@@ -191,12 +214,12 @@ class FileListActivity : AppCompatActivity() {
         val infoBtn: ImageButton = findViewById(R.id.infoBtn)
 
         backBtn.setOnClickListener {
-            it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             goBack()
         }
 
         infoBtn.setOnClickListener {
-            it.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
+            it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
 
         songTitleText.setOnClickListener {
@@ -205,6 +228,24 @@ class FileListActivity : AppCompatActivity() {
                     putExtra(ISOLD_DATA, "true")
                 }
                 startActivity(intent)
+            }
+        }
+
+        // Pagination bar
+        if (doPgnte) {
+            findViewById<LinearLayout>(R.id.pgnteContainer).visibility = View.VISIBLE
+            val pgntePrev: ImageButton = findViewById(R.id.pgntePrev)
+            val pgnteNext: ImageButton = findViewById(R.id.pgnteNext)
+
+            pgnteText.text = adapter.getCurrPage()
+
+            pgntePrev.setOnClickListener {
+                it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                pgntePrev()
+            }
+            pgnteNext.setOnClickListener {
+                it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                pgnteNext()
             }
         }
     }
@@ -222,6 +263,24 @@ class FileListActivity : AppCompatActivity() {
             currentFolder = currentFolder.parentFile!!
             loadDirectory(currentFolder)
         }
+    }
+
+    /**
+     * Goes backwards a page, animates, then changes the text accordingly.
+     */
+    private fun pgntePrev() {
+        adapter.previousPage()
+        recyclerView.scheduleLayoutAnimation()
+        pgnteText.text = adapter.getCurrPage()
+    }
+
+    /**
+     * Goes forwards a page, animates, then changes the text accordingly.
+     */
+    private fun pgnteNext() {
+        adapter.nextPage()
+        recyclerView.scheduleLayoutAnimation()
+        pgnteText.text = adapter.getCurrPage()
     }
 
     /**

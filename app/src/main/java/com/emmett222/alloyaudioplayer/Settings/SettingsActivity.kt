@@ -538,6 +538,7 @@ class SettingsActivity : AppCompatActivity() {
                         }?.id
                             ?: num
                     )
+                    pgnteValue.text = inputString
                     Toast.makeText(
                         this,
                         "Files per page number saved!",

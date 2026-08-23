@@ -12,7 +12,7 @@ import java.io.File
  * Utility object for help with files.
  *
  * @author Emmett Grebe
- * @version 8-16-2026
+ * @version 8-21-2026
  */
 object FileUtil {
     /**
@@ -136,6 +136,22 @@ object FileUtil {
 
         return sortedFolders.plus(sortedFiles)
 
+    }
+
+    /**
+     * Splits files into paginated arrays.
+     *
+     * @param files The files to paginate.
+     * @param num The number of files per page.
+     */
+    fun paginate(files: Array<File>, num: Int): Array<Array<File>> {
+        if (files.isEmpty()) return emptyArray()
+        if (num <= 0) return arrayOf(files)
+
+        return files.toList()
+            .chunked(num)
+            .map { it.toTypedArray() }
+            .toTypedArray()
     }
 
     /**
