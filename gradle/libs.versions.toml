@@ -12,6 +12,9 @@ recyclerview = "1.4.0"
 navigationFragmentKtx = "2.6.0"
 navigationUiKtx = "2.6.0"
 
+kotlin = "1.9.0"
+ksp = "1.9.0-1.0.13"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -27,4 +30,6 @@ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
