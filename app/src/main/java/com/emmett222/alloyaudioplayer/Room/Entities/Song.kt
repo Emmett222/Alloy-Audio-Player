@@ -19,6 +19,7 @@ class Song(
     @ColumnInfo(name = "artist") var artist: String,
     @ColumnInfo(name = "length") var length: String,
     @ColumnInfo(name = "tags") var tags: Array<String>?,
+    @ColumnInfo(name = "timestamps") var timestamps: Array<Long>?,
     @ColumnInfo(name = "views") var views: Int = 0,
 ) {
 }
