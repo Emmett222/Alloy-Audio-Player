@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
  * @version 8-24-2026
  */
 class SongRepository(private val songDAO: SongDAO) {
-    val allSongs: Flow<Song> = songDAO.allSongs()
+    val allSongs: Flow<List<Song>> = songDAO.allSongs()
 
     @WorkerThread
     suspend fun insertSong(song: Song) {

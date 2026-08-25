@@ -26,7 +26,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lineTop"
-        app:layout_constraintBottom_toTopOf="@id/pgnteContainer"
+        app:layout_constraintBottom_toTopOf="@id/paginateContainer"
         app:layout_constraintVertical_bias="0.0" />
 
 
@@ -98,7 +98,7 @@
         android:layout_width="0dp"
         android:scaleType="fitXY"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/pgnteContainer"
+        app:layout_constraintBottom_toTopOf="@+id/paginateContainer"
         app:layout_constraintEnd_toEndOf="@+id/nofiles_textview"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/recycler_view"
@@ -107,7 +107,7 @@
 
     <LinearLayout
         android:visibility="gone"
-        android:id="@+id/pgnteContainer"
+        android:id="@+id/paginateContainer"
         android:layout_width="match_parent"
         android:paddingTop="5dp"
         android:layout_height="42dp"
@@ -123,7 +123,7 @@
             android:layout_weight="1" />
 
         <ImageButton
-            android:id="@+id/pgntePrev"
+            android:id="@+id/paginatePrev"
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:scaleType="centerInside"
@@ -131,7 +131,7 @@
             app:srcCompat="@drawable/files_back" />
 
         <TextView
-            android:id="@+id/pgnteNumber"
+            android:id="@+id/paginateNumber"
             android:layout_width="250dp"
             android:layout_height="match_parent"
             android:gravity="center"
@@ -142,7 +142,7 @@
 
         <ImageButton
             android:rotation="180"
-            android:id="@+id/pgnteNext"
+            android:id="@+id/paginateNext"
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:scaleType="centerInside"
@@ -161,7 +161,7 @@
         android:paddingTop="5dp"
         android:layout_height="42dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/pgnteContainer"
+        app:layout_constraintTop_toBottomOf="@+id/paginateContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="99dp"
         tools:layout_editor_absoluteY="715dp">

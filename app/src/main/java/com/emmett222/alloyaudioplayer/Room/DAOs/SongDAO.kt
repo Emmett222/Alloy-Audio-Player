@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SongDAO {
     @Query("SELECT * FROM song_table ORDER BY id ASC")
-    fun allSongs(): Flow<Song>
+    fun allSongs(): Flow<List<Song>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSong(song: Song)

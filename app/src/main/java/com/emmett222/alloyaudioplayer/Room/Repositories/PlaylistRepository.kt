@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
  * @version 8-24-2026
  */
 class PlaylistRepository(private val playlistDAO: PlaylistDAO) {
-    val allPlaylists: Flow<Playlist> = playlistDAO.allPlaylists()
+    val allPlaylists: Flow<List<Playlist>> = playlistDAO.allPlaylists()
 
     @WorkerThread
     suspend fun insertPlaylist(playlist: Playlist) {

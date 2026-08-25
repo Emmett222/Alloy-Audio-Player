@@ -44,15 +44,15 @@ class FileListActivity : AppCompatActivity() {
     private lateinit var adapter: PaginatedAdapter
     private lateinit var noFilesText: TextView
     private lateinit var folderNameText: TextView
-    private lateinit var pgnteText: TextView
+    private lateinit var paginateText: TextView
     private lateinit var songTitleText: TextView
     private lateinit var currentFolder: File
     private lateinit var initialRootFolder: File
     private lateinit var viewConfig: ViewConfiguration
 
     private var shortenTitles: Boolean = false
-    private var doPgnte: Boolean = false
-    private var pgnteAmount: Int = 0
+    private var doPaginate: Boolean = false
+    private var paginateAmount: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,7 +83,7 @@ class FileListActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recycler_view)
         noFilesText = findViewById(R.id.nofiles_textview)
         folderNameText = findViewById(R.id.folderName)
-        pgnteText = findViewById(R.id.pgnteNumber)
+        paginateText = findViewById(R.id.paginateNumber)
         songTitleText = findViewById(R.id.currSongTitle)
 
         shortenTitles = SettingsChange.getShortMode(this)
@@ -95,9 +95,9 @@ class FileListActivity : AppCompatActivity() {
         currentFolder = File(path)
         initialRootFolder = File(path)
 
-        pgnteAmount = SettingsChange.getPaginateNum(this)
-        if (pgnteAmount > 0) {
-            doPgnte = true
+        paginateAmount = SettingsChange.getPaginateNum(this)
+        if (paginateAmount > 0) {
+            doPaginate = true
         }
 
         loadDirectory(currentFolder)
@@ -110,7 +110,7 @@ class FileListActivity : AppCompatActivity() {
 
         val rawFiles: Array<File>? = folder.listFiles()
         val filteredFiles: Array<Array<File>> =
-            FileUtil.paginate(FileUtil.filterFiles(rawFiles, this), pgnteAmount)
+            FileUtil.paginate(FileUtil.filterFiles(rawFiles, this), paginateAmount)
 
         if (filteredFiles.isEmpty()) {
             noFilesText.visibility = View.VISIBLE
@@ -156,7 +156,7 @@ class FileListActivity : AppCompatActivity() {
             }
         }
         recyclerView.adapter = adapter
-        pgnteText.text = adapter.getCurrPage()
+        paginateText.text = adapter.getCurrPage()
     }
 
     /**
@@ -185,20 +185,20 @@ class FileListActivity : AppCompatActivity() {
         }
 
         // Pagination bar
-        if (doPgnte) {
-            findViewById<LinearLayout>(R.id.pgnteContainer).visibility = View.VISIBLE
-            val pgntePrev: ImageButton = findViewById(R.id.pgntePrev)
-            val pgnteNext: ImageButton = findViewById(R.id.pgnteNext)
+        if (doPaginate) {
+            findViewById<LinearLayout>(R.id.paginateContainer).visibility = View.VISIBLE
+            val paginatePrev: ImageButton = findViewById(R.id.paginatePrev)
+            val paginateNext: ImageButton = findViewById(R.id.paginateNext)
 
-            pgnteText.text = adapter.getCurrPage()
+            paginateText.text = adapter.getCurrPage()
 
-            pgntePrev.setOnClickListener {
+            paginatePrev.setOnClickListener {
                 it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                pgntePrev()
+                paginatePrev()
             }
-            pgnteNext.setOnClickListener {
+            paginateNext.setOnClickListener {
                 it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                pgnteNext()
+                paginateNext()
             }
         }
     }
@@ -221,19 +221,19 @@ class FileListActivity : AppCompatActivity() {
     /**
      * Goes backwards a page, animates, then changes the text accordingly.
      */
-    private fun pgntePrev() {
+    private fun paginatePrev() {
         adapter.previousPage()
         recyclerView.scheduleLayoutAnimation()
-        pgnteText.text = adapter.getCurrPage()
+        paginateText.text = adapter.getCurrPage()
     }
 
     /**
      * Goes forwards a page, animates, then changes the text accordingly.
      */
-    private fun pgnteNext() {
+    private fun paginateNext() {
         adapter.nextPage()
         recyclerView.scheduleLayoutAnimation()
-        pgnteText.text = adapter.getCurrPage()
+        paginateText.text = adapter.getCurrPage()
     }
 
     /**

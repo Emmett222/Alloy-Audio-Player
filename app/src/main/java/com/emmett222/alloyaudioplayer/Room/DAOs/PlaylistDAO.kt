@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PlaylistDAO {
     @Query("SELECT * FROM playlist_table ORDER BY id ASC")
-    fun allPlaylists(): Flow<Playlist>
+    fun allPlaylists(): Flow<List<Playlist>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPlaylist(playlist: Playlist)
