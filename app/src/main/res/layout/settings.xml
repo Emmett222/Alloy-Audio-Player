@@ -356,7 +356,7 @@
                 android:paddingRight="20dp"
                 android:paddingTop="8dp"
                 android:paddingBottom="12dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:animateLayoutChanges="true">
                 <!--Line above animation settings-->
                 <View
