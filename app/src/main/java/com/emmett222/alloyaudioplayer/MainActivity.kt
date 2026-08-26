@@ -21,15 +21,19 @@ import com.emmett222.alloyaudioplayer.FileList.FileListActivity
 import com.emmett222.alloyaudioplayer.Settings.SettingsActivity
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.ColorUtil
+import com.emmett222.alloyaudioplayer.databinding.ActivityFileListBinding
+import com.emmett222.alloyaudioplayer.databinding.ActivityMainBinding
 import kotlin.arrayOf
 
 /**
  * Opening screen for Alloy. Asks for permissions if needed and takes user to file screen.
  *
  * @author Emmett Grebe
- * @version 7-31-2026
+ * @version 8-25-2026
  */
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
 
     // Make the callback before the activity is even started.
     // Also, must register launchers before or during onCreate.
@@ -65,11 +69,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        val filesBtn: ImageButton = findViewById(R.id.filesBtn)
-        val wnBtn: ImageButton = findViewById(R.id.wnBtn)
-        val settingsBtn: ImageButton = findViewById(R.id.settingsBtn)
-
-        filesBtn.setOnClickListener {
+        binding.filesBtn.setOnClickListener {
             if (checkPermission()) {
                 openFileList()
             } else {
@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
 
-        wnBtn.setOnClickListener {
+        binding.wnBtn.setOnClickListener {
             if (checkPermission()) {
                 startActivity(Intent(this@MainActivity, WhiteNoiseActivity::class.java))
             } else {
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
 
-        settingsBtn.setOnClickListener {
+        binding.settingsBtn.setOnClickListener {
             if (checkPermission()) {
                 startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
             } else {
@@ -159,23 +159,23 @@ class MainActivity : AppCompatActivity() {
 
         ColorUtil.updateAllTextColors(findViewById<ScrollView>(R.id.main), color1)
 
-        val exclude = arrayOf<View>(findViewById(R.id.dividerBar), findViewById(R.id.playlistBtn),
-            findViewById(R.id.filesBtn), findViewById(R.id.wnBtn),
-            findViewById(R.id.settingsBtn))
+        val exclude = arrayOf<View>(binding.dividerBar, binding.playlistBtn,
+            binding.filesBtn, binding.wnBtn,
+            binding.settingsBtn)
         ColorUtil.updateAccentColors(
             findViewById<ScrollView>(R.id.main), color3, exclude)
 
-        arrayOf<ImageView>(findViewById(R.id.iconPlaylist), findViewById(R.id.iconFiles),
-                findViewById(R.id.iconWn), findViewById(R.id.iconSettings)).forEach {
+        arrayOf(binding.iconPlaylist, binding.iconFiles,
+                binding.iconWn, binding.iconSettings).forEach {
             it.setBackgroundColor(color2)
             it.setColorFilter(color3) }
 
-        arrayOf<TextView>(findViewById(R.id.plText), findViewById(R.id.fText),
-                findViewById(R.id.wnText), findViewById(R.id.sText)).forEach {
+        arrayOf(binding.plText, binding.fText,
+                binding.wnText, binding.sText).forEach {
             it.setBackgroundColor(color2)
         }
 
-        findViewById<ImageButton>(R.id.titleButton).setColorFilter(color1)
-        findViewById<ImageButton>(R.id.titleButton).background = color2.toDrawable()
+        binding.titleButton.setColorFilter(color1)
+        binding.titleButton.background = color2.toDrawable()
     }
 }

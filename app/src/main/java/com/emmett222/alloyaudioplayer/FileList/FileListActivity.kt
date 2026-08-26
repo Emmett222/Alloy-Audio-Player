@@ -3,36 +3,32 @@ package com.emmett222.alloyaudioplayer.FileList
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.AnimationUtils
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.emmett222.alloyaudioplayer.Player.PlayerActivity
 import com.emmett222.alloyaudioplayer.R
 import com.emmett222.alloyaudioplayer.Settings.AnimationType
 import com.emmett222.alloyaudioplayer.Settings.SettingsChange
 import com.emmett222.alloyaudioplayer.Util.FileUtil
 import com.emmett222.alloyaudioplayer.Util.NameUtil
+import com.emmett222.alloyaudioplayer.databinding.ActivityFileListBinding
 import java.io.File
-import kotlin.math.abs
 
 /**
  * Lists the files. Only shows audio files.
  *
  * @author Emmett Grebe
- * @version 8-24-2026
+ * @version 8-26-2026
  */
 class FileListActivity : AppCompatActivity() {
     companion object {
@@ -40,15 +36,11 @@ class FileListActivity : AppCompatActivity() {
         const val ISOLD_DATA = "isOld"
     }
 
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var binding: ActivityFileListBinding
+    private lateinit var viewConfig: ViewConfiguration
     private lateinit var adapter: PaginatedAdapter
-    private lateinit var noFilesText: TextView
-    private lateinit var folderNameText: TextView
-    private lateinit var paginateText: TextView
-    private lateinit var songTitleText: TextView
     private lateinit var currentFolder: File
     private lateinit var initialRootFolder: File
-    private lateinit var viewConfig: ViewConfiguration
 
     private var shortenTitles: Boolean = false
     private var doPaginate: Boolean = false
@@ -64,7 +56,7 @@ class FileListActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_file_list)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -80,15 +72,12 @@ class FileListActivity : AppCompatActivity() {
         // handling the back click.
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
-        recyclerView = findViewById(R.id.recycler_view)
-        noFilesText = findViewById(R.id.nofiles_textview)
-        folderNameText = findViewById(R.id.folderName)
-        paginateText = findViewById(R.id.paginateNumber)
-        songTitleText = findViewById(R.id.currSongTitle)
+        binding = ActivityFileListBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         shortenTitles = SettingsChange.getShortMode(this)
 
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
         viewConfig = ViewConfiguration.get(this)
 
         val path: String = SettingsChange.getDefaultFolder(this)
@@ -106,30 +95,30 @@ class FileListActivity : AppCompatActivity() {
     }
 
     private fun loadDirectory(folder: File) {
-        folderNameText.text = if (folder.name.isEmpty()) "" else folder.name
+        binding.folderName.text = if (folder.name.isEmpty()) "" else folder.name
 
         val rawFiles: Array<File>? = folder.listFiles()
         val filteredFiles: Array<Array<File>> =
             FileUtil.paginate(FileUtil.filterFiles(rawFiles, this), paginateAmount)
 
         if (filteredFiles.isEmpty()) {
-            noFilesText.visibility = View.VISIBLE
-            recyclerView.adapter = null // Clear old visible elements from the list frame
+            binding.nofilesTextview.visibility = View.VISIBLE
+            binding.recyclerView.adapter = null // Clear old visible elements from the list frame
             return
         }
-        noFilesText.visibility = View.INVISIBLE
+        binding.nofilesTextview.visibility = View.INVISIBLE
 
         when (SettingsChange.getAnimType(this)) {
             AnimationType.LEFT.id -> {
                 val animationController =
                     AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_left)
-                recyclerView.layoutAnimation = animationController
+                binding.recyclerView.layoutAnimation = animationController
             }
 
             AnimationType.RIGHT.id -> {
                 val animationController =
                     AnimationUtils.loadLayoutAnimation(this, R.anim.layout_animation_slide_right)
-                recyclerView.layoutAnimation = animationController
+                binding.recyclerView.layoutAnimation = animationController
             }
         }
 
@@ -141,9 +130,9 @@ class FileListActivity : AppCompatActivity() {
             } else {
                 PlayerActivity.Companion.onFileChangeListener = { activeTrack ->
                     if (shortenTitles) {
-                        songTitleText.text = NameUtil.removeDescriptors(activeTrack.name)
+                        binding.currSongTitle.text = NameUtil.removeDescriptors(activeTrack.name)
                     } else {
-                        songTitleText.text = activeTrack.name
+                        binding.currSongTitle.text = activeTrack.name
                     }
                 }
 
@@ -155,16 +144,16 @@ class FileListActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
-        recyclerView.adapter = adapter
-        paginateText.text = adapter.getCurrPage()
+        binding.recyclerView.adapter = adapter
+        binding.paginateNumber.text = adapter.getCurrPage()
     }
 
     /**
      * Helper function to set up the two buttons at the top, and the currently playing song.
      */
     private fun setupBtns() {
-        val backBtn: ImageButton = findViewById(R.id.imageBtn)
-        val infoBtn: ImageButton = findViewById(R.id.infoBtn)
+        val backBtn: ImageButton = binding.imageBtn
+        val infoBtn: ImageButton = binding.infoBtn
 
         backBtn.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -175,8 +164,8 @@ class FileListActivity : AppCompatActivity() {
             it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
         }
 
-        songTitleText.setOnClickListener {
-            if (!songTitleText.text.equals("")) {
+        binding.currSongTitle.setOnClickListener {
+            if (!binding.currSongTitle.text.equals("")) {
                 val intent = Intent(this, PlayerActivity::class.java).apply {
                     putExtra(ISOLD_DATA, "true")
                 }
@@ -187,10 +176,10 @@ class FileListActivity : AppCompatActivity() {
         // Pagination bar
         if (doPaginate) {
             findViewById<LinearLayout>(R.id.paginateContainer).visibility = View.VISIBLE
-            val paginatePrev: ImageButton = findViewById(R.id.paginatePrev)
-            val paginateNext: ImageButton = findViewById(R.id.paginateNext)
+            val paginatePrev: ImageButton = binding.paginatePrev
+            val paginateNext: ImageButton = binding.paginateNext
 
-            paginateText.text = adapter.getCurrPage()
+            binding.paginateNumber.text = adapter.getCurrPage()
 
             paginatePrev.setOnClickListener {
                 it.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
@@ -223,8 +212,8 @@ class FileListActivity : AppCompatActivity() {
      */
     private fun paginatePrev() {
         adapter.previousPage()
-        recyclerView.scheduleLayoutAnimation()
-        paginateText.text = adapter.getCurrPage()
+        binding.recyclerView.scheduleLayoutAnimation()
+        binding.paginateNumber.text = adapter.getCurrPage()
     }
 
     /**
@@ -232,8 +221,8 @@ class FileListActivity : AppCompatActivity() {
      */
     private fun paginateNext() {
         adapter.nextPage()
-        recyclerView.scheduleLayoutAnimation()
-        paginateText.text = adapter.getCurrPage()
+        binding.recyclerView.scheduleLayoutAnimation()
+        binding.paginateNumber.text = adapter.getCurrPage()
     }
 
     /**
@@ -243,7 +232,7 @@ class FileListActivity : AppCompatActivity() {
         val color1 = SettingsChange.getColor1(this)
         val color2 = SettingsChange.getColor2(this)
 
-        arrayOf<TextView>(findViewById(R.id.folderName), findViewById(R.id.currSongTitle)).forEach {
+        arrayOf(binding.folderName, binding.currSongTitle).forEach {
             it.setTextColor(color1)
             it.setBackgroundColor(color2)
         }
